@@ -1328,7 +1328,7 @@ class NoiseField{
       const norm=i/ringCount;
       const alpha=0.05+(1-norm)*0.08;
       ctx.strokeStyle='rgba(13,148,136,'+alpha+')';
-      ctx.lineWidth=0.5+(1-norm)*0.9;
+      ctx.lineWidth=1.0+(1-norm)*1.0;
       ctx.stroke();
     }
     requestAnimationFrame(draw);
