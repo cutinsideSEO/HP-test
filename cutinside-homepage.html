@@ -70,11 +70,11 @@ nav .container{display:flex;align-items:center;justify-content:space-between;pad
 .btn-text{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--t1);padding:8px 0;border-bottom:1px solid rgba(17,17,17,.18);transition:all .2s}
 .btn-text:hover{color:var(--teal);border-color:rgba(13,148,136,.35)}
 /* Client logos in hero */
-.hero-clients{margin-top:66px;display:flex;flex-direction:column;align-items:center;gap:14px}
-.hero-clients .cl-label{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--t3);font-family:'JetBrains Mono',monospace}
-.client-logos{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:28px;align-items:center;justify-items:center;width:min(1080px,100%)}
-.cl-logo{height:26px;max-width:100%;width:100%;object-fit:contain;opacity:.25;filter:grayscale(100%);transition:all .4s}
-.cl-logo:hover{opacity:.6;filter:grayscale(0%)}
+.hero-clients{margin-top:66px;display:flex;flex-direction:column;align-items:center;gap:18px}
+.hero-clients .cl-label{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--t3);font-family:'JetBrains Mono',monospace}
+.client-logos{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:36px;align-items:center;justify-items:center;width:min(1080px,100%)}
+.cl-logo{height:38px;max-width:100%;width:100%;object-fit:contain;opacity:.45;filter:grayscale(100%);transition:all .4s}
+.cl-logo:hover{opacity:.85;filter:grayscale(0%)}
 
 /* ===== RESULTS (WHITE BG — REDESIGNED) ===== */
 #results{position:relative;background:var(--white);padding:76px 0 80px}
@@ -98,7 +98,7 @@ nav .container{display:flex;align-items:center;justify-content:space-between;pad
 .g-card.feat:hover::after{border-color:rgba(13,148,136,.25)}
 .g-inner{padding:28px 30px 26px}
 .g-client{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--teal);margin-bottom:6px;display:flex;align-items:center;gap:10px;font-weight:600}
-.g-client img{height:13px;opacity:.5;filter:none}
+.g-client img{height:18px;opacity:.6;filter:none}
 .g-metric{font-size:48px;font-weight:800;letter-spacing:-2.5px;line-height:1.08;background:linear-gradient(135deg,var(--teal) 0%,#1a3a38 45%,var(--t1) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .g-card.feat .g-metric{font-size:64px;letter-spacing:-3px}
 .g-metric .pct{-webkit-text-fill-color:var(--teal)}
@@ -195,6 +195,7 @@ nav .container{display:flex;align-items:center;justify-content:space-between;pad
 .lpa-input-bar button{background:var(--teal);color:#fff;border:none;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .2s;flex-shrink:0}
 .lpa-input-bar button:hover{background:var(--teal-d);transform:scale(1.05)}
 .lpa-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:680px;margin:0 auto;transition:opacity .3s,pointer-events 0s}
+.lpa-chips-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-top:14px;margin-bottom:6px}
 .lpa-chip{padding:8px 14px;background:rgba(13,148,136,.06);border:1px solid rgba(13,148,136,.12);border-radius:100px;font-size:13px;color:var(--teal);cursor:pointer;transition:all .2s;font-family:inherit}
 .lpa-chip:hover{background:rgba(13,148,136,.12);border-color:var(--teal)}
 .lpa-loader{text-align:center;padding:32px 0;display:none}
@@ -356,6 +357,29 @@ body.restructured #research{display:none}
 .research-card:hover{border-color:rgba(13,148,136,.3);transform:translateX(4px);box-shadow:0 4px 12px var(--teal-glow)}
 .research-card h4{font-size:16px;font-weight:700;margin-bottom:6px;color:var(--t1);line-height:1.35}
 .research-card p{font-size:13px;color:var(--t2);line-height:1.65;margin-bottom:8px}
+/* Gated report download */
+.gated-report{margin-top:32px;background:var(--white);border:1px solid var(--border);border-radius:16px;padding:32px;display:flex;align-items:center;gap:28px;transition:all .3s;border-left:3px solid var(--teal)}
+.gated-report:hover{box-shadow:0 8px 32px rgba(13,148,136,.06)}
+.gated-report-icon{width:56px;height:56px;background:var(--teal-dim);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gated-report-icon svg{width:26px;height:26px;color:var(--teal)}
+.gated-report-body{flex:1;min-width:0}
+.gated-report-body h4{font-size:18px;font-weight:700;color:var(--t1);margin-bottom:4px}
+.gated-report-body p{font-size:14px;color:var(--t2);line-height:1.6;margin-bottom:14px}
+.gated-report-form{display:flex;gap:10px;max-width:420px}
+.gated-report-form input{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.gated-report-form input:focus{border-color:var(--teal)}
+.gated-report-form button{padding:10px 20px;background:var(--teal);color:#fff;border:none;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.5px;cursor:pointer;transition:background .2s;white-space:nowrap}
+.gated-report-form button:hover{background:var(--teal-d)}
+.gated-report-badge{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);background:var(--teal-dim);padding:3px 10px;border-radius:100px;display:inline-block;margin-bottom:10px}
+@media(max-width:768px){.gated-report{flex-direction:column;text-align:center;gap:16px}.gated-report-form{flex-direction:column;max-width:100%}}
+/* Inline section CTA */
+.section-cta{text-align:center;margin-top:48px;padding-top:32px}
+.section-cta p{font-size:15px;color:var(--t2);margin-bottom:16px;line-height:1.6}
+.section-cta p strong{color:var(--t1);font-weight:600}
+/* Calendly embed */
+.calendly-embed-wrap{margin-top:48px;max-width:1000px;margin-left:auto;margin-right:auto;border-radius:16px;overflow:hidden;border:1px solid var(--border);background:var(--white);box-shadow:0 4px 24px rgba(0,0,0,.04)}
+.calendly-embed-wrap .calendly-inline-widget{min-width:320px;height:660px}
+@media(max-width:768px){.calendly-embed-wrap .calendly-inline-widget{height:800px}}
 
 /* ===== FAQ ===== */
 #faq{padding:88px 0 100px;background:var(--white)}
@@ -452,8 +476,8 @@ footer{background:var(--t1);color:#fff;padding:0 0 0;position:relative}
   .p-icon svg,.p-icon img{width:26px;height:26px}
   .hero-buttons{gap:14px;margin-top:32px}
   .hero-clients{margin-top:46px}
-  .client-logos{grid-template-columns:repeat(5,minmax(0,1fr));gap:16px;width:100%}
-  .cl-logo{height:18px}
+  .client-logos{grid-template-columns:repeat(5,minmax(0,1fr));gap:18px;width:100%}
+  .cl-logo{height:26px}
   .stepper-panel-inner{flex-direction:column;padding:32px 24px;gap:24px}
   .stepper-tab{padding:14px 8px;font-size:12px}
   .stepper-panel-viz{width:180px;height:180px}
@@ -486,7 +510,7 @@ footer{background:var(--t1);color:#fff;padding:0 0 0;position:relative}
       <a href="#method">Method</a>
       <a href="#offer">Offer</a>
       <a href="#reports">Reports</a>
-      <a href="#final-cta" class="nav-cta">Get in Touch</a>
+      <a href="#final-cta" class="nav-cta">Book a Call</a>
     </div>
   </div>
 </nav>
@@ -520,7 +544,7 @@ footer{background:var(--t1);color:#fff;padding:0 0 0;position:relative}
         </div>
 
         <div class="hero-buttons">
-          <a href="#final-cta" class="btn-primary">Talk to us →</a>
+          <a href="#final-cta" class="btn-primary">Let's talk →</a>
         </div>
 
         <div class="hero-clients">
@@ -574,10 +598,10 @@ footer{background:var(--t1);color:#fff;padding:0 0 0;position:relative}
         </div>
       </div>
 
-      <!-- WD -->
+      <!-- Western Digital -->
       <div class="g-card">
         <div class="g-inner">
-          <div class="g-client"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/WD_Logo.svg/960px-WD_Logo.svg.png" alt="WD"></div>
+          <div class="g-client"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/WD_Logo.svg/960px-WD_Logo.svg.png" alt="Western Digital"></div>
           <div class="g-metric">+890<span class="pct">%</span><span class="lbl">AI visibility score</span></div>
           <canvas class="g-viz" id="vizG2" height="48"></canvas>
           <div class="g-tags">
@@ -642,6 +666,10 @@ footer{background:var(--t1);color:#fff;padding:0 0 0;position:relative}
         </div>
       </div>
     </div>
+      <div class="section-cta rv">
+        <p>These results started with a single conversation. <strong>Yours can too.</strong></p>
+        <a href="#final-cta" class="btn-primary">Get your AI visibility report →</a>
+      </div>
   </div>
 </section>
 
@@ -900,13 +928,14 @@ footer{background:var(--t1);color:#fff;padding:0 0 0;position:relative}
     <div class="lpa-header rv">
       <div class="label">LLM Perception Audit</div>
       <h2>Type your category.<br>See who owns <em>the answer.</em></h2>
-      <p class="lpa-sub">Your brand's AI visibility — in 10 seconds.</p>
+      <p class="lpa-sub">Enter an industry or product query below. We'll show you which brands AI platforms recommend — and how visible (or invisible) your competitors are in ChatGPT, Google AI Overviews, and Perplexity.</p>
     </div>
     <div class="rv rd1">
       <div class="lpa-input-bar">
         <input id="lpaInput" placeholder="e.g. best data enrichment tools" type="text">
         <button id="lpaSend">→</button>
       </div>
+      <div class="lpa-chips-label">Try one of these:</div>
       <div class="lpa-chips" id="lpaChips">
         <span class="lpa-chip">best data enrichment tools</span>
         <span class="lpa-chip">external hard drive for backup</span>
@@ -954,6 +983,20 @@ footer{background:var(--t1);color:#fff;padding:0 0 0;position:relative}
         <p class="email-note">No spam. One email per report. Unsubscribe anytime.</p>
       </div>
       <div class="research-cards rv rd2">
+        <div class="gated-report rv">
+          <div class="gated-report-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+          </div>
+          <div class="gated-report-body">
+            <span class="gated-report-badge">Free Download</span>
+            <h4>The Bicycle Industry Search Report</h4>
+            <p>How cycling brands perform in AI search — who shows up in ChatGPT, Perplexity, and Google AI Overviews when riders search for gear, reviews, and recommendations.</p>
+            <form class="gated-report-form" onsubmit="event.preventDefault();this.querySelector('button').textContent='Sending...';setTimeout(()=>{this.querySelector('button').textContent='Check your inbox ✓';this.querySelector('input').disabled=true},800)">
+              <input type="email" placeholder="Your work email" required>
+              <button type="submit">Get the PDF</button>
+            </form>
+          </div>
+        </div>
         <div class="research-card">
           <div class="geo-accent geo-dots"><span></span><span></span><span></span></div>
           <h4>The AI Search Perception Report</h4>
@@ -1042,6 +1085,11 @@ footer{background:var(--t1);color:#fff;padding:0 0 0;position:relative}
         </div>
       </div>
 
+      <div class="section-cta rv rd1">
+        <p>Not sure which program fits? <strong>We'll tell you — honestly — in 30 minutes.</strong></p>
+        <a href="#final-cta" class="btn-primary">Book your call →</a>
+      </div>
+
       <div class="offer-research rv rd2" id="reports">
         <div id="offerResearchSlot"></div>
       </div>
@@ -1082,6 +1130,10 @@ footer{background:var(--t1);color:#fff;padding:0 0 0;position:relative}
         <div class="faq-a"><p>IRO — Intent Response Optimization — is our framework for capturing demand wherever it fires: Google, ChatGPT, Perplexity, Gemini, AI Overviews, and whatever comes next. SEO is one channel within IRO. The platform is irrelevant; the intent is what matters.</p></div>
       </div>
     </div>
+    <div class="section-cta rv" style="max-width:600px;margin-left:auto;margin-right:auto">
+      <p><strong>Still have questions?</strong> We'd rather answer them on a call than in a FAQ.</p>
+      <a href="#final-cta" class="btn-primary">Schedule 30 minutes →</a>
+    </div>
   </div>
 </section>
 
@@ -1092,8 +1144,10 @@ footer{background:var(--t1);color:#fff;padding:0 0 0;position:relative}
     <div class="rv">
       <div class="label">Let's Talk</div>
       <h2>Stop guessing what you're missing. We'll show you <em>exactly.</em></h2>
-      <p>30 minutes. No pitch deck. An honest look at where your intent gaps are — and what it's costing you.</p>
-      <a href="mailto:seo@cutinside.com" class="btn-primary">Book a Strategy Call <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <p>In a 30-minute call, you'll get a live walkthrough of your brand's visibility across Google AI Overviews, ChatGPT, and Perplexity — who shows up for your top queries, where your competitors outrank you, and a prioritized action plan to close the gaps. No pitch deck. No generic audit. Just real data on your market.</p>
+    </div>
+    <div class="calendly-embed-wrap rv rd1">
+      <div class="calendly-inline-widget" data-url="https://calendly.com/cutinside/strategy-call?hide_gdpr_banner=1&primary_color=0D9488"></div>
     </div>
   </div>
 </section>
@@ -1135,7 +1189,7 @@ footer{background:var(--t1);color:#fff;padding:0 0 0;position:relative}
         <a href="#results">Results</a>
         <a href="#reports">Reports</a>
         <a href="#offer">Services</a>
-        <a href="mailto:seo@cutinside.com">Contact</a>
+        <a href="#final-cta">Contact</a>
       </div>
       <div class="footer-col">
         <h4>Resources</h4>
@@ -1147,7 +1201,7 @@ footer{background:var(--t1);color:#fff;padding:0 0 0;position:relative}
         <h4>Tools</h4>
         <a href="#">LLM Perception Tool ↗</a>
         <a href="#">TASM Calculator ↗</a>
-        <a href="mailto:seo@cutinside.com">Get in Touch</a>
+        <a href="#final-cta">Get in Touch</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -1752,7 +1806,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click'
         {name:'Seagate',pct:72,color:'var(--teal)',desc:'Recognized as strong alternative'},
         {name:'Samsung',pct:70,color:'var(--teal)',desc:'Praised for speed advantage'}
       ],
-      fanout:['WD vs Seagate reliability','best external SSD 2025','hard drive for video editing','NAS backup solutions'],
+      fanout:['Western Digital vs Seagate reliability','best external SSD 2025','hard drive for video editing','NAS backup solutions'],
       citations:[
         {domain:'westerndigital.com',favicon:'https://www.google.com/s2/favicons?domain=westerndigital.com&sz=32',type:'official',typeLabel:'Official Site',relevance:'high'},
         {domain:'rtings.com',favicon:'https://www.google.com/s2/favicons?domain=rtings.com&sz=32',type:'review',typeLabel:'Review Platform',relevance:'high'},
@@ -1955,14 +2009,14 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click'
     answerBody.innerHTML=`<div class="lpa-skeleton"><div class="lpa-skeleton-line"></div><div class="lpa-skeleton-line"></div><div class="lpa-skeleton-line"></div><div class="lpa-skeleton-line"></div></div>`;
     setTimeout(()=>{
       answerBody.style.opacity='0';
-      answerBody.innerHTML=`This is a preview of Cut Inside's LLM Perception Audit. In the full version, we query live AI platforms to show you exactly which brands own this answer space.${cite(1)} Want to see who dominates your category? Book a strategy call and we'll run a full audit on your top 20 queries — across Google AI Overviews, ChatGPT, and Perplexity.${cite(2)}`;
+      answerBody.innerHTML=`This is a preview of Cut Inside's LLM Perception Audit. In a live audit, we query ChatGPT, Google AI Overviews, and Perplexity in real time — showing you exactly which brands own your answer space, how they're positioned, and where the gaps are.${cite(1)} Want to see who dominates your category? We'll run a full perception audit on your top 20 queries and deliver a brand visibility scorecard you can act on.${cite(2)}`;
       answerBody.style.transition='opacity .4s';
       requestAnimationFrame(()=>{answerBody.style.opacity='1'});
     },800);
   }
 
   function renderFallbackAnalysis(){
-    analysisEl.innerHTML=`<div class="lpa-locked"><div class="lpa-locked-blur"></div><div class="lpa-locked-content"><div class="lpa-locked-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><h4>Full analysis available with a live audit</h4><p>We'll map brand visibility, sentiment, query fanout, and citations across your top queries.</p><a href="#final-cta" class="lpa-locked-cta">Book your audit →</a></div></div>`;
+    analysisEl.innerHTML=`<div class="lpa-locked"><div class="lpa-locked-blur"></div><div class="lpa-locked-content"><div class="lpa-locked-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><h4>Full analysis available with a live audit</h4><p>We'll map brand visibility, sentiment, query fanout, and citations across your top queries.</p><a href="#final-cta" class="lpa-locked-cta">Get your AI visibility report →</a></div></div>`;
   }
 
   sendBtn.addEventListener('click',()=>submitQuery(input.value));
@@ -2075,5 +2129,6 @@ function initComparisonChart(container){
 }
 initComparisonChart(document.getElementById('comparison-chart'));
 </script>
+<script src="https://assets.calendly.com/assets/external/widget.js" async></script>
 </body>
 </html>
