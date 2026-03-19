@@ -116,6 +116,41 @@ nav .container{display:flex;align-items:center;justify-content:space-between;pad
 .g-card.feat .g-img-placeholder{height:280px}
 @media(max-width:768px){.glow-grid{grid-template-columns:1fr}.g-card.feat{grid-column:span 1;grid-row:span 1}.g-card::before{left:10%;top:0;width:80%;height:2px;background:linear-gradient(to right,transparent,var(--teal) 20%,var(--teal) 80%,transparent);border-radius:0 0 2px 2px}}
 
+/* ===== EVOLUTION SECTION ===== */
+#evolution{padding:100px 0 0;background:var(--white)}
+.evo-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:stretch}
+.evo-left{display:flex;flex-direction:column}
+.evo-left h2{font-size:clamp(36px,4vw,52px);font-weight:800;line-height:1.08;letter-spacing:-2px;margin-bottom:24px;color:var(--t1)}
+.evo-left h2 em{font-style:italic;color:var(--teal)}
+.evo-left>p{font-size:16px;line-height:1.75;color:var(--t2);max-width:480px}
+.timeline{position:relative;padding-left:48px;display:flex;flex-direction:column;justify-content:space-between}
+.timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:2px;background:var(--border-l);border-radius:2px}
+.timeline-item{display:flex;gap:16px;align-items:flex-start;position:relative}
+.timeline-dot{width:42px;height:42px;min-width:42px;border-radius:50%;border:2px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;position:absolute;left:-48px;top:2px;z-index:2;transition:border-color .4s,box-shadow .4s}
+.timeline-dot-inner{width:12px;height:12px;border-radius:50%;background:var(--border);transition:background .4s,transform .3s}
+.timeline-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:20px;display:inline-block;margin-bottom:8px;font-weight:600}
+.tag-past{background:#f3f4f6;color:var(--t3)}
+.tag-now{background:rgba(13,148,136,.1);color:var(--teal)}
+.tag-soon{background:rgba(99,102,241,.08);color:#6366F1}
+.tag-always{background:rgba(13,148,136,.15);color:var(--teal-d);border:1px solid rgba(13,148,136,.2)}
+.timeline-title{font-size:18px;font-weight:700;letter-spacing:-.5px;color:var(--t1);margin-bottom:6px}
+.timeline-desc{font-size:14px;line-height:1.7;color:var(--t2)}
+.research-under-copy{margin-top:32px;display:flex;flex-direction:column;gap:12px}
+.research-intro{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--t3);margin-bottom:4px}
+.rt-compact{display:flex;gap:14px;text-decoration:none;color:inherit;background:var(--off);border:1px solid var(--border);border-radius:14px;padding:18px 20px;transition:all .3s}
+.rt-compact:hover{border-color:var(--teal);background:var(--white);box-shadow:0 4px 20px rgba(13,148,136,.06)}
+.rt-compact-icon{width:36px;height:36px;min-width:36px;border-radius:9px;background:var(--white);border:1px solid var(--border-l);display:flex;align-items:center;justify-content:center;transition:all .3s}
+.rt-compact:hover .rt-compact-icon{border-color:var(--teal);background:var(--teal-dim)}
+.rt-compact-icon svg{width:18px;height:18px;color:var(--teal);stroke:currentColor}
+.rt-compact-body{flex:1;min-width:0}
+.rt-compact-badge{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:2px 8px;border-radius:10px;display:inline-block;margin-bottom:6px;font-weight:600}
+.badge-free{background:rgba(16,185,129,.1);color:#059669}
+.badge-soon{background:#f3f4f6;color:var(--t3)}
+.rt-compact-title{font-size:14px;font-weight:700;letter-spacing:-.2px;color:var(--t1);line-height:1.3;margin-bottom:4px}
+.rt-compact-desc{font-size:12px;line-height:1.55;color:var(--t3);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rt-compact-arrow{color:var(--teal);font-size:14px;align-self:center;opacity:0;transform:translateX(-4px);transition:all .25s;margin-left:8px}
+.rt-compact:hover .rt-compact-arrow{opacity:1;transform:translateX(0)}
+
 /* ===== METHOD (SCROLL STEPPER) ===== */
 #method{position:relative;background:var(--white);padding-bottom:80px}
 .method-header{padding:88px 0 0;text-align:left}
@@ -317,7 +352,6 @@ nav .container{display:flex;align-items:center;justify-content:space-between;pad
 .research-panel h3{font-size:30px;font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:14px;color:var(--t1)}
 .research-panel p{font-size:15px;line-height:1.75;color:var(--t2);margin-bottom:24px}
 
-body.restructured #evolution,
 body.restructured #services,
 body.restructured #research{display:none}
 #offerResearchSlot{grid-column:1/-1}
@@ -492,6 +526,12 @@ footer{background:var(--t1);color:#fff;padding:0 0 0;position:relative}
   .lsc-row-bottom .lsc-body{text-align:left}
   .email-capture{flex-direction:column;max-width:none}
   .comparison-pillars{grid-template-columns:1fr}
+  .evo-grid{grid-template-columns:1fr;gap:48px}
+  .timeline{min-height:auto}
+  .timeline{padding-left:40px}
+  .timeline::before{left:16px}
+  .timeline-dot{left:-40px;width:34px;height:34px;min-width:34px}
+  .timeline-dot-inner{width:10px;height:10px}
 }
 @media(max-width:480px){
   .footer-links{grid-template-columns:1fr}
@@ -521,7 +561,7 @@ footer{background:var(--t1);color:#fff;padding:0 0 0;position:relative}
   <div class="container">
     <div class="hero-content">
       <div class="hero-text rv">
-        <div class="label">Search Intelligence · IRO</div>
+        <div class="label">IRO · Intent Response Optimization</div>
         <h1>We make brands <em>the answer.</em></h1>
         <p class="hero-subhead">Platforms change. Intent doesn't. We build your presence where your buyers <strong>search, ask, and watch</strong> — and turn demand into revenue.</p>
 
@@ -668,91 +708,90 @@ footer{background:var(--t1);color:#fff;padding:0 0 0;position:relative}
     </div>
       <div class="section-cta rv">
         <p>These results started with a single conversation. <strong>Yours can too.</strong></p>
-        <a href="#final-cta" class="btn-primary">Get your AI visibility report →</a>
+        <a href="#final-cta" class="btn-primary">See where you're invisible <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       </div>
   </div>
 </section>
 
-<!-- METHOD -->
+<!-- EVOLUTION -->
+<section id="evolution" style="position:relative;overflow:hidden">
+  <canvas id="evo-dots-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none"></canvas>
+  <div class="container" style="position:relative;z-index:2">
+    <div class="evo-grid">
+      <div class="evo-left rv">
+        <div class="label">The Evolution</div>
+        <h2>It was SEO.<br>Then GEO.<br>Soon ASO.<br><em>It's all IRO.</em></h2>
+        <p>The platforms keep changing. The tools keep changing. The acronyms keep changing. But the fundamental truth never does: intent shapes markets before revenue does. We map how that intent moves across every search surface — and publish what we find.</p>
+
+        <!-- Research tiles -->
+        <div class="research-under-copy">
+          <span class="research-intro">Published intelligence</span>
+          <a href="#" class="rt-compact">
+            <div class="rt-compact-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h3"/></svg></div>
+            <div class="rt-compact-body">
+              <span class="rt-compact-badge badge-free">Free PDF</span>
+              <div class="rt-compact-title">Bicycle Industry — Search Intelligence Report</div>
+              <div class="rt-compact-desc">Who shows up when riders search for gear across ChatGPT, Perplexity, and AI Overviews.</div>
+            </div>
+            <span class="rt-compact-arrow">&rarr;</span>
+          </a>
+          <a href="#" class="rt-compact" style="opacity:.7">
+            <div class="rt-compact-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22 16 8"/><path d="m3.47 12.53 5 5"/><path d="m7.6 8.4 8 8"/><circle cx="20" cy="4" r="2"/></svg></div>
+            <div class="rt-compact-body">
+              <span class="rt-compact-badge badge-soon">Coming Soon</span>
+              <div class="rt-compact-title">Ski Industry — Search Intelligence Report</div>
+              <div class="rt-compact-desc">Intent mapping across ski and winter sports — seasonal search cycles and brand visibility.</div>
+            </div>
+            <span class="rt-compact-arrow">&rarr;</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="timeline rv rd1">
+        <div class="timeline-item" data-delay="0">
+          <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+          <div>
+            <span class="timeline-tag tag-past">Past</span>
+            <h4 class="timeline-title">SEO — Search Engine Optimization</h4>
+            <p class="timeline-desc">Rank on Google. Get clicks. Drive traffic. Keywords, backlinks, and technical hygiene. It worked — and still does. But it's table stakes now.</p>
+          </div>
+        </div>
+        <div class="timeline-item" data-delay="150">
+          <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+          <div>
+            <span class="timeline-tag tag-now">Now</span>
+            <h4 class="timeline-title">GEO — Generative Engine Optimization</h4>
+            <p class="timeline-desc">Show up in ChatGPT answers. Appear in Google AI Overviews. Get cited by Perplexity. Search has left the blue links.</p>
+          </div>
+        </div>
+        <div class="timeline-item" data-delay="300">
+          <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+          <div>
+            <span class="timeline-tag tag-soon">Soon</span>
+            <h4 class="timeline-title">ASO — Agent Search Optimization</h4>
+            <p class="timeline-desc">AI agents will browse, compare, and buy on behalf of users. When an agent searches for the best solution — will it find you?</p>
+          </div>
+        </div>
+        <div class="timeline-item" data-delay="450">
+          <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+          <div>
+            <span class="timeline-tag tag-always">Always</span>
+            <h4 class="timeline-title">IRO — Intent Response Optimization</h4>
+            <p class="timeline-desc">The platform is irrelevant. The intent is everything. We find it, map it, and build your presence around it — wherever it lives.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
 <section id="method">
   <div class="container">
-    <div class="method-header rv">
+    <div class="method-header rv" style="padding-top:100px;text-align:left;margin-bottom:40px">
       <div class="label">Our Process</div>
-      <div class="process-step-label"><span class="step-num">01</span><span class="label" style="margin-bottom:0">Understand Your Market</span></div>
-      <h2>This is the market <em>we map.</em></h2>
-      <div class="landscape-intro">
-        <p>Before strategy, before keywords — we map the full intent landscape. Billions of signals fire every day across search and AI platforms. Together, they form your Total Available Search Market — the demand your brand could capture.</p>
-      </div>
+      <h2 style="font-size:clamp(36px,4vw,52px);font-weight:800;line-height:1.08;letter-spacing:-2px;color:var(--t1)">The work behind <em>the work.</em></h2>
     </div>
-
-    <div class="landscape-cards">
-      <!-- Google — featured wide card -->
-      <div class="lsc-row-top rv rd1">
-        <div class="lsc-card lsc-featured">
-          <div class="lsc-logo">
-            <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-          </div>
-          <div class="lsc-body">
-            <div class="lsc-name">Google Search</div>
-            <div class="lsc-stat"><span class="countup" data-to="8.5" data-suffix="B">0B</span></div>
-            <div class="lsc-label">searches every day</div>
-            <div class="lsc-sub">90% of global search market</div>
-          </div>
-          <div class="lsc-chart-wrap">
-            <div class="lsc-chart-label"><span>2016</span><span class="lsc-trend">↑ Still growing</span><span>2026</span></div>
-            <canvas class="lsc-chart" id="vizGoogleGrowth" height="48"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- AI platforms row -->
-      <div class="lsc-row-bottom rv rd2">
-        <div class="lsc-card">
-          <div class="lsc-logo">
-            <svg viewBox="0 0 24 24"><path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z" fill="#4285F4"/><circle cx="7" cy="5" r="1.5" fill="#EA4335"/><circle cx="19" cy="6" r="1" fill="#FBBC05"/><circle cx="17" cy="19" r="1.2" fill="#34A853"/></svg>
-          </div>
-          <div class="lsc-body">
-            <div class="lsc-name">AI Overviews</div>
-            <div class="lsc-stat"><span class="countup" data-to="60" data-suffix="%">0%</span></div>
-            <div class="lsc-label">of searches trigger AI answers</div>
-            <div class="lsc-sub">Up from 31% in early 2025</div>
-          </div>
-        </div>
-
-        <div class="lsc-card">
-          <div class="lsc-logo">
-            <img src="https://chatgpt.com/favicon.ico" style="border-radius:4px">
-          </div>
-          <div class="lsc-body">
-            <div class="lsc-name">ChatGPT</div>
-            <div class="lsc-stat"><span class="countup" data-to="900" data-suffix="M">0M</span></div>
-            <div class="lsc-label">weekly active users</div>
-            <div class="lsc-sub">2B+ queries daily</div>
-          </div>
-        </div>
-
-        <div class="lsc-card">
-          <div class="lsc-logo">
-            <svg viewBox="0 0 24 24"><path d="M12 24C12 18.2 8.1 13.2 2.7 12 8.1 10.8 12 5.8 12 0c0 5.8 3.9 10.8 9.3 12C15.9 13.2 12 18.2 12 24z" fill="url(#gGrad2)"/><defs><linearGradient id="gGrad2" x1="2.7" y1="12" x2="21.3" y2="12"><stop stop-color="#1C7CF4"/><stop offset=".5" stop-color="#8E55EA"/><stop offset="1" stop-color="#F44336"/></linearGradient></defs></svg>
-          </div>
-          <div class="lsc-body">
-            <div class="lsc-name">Gemini</div>
-            <div class="lsc-stat"><span class="countup" data-to="750" data-suffix="M">0M</span></div>
-            <div class="lsc-label">monthly active users</div>
-            <div class="lsc-sub">67% growth year-over-year</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="landscape-bottom rv rd3">
-      <p>Your buyers search across all of them. The question is — <strong>where are you invisible?</strong></p>
-      <a href="#final-cta" class="btn-primary">See where your gaps are →</a>
-    </div>
-
-    <div class="landscape-divider"></div>
-  </div>
-
   <div class="stepper-scroll-wrap" id="stepperScrollWrap">
   <div class="stepper-box rv rd2" id="stepperBox">
     <div class="stepper-tabs" id="stepperTabs">
@@ -827,55 +866,9 @@ footer{background:var(--t1);color:#fff;padding:0 0 0;position:relative}
     </div>
   </div>
   </div>
-</section>
-
-<!-- EVOLUTION -->
-<section id="evolution">
-  <div class="container">
-    <div class="evo-grid">
-      <div class="evo-left rv">
-        <div class="label">The Evolution</div>
-        <h2>It was SEO.<br>Then GEO.<br>Soon ASO.<br><em>It's all IRO.</em></h2>
-        <p>The platforms keep changing. The tools keep changing. The acronyms keep changing. But the fundamental truth never does: users signal intent before they decide, and your job is to be the answer when that intent fires. We identify where your audience's intent lives, find the gaps no tool can surface, and build programs that put you in front of the right people at the exact moment they're ready to act.</p>
-      </div>
-      <div class="timeline rv rd1">
-        <div class="timeline-item" data-delay="0">
-          <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
-          <div>
-            <span class="timeline-tag tag-past">Past</span>
-            <h4 class="timeline-title">SEO — Search Engine Optimization</h4>
-            <p class="timeline-desc">Rank on Google. Get clicks. Drive traffic. Keywords, backlinks, and technical hygiene. It worked — and still does. But it's table stakes now.</p>
-          </div>
-        </div>
-        <div class="timeline-item" data-delay="150">
-          <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
-          <div>
-            <span class="timeline-tag tag-now">Now</span>
-            <h4 class="timeline-title">GEO — Generative Engine Optimization</h4>
-            <p class="timeline-desc">Show up in ChatGPT answers. Appear in Google AI Overviews. Get cited by Perplexity. Search has left the blue links.</p>
-          </div>
-        </div>
-        <div class="timeline-item" data-delay="300">
-          <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
-          <div>
-            <span class="timeline-tag tag-soon">Soon</span>
-            <h4 class="timeline-title">ASO — Agent Search Optimization</h4>
-            <p class="timeline-desc">AI agents will browse, compare, and buy on behalf of users. When an agent searches for the best solution — will it find you?</p>
-          </div>
-        </div>
-        <div class="timeline-item" data-delay="450">
-          <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
-          <div>
-            <span class="timeline-tag tag-always">Always</span>
-            <h4 class="timeline-title">IRO — Intent Response Optimization</h4>
-            <p class="timeline-desc">The platform is irrelevant. The intent is everything. We find it, map it, and build your presence around it — wherever it lives.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div style="text-align:center" class="rv rd2">
-      <a href="#final-cta" class="btn-primary" style="margin-top:24px;">See where you stand in AI search <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
-    </div>
+  </div>
+  <div style="text-align:center;padding:48px 0 80px" class="rv">
+    <a href="#final-cta" class="btn-primary">Start with a conversation <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
   </div>
 </section>
 
@@ -2099,6 +2092,43 @@ function initTimelineFill(){
   const io=new IntersectionObserver(()=>{updateFill()},{threshold:[0,.25,.5,.75,1]});items.forEach(item=>io.observe(item));updateFill();
 }
 initTimelineFill();
+
+// ===== EVOLUTION DOT GRID SHADER =====
+(function(){
+  const c=document.getElementById('evo-dots-canvas');if(!c)return;
+  const ctx=c.getContext('2d');
+  let w,h,dots=[];
+  const SPACING=48,DOT_R=1.2,TEAL=[13,148,136];
+  function resize(){
+    const rect=c.parentElement.getBoundingClientRect();
+    const dpr=window.devicePixelRatio||1;
+    w=rect.width;h=rect.height;
+    c.width=w*dpr;c.height=h*dpr;
+    c.style.width=w+'px';c.style.height=h+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    dots=[];
+    const cols=Math.ceil(w/SPACING)+2,rows=Math.ceil(h/SPACING)+2;
+    for(let r=0;r<rows;r++)for(let cl=0;cl<cols;cl++){
+      dots.push({ox:cl*SPACING,oy:r*SPACING,phase:Math.random()*Math.PI*2,speed:0.3+Math.random()*0.4,amp:2+Math.random()*4});
+    }
+  }
+  let t=0;
+  function draw(){
+    t+=0.008;ctx.clearRect(0,0,w,h);
+    const cx=w/2,cy=h/2,maxDist=Math.sqrt(cx*cx+cy*cy);
+    dots.forEach(d=>{
+      const x=d.ox+Math.sin(t*d.speed+d.phase)*d.amp;
+      const y=d.oy+Math.cos(t*d.speed*0.7+d.phase*1.3)*d.amp*0.6;
+      const dist=Math.sqrt((x-cx)**2+(y-cy)**2);
+      const fade=1-Math.pow(dist/maxDist,1.5);
+      const alpha=Math.max(0,0.08+fade*0.12);
+      ctx.beginPath();ctx.arc(x,y,DOT_R,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${TEAL[0]},${TEAL[1]},${TEAL[2]},${alpha})`;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize);resize();draw();
+})();
 
 // ===== COMPARISON CHART (PAID VS IRO) =====
 function initComparisonChart(container){
