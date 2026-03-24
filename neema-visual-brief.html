@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neema — Organic Intelligence Brief | Cut Inside</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @media print {
+    button, .no-print { display: none !important; }
+    div[data-brief] { padding: 0 !important; }
+    * { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/prop-types@15/prop-types.min.js" crossorigin></script>
+<script src="https://unpkg.com/recharts@2.15.3/umd/Recharts.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } = Recharts;
+
+/* ===== Brand Tokens ===== */
+const C = {
+  teal: "#0D9488", tealL: "#14B8A6", tealD: "#0A7A70",
+  tealDim: "rgba(13,148,136,0.06)", tealDim2: "rgba(13,148,136,0.10)", tealGlow: "rgba(13,148,136,0.22)",
+  danger: "#DC2626", warning: "#F59E0B", success: "#16a34a", purple: "#7c3aed",
+  bg: "#FAFAFA", white: "#FFFFFF", off: "#F3F4F6",
+  border: "#E5E7EB", borderL: "#F0F0F0",
+  t1: "#111111", t2: "#4B5563", t3: "#9CA3AF",
+};
+const FONT = { body: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", mono: "'JetBrains Mono', monospace" };
+
+const tabs = ["Overview", "B2C Demand Corridors", "B2B Pipeline", "Competitive Architecture", "Position Gaps", "Talking Points"];
+
+/* ========== DATA ========== */
+
+const brandedData = [
+  { name: "Branded (neema)", value: 152, color: C.t3 },
+  { name: "Non-Branded", value: 19, color: C.danger },
+];
+
+const competitorTraffic = [
+  { name: "Wise", traffic: 6583590, dr: 89, keywords: "823K", type: "Direct" },
+  { name: "Western Union", traffic: 2388570, dr: 85, keywords: "388K", type: "Direct" },
+  { name: "MoneyGram", traffic: 230967, dr: 81, keywords: "168K", type: "Direct" },
+  { name: "WorldRemit", traffic: 119823, dr: 75, keywords: "77K", type: "Consumer" },
+  { name: "Remitly", traffic: 50001, dr: 78, keywords: "~50K", type: "Direct" },
+  { name: "MyBambu", traffic: 14627, dr: 37, keywords: "4K", type: "Consumer" },
+  { name: "Taptap Send", traffic: 7452, dr: 54, keywords: "27K", type: "Consumer" },
+  { name: "Rapyd", traffic: 4377, dr: 74, keywords: "5.4K", type: "B2B Infra" },
+  { name: "Thunes", traffic: 3204, dr: 68, keywords: "5K", type: "B2B Infra" },
+  { name: "Nium", traffic: 1805, dr: 68, keywords: "3.7K", type: "B2B Infra" },
+  { name: "Currencycloud", traffic: 1697, dr: 72, keywords: "1.6K", type: "B2B Infra" },
+  { name: "dLocal", traffic: 1236, dr: 71, keywords: "731", type: "B2B Infra" },
+  { name: "Chipper Cash", traffic: 1153, dr: 64, keywords: "6.5K", type: "Consumer" },
+  { name: "Pyypl", traffic: 783, dr: 41, keywords: "1.7K", type: "Consumer" },
+  { name: "TerraPay", traffic: 328, dr: 49, keywords: "542", type: "B2B Infra" },
+  { name: "Neema", traffic: 171, dr: 38, keywords: "77", type: "\u2014" },
+  { name: "Nilos", traffic: 0, dr: null, keywords: "4", type: "B2B" },
+  { name: "Vala", traffic: 0, dr: null, keywords: "0", type: "Consumer" },
+];
+
+/* --- B2C Corridors --- */
+const corridorData = [
+  { country: "Mexico", volume: 7800, kd: 33, flag: "\uD83C\uDDF2\uD83C\uDDFD" },
+  { country: "Australia", volume: 6000, kd: 7, flag: "\uD83C\uDDE6\uD83C\uDDFA" },
+  { country: "India", volume: 3600, kd: 57, flag: "\uD83C\uDDEE\uD83C\uDDF3" },
+  { country: "Philippines", volume: 2700, kd: 19, flag: "\uD83C\uDDF5\uD83C\uDDED" },
+  { country: "UK", volume: 2700, kd: 4, flag: "\uD83C\uDDEC\uD83C\uDDE7" },
+  { country: "Pakistan", volume: 2100, kd: 11, flag: "\uD83C\uDDF5\uD83C\uDDF0" },
+  { country: "Thailand", volume: 1400, kd: 2, flag: "\uD83C\uDDF9\uD83C\uDDED" },
+  { country: "Colombia", volume: 1300, kd: 6, flag: "\uD83C\uDDE8\uD83C\uDDF4" },
+  { country: "China", volume: 1300, kd: 4, flag: "\uD83C\uDDE8\uD83C\uDDF3" },
+  { country: "Nigeria", volume: 1200, kd: 3, flag: "\uD83C\uDDF3\uD83C\uDDEC" },
+  { country: "Brazil", volume: 1100, kd: 4, flag: "\uD83C\uDDE7\uD83C\uDDF7" },
+  { country: "Dom. Republic", volume: 1000, kd: 3, flag: "\uD83C\uDDE9\uD83C\uDDF4" },
+  { country: "Ghana", volume: 900, kd: 3, flag: "\uD83C\uDDEC\uD83C\uDDED" },
+  { country: "Kenya", volume: 800, kd: 4, flag: "\uD83C\uDDF0\uD83C\uDDEA" },
+  { country: "Bangladesh", volume: 700, kd: 31, flag: "\uD83C\uDDE7\uD83C\uDDE9" },
+  { country: "Morocco", volume: 600, kd: 1, flag: "\uD83C\uDDF2\uD83C\uDDE6" },
+  { country: "Japan", volume: 450, kd: 2, flag: "\uD83C\uDDEF\uD83C\uDDF5" },
+];
+const totalCorridorDemand = corridorData.reduce((s, c) => s + c.volume, 0);
+const maxCorridorVol = Math.max(...corridorData.map(c => c.volume));
+
+const currencyQueries = [
+  { pair: "usd to inr", volume: 1370000 },
+  { pair: "dollar to peso", volume: 423000 },
+  { pair: "pesos to dollars", volume: 347000 },
+  { pair: "usd to php", volume: 188000 },
+  { pair: "usd to pkr", volume: 112000 },
+  { pair: "usd to gbp", volume: 61000 },
+  { pair: "usd to thb", volume: 29000 },
+  { pair: "usd to brl", volume: 24000 },
+  { pair: "usd to colombian peso", volume: 21000 },
+  { pair: "usd to bdt", volume: 5100 },
+  { pair: "usd to nigerian naira", volume: 1000 },
+];
+const totalCurrencyDemand = currencyQueries.reduce((s, c) => s + c.volume, 0);
+
+const corridorPatterns = [
+  { country: "Mexico", flag: "\uD83C\uDDF2\uD83C\uDDFD", rows: [
+    { intent: "Corridor", vol: 7800, kd: 33 },
+    { intent: "Best way", vol: 900, kd: 33 },
+    { intent: "Cheapest", vol: 450, kd: 31 },
+    { intent: "Online", vol: 350, kd: 47 },
+    { intent: "Fastest", vol: 250, kd: 29 },
+  ]},
+  { country: "Philippines", flag: "\uD83C\uDDF5\uD83C\uDDED", rows: [
+    { intent: "Corridor", vol: 2700, kd: 19 },
+    { intent: "Best way", vol: 600, kd: 6 },
+    { intent: "Cheapest", vol: 600, kd: 11 },
+    { intent: "Online", vol: 500, kd: 22 },
+    { intent: "Fastest", vol: 250, kd: 17 },
+  ]},
+  { country: "India", flag: "\uD83C\uDDEE\uD83C\uDDF3", rows: [
+    { intent: "Corridor", vol: 3600, kd: 57 },
+    { intent: "Best way", vol: 800, kd: 10 },
+    { intent: "Cheapest", vol: 350, kd: 26 },
+    { intent: "Online", vol: 450, kd: 27 },
+    { intent: "Fastest", vol: 250, kd: 28 },
+  ]},
+];
+const intentTypes = ["Corridor", "Best way", "Cheapest", "Online", "Fastest"];
+
+/* --- Position Gaps --- */
+const positionGaps = [
+  { keyword: "send money to mexico", volume: 7800, neemaPos: "\u2014", wisePos: 6, wuPos: 1, remitlyPos: 3, difficulty: 33 },
+  { keyword: "money transfer app", volume: 8100, neemaPos: "\u2014", wisePos: 5, wuPos: "\u2014", remitlyPos: "\u2014", difficulty: 65 },
+  { keyword: "send money to philippines", volume: 2700, neemaPos: "\u2014", wisePos: "\u2014", wuPos: "\u2014", remitlyPos: "\u2014", difficulty: 19 },
+  { keyword: "send money to india", volume: 3600, neemaPos: "\u2014", wisePos: 3, wuPos: "\u2014", remitlyPos: "\u2014", difficulty: 57 },
+  { keyword: "how to send money internationally", volume: 5700, neemaPos: "\u2014", wisePos: 4, wuPos: "\u2014", remitlyPos: "\u2014", difficulty: 56 },
+  { keyword: "best way to send money internationally", volume: 1400, neemaPos: "\u2014", wisePos: 7, wuPos: 6, remitlyPos: 5, difficulty: 31 },
+  { keyword: "send money to uk from usa", volume: 2700, neemaPos: "\u2014", wisePos: 3, wuPos: "\u2014", remitlyPos: "\u2014", difficulty: 4 },
+  { keyword: "send money abroad", volume: 2000, neemaPos: "\u2014", wisePos: 2, wuPos: "\u2014", remitlyPos: "\u2014", difficulty: 67 },
+];
+
+const serpSnapshot = [
+  { position: 1, domain: "westernunion.com", dr: 85, url: "/us/en/send-money-to-mexico.html" },
+  { position: 2, domain: "xoom.com", dr: 78, url: "/mexico/send-money" },
+  { position: 3, domain: "remitly.com", dr: 78, url: "/us/en/mexico" },
+  { position: 4, domain: "riamoneytransfer.com", dr: 74, url: "/en-us/send-money-to-mexico/" },
+  { position: 5, domain: "moneygram.com", dr: 81, url: "/us/en/corridor/mexico" },
+  { position: 6, domain: "wise.com", dr: 89, url: "/us/send-money/send-money-to-mexico" },
+  { position: 7, domain: "wellsfargo.com", dr: 89, url: "/international-remittances/mexico/" },
+  { position: 8, domain: "felixpago.com", dr: 56, url: "/en/send-money/mexico" },
+];
+
+/* --- Architecture --- */
+const architectureComparison = [
+  { feature: "Country corridor pages", neema: false, wise: true, wu: true, remitly: true, wiseDetail: "40+ pages", neemaDetail: "0 pages" },
+  { feature: "Currency converter", neema: false, wise: true, wu: true, remitly: false, wiseDetail: "200+ pairs", neemaDetail: "None" },
+  { feature: "Transfer calculator on page", neema: false, wise: true, wu: true, remitly: true, wiseDetail: "Live rates", neemaDetail: "None" },
+  { feature: "Blog / content hub", neema: false, wise: true, wu: true, remitly: true, wiseDetail: "500+ posts", neemaDetail: "None" },
+  { feature: "Competitor comparison tables", neema: false, wise: true, wu: false, remitly: false, wiseDetail: "vs. banks", neemaDetail: "None" },
+  { feature: "FAQ sections", neema: false, wise: true, wu: true, remitly: false, wiseDetail: "Per page", neemaDetail: "None" },
+  { feature: "How-to guides", neema: false, wise: true, wu: true, remitly: false, wiseDetail: "Step-by-step", neemaDetail: "Help articles only" },
+];
+
+const expandedConsumerCompetitors = [
+  { name: "WorldRemit", dr: 75, traffic: 119823, keywords: "77K", highlight: "Country pages + currency converters" },
+  { name: "MyBambu", dr: 37, traffic: 14627, keywords: "4K", highlight: "Spanish-language SEO for immigrants" },
+  { name: "Taptap Send", dr: 54, traffic: 7452, keywords: "27K", highlight: "Country corridor landing pages" },
+  { name: "Chipper Cash", dr: 64, traffic: 1153, keywords: "6.5K", highlight: "Africa cross-border payments" },
+  { name: "Pyypl", dr: 41, traffic: 783, keywords: "1.7K", highlight: "Prepaid digital financial services" },
+  { name: "Neema", dr: 38, traffic: 171, keywords: "77", highlight: "No content strategy" },
+];
+
+/* --- B2B Pipeline --- */
+const b2bSearchClusters = [
+  {
+    label: "CROSS-BORDER PAYMENTS", sublabel: "The core problem space", color: C.teal, totalVolume: 9000,
+    keywords: [
+      { keyword: "cross border payment solutions", volume: 4500, kd: 46 },
+      { keyword: "cross border payments", volume: 2000, kd: 27 },
+      { keyword: "real time payment system", volume: 2000, kd: 24 },
+      { keyword: "b2b cross border payments", volume: 350, kd: 7 },
+      { keyword: "cross border payments API", volume: 150, kd: 5 },
+    ],
+    capturedBy: "Thunes, Rapyd",
+  },
+  {
+    label: "MASS PAYOUTS", sublabel: "High-volume disbursements", color: C.warning, totalVolume: 4300,
+    keywords: [
+      { keyword: "mass payouts", volume: 3500, kd: 3 },
+      { keyword: "global payout platform", volume: 250, kd: 5 },
+      { keyword: "global payout solution", volume: 200, kd: 6 },
+      { keyword: "cross border payouts API", volume: 200, kd: 2 },
+      { keyword: "payout API", volume: 150, kd: 4 },
+    ],
+    capturedBy: "Thunes, Nium",
+  },
+  {
+    label: "ORCHESTRATION & TOOLING", sublabel: "Platform evaluation", color: C.purple, totalVolume: 3770,
+    keywords: [
+      { keyword: "b2b payment solutions", volume: 1500, kd: 4 },
+      { keyword: "payment orchestration platform", volume: 1100, kd: 10 },
+      { keyword: "cross border payment gateway", volume: 600, kd: 61 },
+      { keyword: "payment orchestration providers", volume: 300, kd: 0 },
+      { keyword: "white label payment solution", volume: 100, kd: 1 },
+    ],
+    capturedBy: "Rapyd, Thunes, Nium",
+  },
+];
+
+const b2bAllKeywords = [
+  { keyword: "cross border payment solutions", volume: 4500, kd: 46, whoRanks: "Thunes #6" },
+  { keyword: "mass payouts", volume: 3500, kd: 3, whoRanks: "Thunes #10" },
+  { keyword: "cross border payments", volume: 2000, kd: 27, whoRanks: "Thunes #8" },
+  { keyword: "real time payment system", volume: 2000, kd: 24, whoRanks: "Thunes #8" },
+  { keyword: "b2b payment solutions", volume: 1500, kd: 4, whoRanks: "Rapyd #11" },
+  { keyword: "payment orchestration platform", volume: 1100, kd: 10, whoRanks: "Rapyd (blog)" },
+  { keyword: "cross border payment gateway", volume: 600, kd: 61, whoRanks: "Thunes #4" },
+  { keyword: "b2b cross border payments", volume: 350, kd: 7, whoRanks: "Thunes #1" },
+  { keyword: "payment orchestration providers", volume: 300, kd: 0, whoRanks: "Rapyd #3" },
+  { keyword: "global payout platform", volume: 250, kd: 5, whoRanks: "Nium #1" },
+  { keyword: "global payout solution", volume: 200, kd: 6, whoRanks: "Thunes #1" },
+  { keyword: "cross border payouts API", volume: 200, kd: 2, whoRanks: "Thunes #3" },
+  { keyword: "payout API", volume: 150, kd: 4, whoRanks: "\u2014" },
+  { keyword: "cross border payments API", volume: 150, kd: 5, whoRanks: "Thunes #1" },
+  { keyword: "white label payment solution", volume: 100, kd: 1, whoRanks: "\u2014" },
+  { keyword: "embedded payments API", volume: 70, kd: 0, whoRanks: "\u2014" },
+];
+
+const b2bCompetitorPlaybooks = [
+  {
+    name: "Thunes", subtitle: "The Educator", color: C.teal, traffic: 1735,
+    strategy: "Educational articles + solution pages",
+    keyInsight: "9 articles capture all non-branded traffic",
+    topPages: [
+      { url: "/insights/learn/what-are-cross-border-payments/", traffic: 476, kw: "cross border payments" },
+      { url: "/cross-border-payments/", traffic: 393, kw: "cross border payment solutions" },
+      { url: "/insights/learn/b2b-international-payments/", traffic: 261, kw: "b2b cross border payments" },
+      { url: "/insights/learn/global-payouts-made-easy/", traffic: 207, kw: "global payout solution" },
+    ],
+  },
+  {
+    name: "Nium", subtitle: "The Technical Authority", color: C.purple, traffic: 275,
+    strategy: "Product pages + API documentation",
+    keyInsight: "Docs subdomain captures developer queries passively",
+    topPages: [
+      { url: "/products/global-payouts", traffic: 73, kw: "global payouts" },
+      { url: "/products/issue-cards", traffic: 68, kw: "virtual card issuing" },
+      { url: "docs.nium.com/.../virtual-account-number", traffic: 58, kw: "virtual bank account number" },
+    ],
+  },
+  {
+    name: "Rapyd", subtitle: "The Content Machine", color: C.warning, traffic: 1232,
+    strategy: "Broad blog + industry verticals",
+    keyInsight: "Explainers, templates, comparison posts, verticals",
+    topPages: [
+      { url: "/blog/overdue-invoice-letter-templates/", traffic: 326, kw: "overdue invoice letter" },
+      { url: "/blog/.../payment-orchestration-platform/", traffic: 91, kw: "payment orchestration providers" },
+      { url: "/solutions/industries/b2b/", traffic: 53, kw: "b2b payment solutions" },
+    ],
+  },
+];
+
+const expandedB2BCompetitors = [
+  { name: "Rapyd", dr: 74, traffic: 4377, keywords: "5.4K", topKw: "payment orchestration platforms (#1)" },
+  { name: "Thunes", dr: 68, traffic: 3204, keywords: "5K", topKw: "cross border payment solutions (#6), cross border payments API (#1)" },
+  { name: "Nium", dr: 68, traffic: 1805, keywords: "3.7K", topKw: "global payout platform (#1), virtual card issuing (#4)" },
+  { name: "Currencycloud", dr: 72, traffic: 1697, keywords: "1.6K", topKw: "Payment infrastructure terms" },
+  { name: "dLocal", dr: 71, traffic: 1236, keywords: "731", topKw: "Emerging market payment infra" },
+  { name: "TerraPay", dr: 49, traffic: 328, keywords: "542", topKw: "Cross-border payments (small)" },
+  { name: "Neema", dr: 38, traffic: 171, keywords: "77", topKw: "None \u2014 zero B2B rankings" },
+];
+
+/* ========== STYLES ========== */
+const S = {
+  label: { fontFamily: FONT.mono, fontSize: 10, letterSpacing: 2.5, textTransform: "uppercase", color: C.teal, fontWeight: 600 },
+  mono: { fontFamily: FONT.mono },
+  card: { background: C.white, borderRadius: 14, border: `1px solid ${C.border}`, boxShadow: "0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.02)", position: "relative", overflow: "hidden" },
+  tableHead: { fontFamily: FONT.mono, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", color: C.teal, fontWeight: 600, background: C.bg, borderBottom: `2px solid ${C.border}`, position: "sticky", top: 0, zIndex: 1 },
+  tableRow: { borderBottom: `1px solid ${C.borderL}`, transition: "background .2s" },
+  tableCell: { padding: "10px 14px", fontSize: 13 },
+};
+
+/* ========== SHARED COMPONENTS ========== */
+
+const AnimatedNumber = ({ value, prefix = "", suffix = "", color = C.t1, duration = 1200 }) => {
+  const [display, setDisplay] = useState("0");
+  const numericVal = parseFloat(String(value).replace(/[^0-9.]/g, ""));
+  const isNumeric = !isNaN(numericVal) && numericVal > 0;
+  const hasDecimal = String(value).includes(".");
+  useEffect(() => {
+    if (!isNumeric) { setDisplay(value); return; }
+    const startTime = performance.now();
+    const animate = (now) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(eased * numericVal);
+      setDisplay(hasDecimal ? (eased * numericVal).toFixed(1) : current.toLocaleString());
+      if (progress < 1) requestAnimationFrame(animate);
+      else setDisplay(hasDecimal ? numericVal.toFixed(1) : numericVal.toLocaleString());
+    };
+    requestAnimationFrame(animate);
+  }, [value]);
+  return <span style={{ fontSize: 32, fontWeight: 800, color, lineHeight: 1.1, letterSpacing: -1 }}>{prefix}{display}{suffix}</span>;
+};
+
+const MetricCard = ({ label, value, subtitle, color = C.t1 }) => {
+  const match = String(value).match(/^([0-9,.]+)(.*)$/);
+  const numPart = match ? match[1].replace(/,/g, "") : null;
+  const suffixPart = match ? match[2] : "";
+  const isAnimatable = numPart && !isNaN(parseFloat(numPart));
+  return (
+    <div style={{ ...S.card, padding: "22px 24px", flex: 1, minWidth: 160, borderLeft: `3px solid ${color === C.danger ? C.danger : C.teal}` }}>
+      <div style={{ ...S.label, marginBottom: 6 }}>{label}</div>
+      {isAnimatable ? <AnimatedNumber value={numPart} suffix={suffixPart} color={color} /> : <div style={{ fontSize: 32, fontWeight: 800, color, lineHeight: 1.1, letterSpacing: -1 }}>{value}</div>}
+      {subtitle && <div style={{ fontSize: 12, color: C.t3, marginTop: 6 }}>{subtitle}</div>}
+    </div>
+  );
+};
+
+const DifficultyBadge = ({ value }) => {
+  if (value == null || value === "\u2014") return <span style={{ color: C.t3 }}>\u2014</span>;
+  const color = value <= 20 ? C.success : value <= 40 ? C.warning : C.danger;
+  return <span style={{ fontFamily: FONT.mono, background: `${color}15`, color, padding: "3px 10px", borderRadius: 100, fontSize: 11, fontWeight: 600 }}>{value}</span>;
+};
+
+const PositionCell = ({ value }) => {
+  if (value === "\u2014") return <span style={{ color: C.t3, fontWeight: 500 }}>\u2014</span>;
+  const color = value <= 3 ? C.success : value <= 10 ? C.warning : C.danger;
+  return <span style={{ fontFamily: FONT.mono, color, fontWeight: 700 }}>#{value}</span>;
+};
+
+const CheckMark = ({ val }) => (
+  <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 22, height: 22, borderRadius: "50%", background: val ? C.tealDim2 : "rgba(220,38,38,0.06)", color: val ? C.teal : C.danger, fontSize: 12, fontWeight: 700 }}>
+    {val ? "\u2713" : "\u2715"}
+  </span>
+);
+
+const SectionLabel = ({ children }) => (
+  <div style={{ ...S.label, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+    <span style={{ width: 24, height: 2, background: C.teal, display: "inline-block" }} />
+    {children}
+  </div>
+);
+
+const CalloutBox = ({ color = C.teal, bg, title, children }) => (
+  <div style={{ background: bg || C.tealDim, borderRadius: 14, padding: 24, borderLeft: `3px solid ${color}`, marginBottom: 20 }}>
+    {title && <h4 style={{ margin: "0 0 10px 0", fontSize: 15, fontWeight: 700, color: C.t1 }}>{title}</h4>}
+    <div style={{ fontSize: 14, lineHeight: 1.7, color: C.t2 }}>{children}</div>
+  </div>
+);
+
+const TypeBadge = ({ type }) => {
+  const map = { Direct: { color: C.teal, bg: C.tealDim2 }, Consumer: { color: "#059669", bg: "rgba(5,150,105,0.08)" }, "B2B Infra": { color: "#7c3aed", bg: "rgba(124,58,237,0.06)" }, B2B: { color: "#7c3aed", bg: "rgba(124,58,237,0.06)" } };
+  const t = map[type];
+  if (!t) return <span style={{ fontFamily: FONT.mono, fontSize: 10, color: C.danger, fontWeight: 600 }}>TARGET</span>;
+  return <span style={{ fontFamily: FONT.mono, fontSize: 10, fontWeight: 600, color: t.color, background: t.bg, padding: "3px 8px", borderRadius: 100, letterSpacing: 0.5 }}>{type}</span>;
+};
+
+const maxTraffic = Math.max(...competitorTraffic.map(c => c.traffic));
+const SparklineBar = ({ traffic, isNeema }) => {
+  const pct = maxTraffic > 0 ? (traffic / maxTraffic) * 100 : 0;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 80 }}>
+      <div style={{ width: 60, height: 6, background: C.borderL, borderRadius: 3, overflow: "hidden", flexShrink: 0 }}>
+        <div style={{ height: "100%", borderRadius: 3, width: `${Math.max(pct, 0.5)}%`, background: isNeema ? C.danger : C.teal, transition: "width 1s cubic-bezier(.16,1,.3,1)" }} />
+      </div>
+    </div>
+  );
+};
+
+const ExpandableTalkingPoint = ({ num, title, color, quote }) => {
+  const [expanded, setExpanded] = useState(false);
+  const firstLine = quote.split(".").slice(0, 2).join(".") + ".";
+  return (
+    <div style={{ marginBottom: 16, background: C.white, borderRadius: 14, padding: 24, border: `1px solid ${C.border}`, borderLeft: `3px solid ${color}`, cursor: "pointer", transition: "all .3s cubic-bezier(.16,1,.3,1)" }} onClick={() => setExpanded(!expanded)}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: expanded ? 14 : 0 }}>
+        <span style={{ background: color, color: "#fff", width: 30, height: 30, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, fontFamily: FONT.mono, flexShrink: 0 }}>{num}</span>
+        <h4 style={{ margin: 0, fontSize: 16, fontWeight: 700, flex: 1 }}>{title}</h4>
+        <span style={{ fontFamily: FONT.mono, fontSize: 18, color: C.t3, transform: expanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform .3s cubic-bezier(.16,1,.3,1)", flexShrink: 0 }}>&#9662;</span>
+      </div>
+      {!expanded && <div style={{ fontSize: 13, color: C.t3, marginTop: 8, marginLeft: 42, lineHeight: 1.6 }}>{firstLine} <span style={{ color: C.teal, fontWeight: 600, fontSize: 12 }}>Click to read more</span></div>}
+      {expanded && <div style={{ background: C.bg, borderRadius: 10, padding: 20, fontSize: 14, lineHeight: 1.7, fontStyle: "italic", color: C.t2, borderLeft: `2px solid ${C.borderL}`, animation: "fadeIn .35s ease" }}>&ldquo;{quote}&rdquo;</div>}
+    </div>
+  );
+};
+
+/* ========== MAIN ========== */
+function NeemaBrief() {
+  const [activeTab, setActiveTab] = useState(0);
+
+  return (
+    <div data-brief style={{ fontFamily: FONT.body, background: C.bg, minHeight: "100vh", padding: "32px 24px", color: C.t1, WebkitFontSmoothing: "antialiased" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+
+        {/* ===== Header ===== */}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 32, flexWrap: "wrap", gap: 16 }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 10 }}>
+              <img src="https://cutinside.com/wp-content/uploads/2025/01/Logo.svg" alt="Cut Inside" style={{ height: 22 }} />
+              <span style={{ width: 1, height: 20, background: C.border, display: "inline-block" }} />
+              <span style={{ ...S.label, marginBottom: 0 }}>ORGANIC INTELLIGENCE BRIEF</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+              <img src="https://play-lh.googleusercontent.com/YDgltC2jjEYYhTGOAj2GXXyyI9Gq5PsE8tVtA8g4rzeaLdIRJ26g7YzVTeDzgc7JQA=w240-h480-rw" alt="Neema" style={{ height: 36, width: 36, borderRadius: 10, objectFit: "cover" }} />
+              <h1 style={{ fontSize: 34, fontWeight: 800, margin: 0, letterSpacing: -1.5 }}>Neema</h1>
+              <span style={{ fontFamily: FONT.mono, fontSize: 12, color: C.t3, background: C.off, padding: "4px 12px", borderRadius: 100, fontWeight: 500 }}>getneema.com</span>
+              <span style={{ fontFamily: FONT.mono, fontSize: 11, color: C.teal, background: C.tealDim, padding: "4px 12px", borderRadius: 100, fontWeight: 600 }}>B2B Payout Orchestration</span>
+            </div>
+            <p style={{ color: C.t3, fontSize: 13, margin: "6px 0 0 0", fontFamily: FONT.mono, letterSpacing: 0.3 }}>Pre-Call Brief &mdash; US Market &mdash; March 2026</p>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+            <button onClick={() => { navigator.clipboard.writeText(document.querySelector("[data-brief]").innerText).then(() => { const b = document.getElementById("copy-btn"); if (b) { b.textContent = "Copied!"; setTimeout(() => { b.textContent = "Copy Text"; }, 2000); } }); }} id="copy-btn" style={{ fontFamily: FONT.mono, fontSize: 11, fontWeight: 600, letterSpacing: 0.5, padding: "8px 16px", borderRadius: 100, background: C.white, color: C.t2, border: `1px solid ${C.border}`, cursor: "pointer" }}>Copy Text</button>
+            <button onClick={() => window.print()} style={{ fontFamily: FONT.mono, fontSize: 11, fontWeight: 600, letterSpacing: 0.5, padding: "8px 16px", borderRadius: 100, background: C.teal, color: "#fff", border: "none", cursor: "pointer" }}>Print / PDF</button>
+          </div>
+        </div>
+
+        {/* ===== Key Metrics ===== */}
+        <div style={{ display: "flex", gap: 14, marginBottom: 28, flexWrap: "wrap" }}>
+          <MetricCard label="Domain Rating" value="38" subtitle="vs. Wise 89, WU 85" />
+          <MetricCard label="US Organic Traffic" value="171/mo" subtitle="vs. Wise 6.5M/mo" color={C.danger} />
+          <MetricCard label="Branded Traffic" value="89%" subtitle="152 of 171 visits" color={C.danger} />
+          <MetricCard label="Non-Branded Top 10" value="0" subtitle="Zero commercial keywords" color={C.danger} />
+        </div>
+
+        {/* ===== Core Finding ===== */}
+        <div style={{ ...S.card, padding: 28, marginBottom: 28, borderLeft: `3px solid ${C.teal}` }}>
+          <div style={{ ...S.label, marginBottom: 10 }}>CORE FINDING</div>
+          <div style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.65, color: C.t1 }}>
+            Neema operates on two fronts &mdash; <strong style={{ color: C.purple }}>B2B payout orchestration</strong> (fintechs and enterprises) and <strong style={{ color: C.teal }}>B2C money transfer corridors</strong> (end-user transfers). They're invisible in organic search on <em>both</em>. <strong style={{ color: C.danger }}>89% of US traffic is branded.</strong> On the B2C side: zero corridor pages for 17 active transfer markets generating 32,000+ monthly searches. On the B2B side: zero content for 16,000+ monthly searches from fintech decision-makers &mdash; pipeline going directly to Thunes, Nium, and Rapyd.
+          </div>
+        </div>
+
+        {/* ===== Tabs ===== */}
+        <div style={{ display: "flex", borderBottom: `1px solid ${C.borderL}`, marginBottom: 24, overflowX: "auto", gap: 0 }}>
+          {tabs.map((tab, i) => (
+            <button key={tab} onClick={() => setActiveTab(i)} style={{ padding: "14px 20px", border: "none", borderBottom: activeTab === i ? `2px solid ${C.teal}` : "2px solid transparent", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: FONT.body, background: "transparent", color: activeTab === i ? C.t1 : C.t3, whiteSpace: "nowrap", transition: "all 0.25s cubic-bezier(.16,1,.3,1)" }}>
+              <span style={{ fontFamily: FONT.mono, fontSize: 11, color: C.teal, marginRight: 6, fontWeight: 600 }}>{String(i + 1).padStart(2, "0")}</span>
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* ===== Tab Content ===== */}
+        <div style={{ ...S.card, padding: 28 }}>
+
+          {/* ======= TAB 0: OVERVIEW ======= */}
+          {activeTab === 0 && (
+            <div>
+              <SectionLabel>Traffic Distribution</SectionLabel>
+              <h3 style={{ marginTop: 0, marginBottom: 20, fontWeight: 800, fontSize: 22, letterSpacing: -0.5 }}>Branded vs Non-Branded</h3>
+              <div style={{ display: "flex", gap: 32, flexWrap: "wrap", alignItems: "flex-start" }}>
+                <div style={{ width: 280, height: 220 }}>
+                  <ResponsiveContainer>
+                    <PieChart>
+                      <Pie data={brandedData} dataKey="value" cx="50%" cy="50%" outerRadius={80} label={({ value }) => `${value}`}>
+                        {brandedData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                      </Pie>
+                      <Legend /><Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div style={{ flex: 1, minWidth: 280 }}>
+                  <CalloutBox color={C.danger} bg="rgba(220,38,38,0.04)">
+                    <strong>89% branded dependency</strong> &mdash; Only 19 visits/month come from people who don't already know Neema.
+                  </CalloutBox>
+                  <SectionLabel>Competitor Organic Traffic (US)</SectionLabel>
+                  <div style={{ maxHeight: 480, overflowY: "auto", borderRadius: 12, border: `1px solid ${C.border}` }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                      <thead><tr style={S.tableHead}>
+                        <th style={{ textAlign: "left", ...S.tableCell }}>Domain</th>
+                        <th style={{ textAlign: "left", ...S.tableCell }}>Type</th>
+                        <th style={{ textAlign: "right", ...S.tableCell }}>Traffic/mo</th>
+                        <th style={{ ...S.tableCell, width: 80 }}></th>
+                        <th style={{ textAlign: "right", ...S.tableCell }}>DR</th>
+                        <th style={{ textAlign: "right", ...S.tableCell }}>Keywords</th>
+                      </tr></thead>
+                      <tbody>
+                        {competitorTraffic.map(c => (
+                          <tr key={c.name} style={{ ...S.tableRow, background: c.name === "Neema" ? "rgba(220,38,38,0.04)" : "transparent" }}>
+                            <td style={{ ...S.tableCell, fontWeight: c.name === "Neema" ? 700 : 500 }}>{c.name}</td>
+                            <td style={S.tableCell}><TypeBadge type={c.type} /></td>
+                            <td style={{ textAlign: "right", ...S.tableCell, fontWeight: 600, fontFamily: FONT.mono, color: c.name === "Neema" ? C.danger : C.t1 }}>{c.traffic.toLocaleString()}</td>
+                            <td style={S.tableCell}><SparklineBar traffic={c.traffic} isNeema={c.name === "Neema"} /></td>
+                            <td style={{ textAlign: "right", ...S.tableCell, fontFamily: FONT.mono }}>{c.dr ?? "\u2014"}</td>
+                            <td style={{ textAlign: "right", ...S.tableCell, fontFamily: FONT.mono }}>{c.keywords}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginTop: 32 }}>
+                <SectionLabel>Content Infrastructure Gap</SectionLabel>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 14 }}>
+                  {[
+                    { label: "Country Corridor Pages", neema: "0", competitor: "Wise: 40+, WU: 100+", icon: "\uD83C\uDF0D" },
+                    { label: "Currency Converter Pages", neema: "0", competitor: "Wise: 200+, WU: 200+", icon: "\uD83D\uDCB1" },
+                    { label: "Blog / Content Hub", neema: "None", competitor: "All competitors have one", icon: "\uD83D\uDCDD" },
+                    { label: "B2B / API Landing Pages", neema: "0", competitor: "Thunes: 9+, Nium: 7+, Rapyd: 13+", icon: "\uD83D\uDD0C" },
+                  ].map(item => (
+                    <div key={item.label} style={{ ...S.card, padding: 20, borderLeft: `3px solid ${C.danger}` }}>
+                      <div style={{ fontSize: 22, marginBottom: 6 }}>{item.icon}</div>
+                      <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 6, color: C.t1 }}>{item.label}</div>
+                      <div style={{ fontSize: 22, fontWeight: 800, color: C.danger, marginBottom: 4, letterSpacing: -0.5 }}>Neema: {item.neema}</div>
+                      <div style={{ fontSize: 11, color: C.t3 }}>{item.competitor}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ======= TAB 1: B2C DEMAND CORRIDORS ======= */}
+          {activeTab === 1 && (
+            <div>
+              <SectionLabel>Demand Intelligence</SectionLabel>
+              <h3 style={{ marginTop: 0, marginBottom: 8, fontWeight: 800, fontSize: 22, letterSpacing: -0.5 }}>Money Transfer Demand Is Structured &mdash; Not Random</h3>
+              <p style={{ color: C.t2, fontSize: 14, marginBottom: 24, lineHeight: 1.6 }}>
+                People searching to send money from the US follow <strong>17 active country-to-country corridors</strong> &mdash; like "send money to Mexico" (7,800/mo), "send money to Philippines" (2,700/mo), "send money to India" (3,600/mo). Every corridor follows the <strong>same 3-layer search pattern</strong>: currency lookup &rarr; corridor search &rarr; method comparison. This makes the demand systematically capturable: build the template once, deploy it to every corridor.
+              </p>
+
+              {/* Hero metrics */}
+              <div style={{ display: "flex", gap: 14, marginBottom: 28, flexWrap: "wrap" }}>
+                <MetricCard label="Corridor Searches" value={totalCorridorDemand.toLocaleString() + "/mo"} subtitle="Across 17 countries" />
+                <MetricCard label="Currency Searches" value={(totalCurrencyDemand / 1000).toFixed(0) + "K/mo"} subtitle="Top-of-funnel awareness" />
+                <MetricCard label="Low Competition" value="12 of 17" subtitle="Corridors with KD under 10" color={C.success} />
+                <MetricCard label="Neema Captures" value="0" subtitle="Zero pages for any corridor" color={C.danger} />
+              </div>
+
+              {/* Corridor Grid */}
+              <SectionLabel>The 17 Active US Corridors</SectionLabel>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: 10, marginBottom: 32 }}>
+                {corridorData.map(c => {
+                  const pct = (c.volume / maxCorridorVol) * 100;
+                  return (
+                    <div key={c.country} style={{ ...S.card, padding: "14px 16px", borderLeft: `3px solid ${c.kd <= 10 ? C.success : c.kd <= 30 ? C.warning : C.danger}` }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                        <span style={{ fontWeight: 700, fontSize: 13 }}>{c.flag} {c.country}</span>
+                        <DifficultyBadge value={c.kd} />
+                      </div>
+                      <div style={{ fontFamily: FONT.mono, fontSize: 16, fontWeight: 800, color: C.t1, marginBottom: 6 }}>{c.volume.toLocaleString()}<span style={{ fontSize: 11, fontWeight: 500, color: C.t3 }}>/mo</span></div>
+                      <div style={{ height: 4, background: C.borderL, borderRadius: 2, overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: `${pct}%`, background: c.kd <= 10 ? C.success : c.kd <= 30 ? C.warning : C.danger, borderRadius: 2, transition: "width 1s ease" }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Demand Funnel */}
+              <SectionLabel>The 3-Layer Demand Funnel</SectionLabel>
+              <p style={{ color: C.t3, fontSize: 13, marginBottom: 16 }}>Every money transfer corridor follows this pattern &mdash; from rate checking to active search to method comparison. Competitors capture all three layers. Neema captures none.</p>
+              <div style={{ marginBottom: 28, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                {/* Tier 1 - Awareness */}
+                <div style={{ width: "100%", background: `linear-gradient(135deg, ${C.tealDim}, rgba(13,148,136,0.03))`, borderRadius: "14px 14px 0 0", padding: "20px 24px", borderLeft: `3px solid ${C.tealL}`, borderRight: `3px solid ${C.tealL}`, borderTop: `3px solid ${C.tealL}` }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+                    <div>
+                      <div style={{ ...S.label, marginBottom: 4 }}>AWARENESS &mdash; CURRENCY QUERIES</div>
+                      <div style={{ fontSize: 13, color: C.t2 }}>People checking rates before sending</div>
+                    </div>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: C.teal, fontFamily: FONT.mono }}>{(totalCurrencyDemand / 1000).toFixed(0)}K<span style={{ fontSize: 14, fontWeight: 500 }}>/mo</span></div>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+                    {currencyQueries.slice(0, 6).map(cq => (
+                      <span key={cq.pair} style={{ fontFamily: FONT.mono, fontSize: 11, background: C.white, padding: "3px 8px", borderRadius: 6, border: `1px solid ${C.border}` }}>
+                        {cq.pair} <span style={{ color: C.teal, fontWeight: 600 }}>{cq.volume >= 1000000 ? (cq.volume / 1000000).toFixed(1) + "M" : (cq.volume / 1000).toFixed(0) + "K"}</span>
+                      </span>
+                    ))}
+                  </div>
+                  <div style={{ fontSize: 12, color: C.t3, marginTop: 8 }}>Wise captures nearly all of this with 200+ currency converter pages</div>
+                </div>
+                {/* Tier 2 - Intent */}
+                <div style={{ width: "80%", background: `linear-gradient(135deg, rgba(13,148,136,0.12), rgba(13,148,136,0.05))`, padding: "20px 24px", borderLeft: `3px solid ${C.teal}`, borderRight: `3px solid ${C.teal}` }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+                    <div>
+                      <div style={{ ...S.label, marginBottom: 4 }}>INTENT &mdash; CORRIDOR QUERIES</div>
+                      <div style={{ fontSize: 13, color: C.t2 }}>Active intent to send money</div>
+                    </div>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: C.tealD, fontFamily: FONT.mono }}>{totalCorridorDemand.toLocaleString()}<span style={{ fontSize: 14, fontWeight: 500 }}>/mo</span></div>
+                  </div>
+                  <div style={{ fontSize: 12, color: C.t3, marginTop: 8 }}>17 corridors &middot; 12 of 17 have KD under 10 &middot; Competitors have dedicated pages for each</div>
+                </div>
+                {/* Tier 3 - Decision */}
+                <div style={{ width: "60%", background: `linear-gradient(135deg, rgba(22,163,74,0.10), rgba(22,163,74,0.04))`, borderRadius: "0 0 14px 14px", padding: "20px 24px", borderLeft: `3px solid ${C.success}`, borderRight: `3px solid ${C.success}`, borderBottom: `3px solid ${C.success}` }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+                    <div>
+                      <div style={{ ...S.label, color: C.success, marginBottom: 4 }}>DECISION &mdash; METHOD QUERIES</div>
+                      <div style={{ fontSize: 13, color: C.t2 }}>Ready to convert</div>
+                    </div>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: C.success, fontFamily: FONT.mono }}>~6,200<span style={{ fontSize: 14, fontWeight: 500 }}>/mo</span></div>
+                  </div>
+                  <div style={{ fontSize: 12, color: C.t3, marginTop: 8 }}>"cheapest way to..." &middot; "best way to..." &middot; "fastest way to..." &middot; Bottom-of-funnel, highest intent</div>
+                </div>
+                <div style={{ marginTop: 14, textAlign: "center" }}>
+                  <span style={{ fontFamily: FONT.mono, fontSize: 12, color: C.danger, fontWeight: 700, background: "rgba(220,38,38,0.06)", padding: "6px 16px", borderRadius: 100 }}>
+                    Wise captures all three layers. Neema captures none.
+                  </span>
+                </div>
+              </div>
+
+              {/* Pattern Comparison */}
+              <SectionLabel>The Repeating Pattern</SectionLabel>
+              <p style={{ color: C.t3, fontSize: 13, marginBottom: 16 }}>Every corridor follows the same search intent structure. Three countries shown &mdash; the pattern is identical across all 17.</p>
+              <div style={{ overflowX: "auto", borderRadius: 12, border: `1px solid ${C.border}`, marginBottom: 20 }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, minWidth: 600 }}>
+                  <thead>
+                    <tr style={S.tableHead}>
+                      <th style={{ textAlign: "left", ...S.tableCell }}>Search Intent</th>
+                      {corridorPatterns.map(cp => <th key={cp.country} style={{ textAlign: "center", ...S.tableCell }}>{cp.flag} {cp.country}</th>)}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {intentTypes.map(intent => (
+                      <tr key={intent} style={{ ...S.tableRow, background: intent === "Corridor" ? C.tealDim : "transparent" }}>
+                        <td style={{ ...S.tableCell, fontWeight: 600 }}>
+                          {intent === "Corridor" ? "\"send money to X\"" : intent === "Best way" ? "\"best way to send...\"" : intent === "Cheapest" ? "\"cheapest way to send...\"" : intent === "Online" ? "\"send money to X online\"" : "\"fastest way to send...\""}
+                        </td>
+                        {corridorPatterns.map(cp => {
+                          const row = cp.rows.find(r => r.intent === intent);
+                          return (
+                            <td key={cp.country} style={{ textAlign: "center", ...S.tableCell }}>
+                              {row ? (
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                                  <span style={{ fontFamily: FONT.mono, fontWeight: 600 }}>{row.vol.toLocaleString()}</span>
+                                  <DifficultyBadge value={row.kd} />
+                                </span>
+                              ) : "\u2014"}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <CalloutBox color={C.success} bg="rgba(22,163,74,0.04)" title="Each Search Pattern = A Page Type. Each Page Type = Scalable Across 17 Corridors.">
+                <p style={{ margin: 0 }}>
+                  Every intent in this table maps to a page type that answers it &mdash; with contextual variations per corridor:<br/><br/>
+                  <strong>"Send money to X"</strong> &rarr; A dedicated corridor landing page (Neema's rates, fees, speed for that route).<br/>
+                  <strong>"Best / cheapest way to send..."</strong> &rarr; A comparison page (Neema vs. competitors on that corridor, positioned on price or speed).<br/>
+                  <strong>"Send money to X online"</strong> &rarr; The same corridor page, optimized for method-specific queries with step-by-step instructions.<br/>
+                  <strong>"Fastest way to send..."</strong> &rarr; A variant that leads with delivery speed and urgency.<br/><br/>
+                  The structure is identical across all 17 countries &mdash; only the destination, currency, fees, and competitor set change. One template framework, 17 deployments, full-funnel capture on every corridor. This is exactly how Wise, WU, and Remitly built their organic engines.
+                </p>
+              </CalloutBox>
+            </div>
+          )}
+
+          {/* ======= TAB 2: B2B PIPELINE ======= */}
+          {activeTab === 2 && (
+            <div>
+              <SectionLabel>Pipeline Intelligence</SectionLabel>
+              <h3 style={{ marginTop: 0, marginBottom: 8, fontWeight: 800, fontSize: 22, letterSpacing: -0.5 }}>Your Buyers Are Searching. They're Finding Your Competitors.</h3>
+              <p style={{ color: C.t2, fontSize: 14, marginBottom: 24, lineHeight: 1.6 }}>
+                Fintech CTOs, VP Payments, and integration teams search for solutions in different ways depending on the problem they're solving. Whether they're exploring cross-border payments, looking for mass payout infrastructure, or evaluating orchestration platforms &mdash; they find Thunes, Nium, and Rapyd. Neema doesn't appear anywhere. The competition exists, but the difficulty scores show <strong style={{ color: C.success }}>most of these terms are reachable</strong>.
+              </p>
+
+              {/* Hero metrics */}
+              <div style={{ display: "flex", gap: 14, marginBottom: 28, flexWrap: "wrap" }}>
+                <MetricCard label="B2B Search Demand" value="16,370/mo" subtitle="Combined B2B keyword volume" />
+                <MetricCard label="Reachable Keywords" value="11 of 16" subtitle="Keywords with KD under 10" color={C.success} />
+                <MetricCard label="Neema B2B Rankings" value="0" subtitle="Zero keywords in top 100" color={C.danger} />
+              </div>
+
+              {/* Search Clusters */}
+              <SectionLabel>How Your Buyers Search</SectionLabel>
+              <p style={{ color: C.t3, fontSize: 13, marginBottom: 16 }}>Your buyers search by the problem they're solving. Three distinct search clusters &mdash; each one a content opportunity Neema is missing.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16, marginBottom: 28 }}>
+                {b2bSearchClusters.map((cluster) => (
+                  <div key={cluster.label} style={{ ...S.card, padding: 20, borderTop: `3px solid ${cluster.color}` }}>
+                    <div style={{ ...S.label, color: cluster.color, marginBottom: 4 }}>{cluster.label}</div>
+                    <div style={{ fontSize: 12, color: C.t3, marginBottom: 12 }}>{cluster.sublabel}</div>
+                    <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: -1, marginBottom: 16 }}>
+                      {cluster.totalVolume.toLocaleString()}<span style={{ fontSize: 14, color: C.t3, fontWeight: 500 }}>/mo</span>
+                    </div>
+                    {cluster.keywords.map(kw => (
+                      <div key={kw.keyword} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: `1px solid ${C.borderL}`, fontSize: 12 }}>
+                        <span style={{ color: C.t2, fontWeight: 500, flex: 1, marginRight: 8 }}>{kw.keyword}</span>
+                        <span style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                          <span style={{ fontFamily: FONT.mono, fontWeight: 600, fontSize: 11 }}>{kw.volume.toLocaleString()}</span>
+                          <DifficultyBadge value={kw.kd} />
+                        </span>
+                      </div>
+                    ))}
+                    <div style={{ marginTop: 14, padding: "8px 12px", background: "rgba(220,38,38,0.04)", borderRadius: 8 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: C.danger, fontFamily: FONT.mono }}>NEEMA: ABSENT</div>
+                      <div style={{ fontSize: 11, color: C.t3, marginTop: 2 }}>Captured by: {cluster.capturedBy}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* KD Chart */}
+              <SectionLabel>B2B Keyword Opportunities</SectionLabel>
+              <p style={{ color: C.t3, fontSize: 13, marginBottom: 16 }}>Bars colored by difficulty: <span style={{ color: C.success, fontWeight: 600 }}>green = KD under 10</span>, <span style={{ color: C.warning, fontWeight: 600 }}>amber = 10-30</span>, <span style={{ color: C.danger, fontWeight: 600 }}>red = 30+</span>. Competition exists, but most terms are reachable with focused content.</p>
+              <div style={{ height: 420, marginBottom: 24 }}>
+                <ResponsiveContainer>
+                  <BarChart data={b2bAllKeywords} layout="vertical" margin={{ left: 210 }}>
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(0,0,0,0.06)" />
+                    <XAxis type="number" tick={{ fontSize: 12, fill: C.t2 }} />
+                    <YAxis type="category" dataKey="keyword" tick={{ fontSize: 11, fill: C.t2 }} width={200} />
+                    <Tooltip formatter={(val) => val.toLocaleString()} contentStyle={{ borderRadius: 10, border: `1px solid ${C.border}`, boxShadow: "0 4px 12px rgba(0,0,0,.06)" }} />
+                    <Bar dataKey="volume" radius={[0, 6, 6, 0]}>
+                      {b2bAllKeywords.map((entry, i) => <Cell key={i} fill={entry.kd <= 10 ? C.success : entry.kd <= 30 ? C.warning : C.danger} />)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Competitor Playbooks */}
+              <SectionLabel>What Competitors Built</SectionLabel>
+              <p style={{ color: C.t3, fontSize: 13, marginBottom: 16 }}>Three different content strategies. All of them work. Each one proves a different approach can gain traction.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16, marginBottom: 24 }}>
+                {b2bCompetitorPlaybooks.map(comp => (
+                  <div key={comp.name} style={{ ...S.card, padding: 20, borderTop: `3px solid ${comp.color}` }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>{comp.name}</h4>
+                        <div style={{ fontFamily: FONT.mono, fontSize: 11, color: comp.color, fontWeight: 600, marginTop: 2 }}>{comp.subtitle}</div>
+                      </div>
+                      <div style={{ fontFamily: FONT.mono, fontSize: 13, fontWeight: 700, color: C.t1 }}>{comp.traffic.toLocaleString()}<span style={{ fontSize: 11, color: C.t3, fontWeight: 500 }}>/mo</span></div>
+                    </div>
+                    <div style={{ fontSize: 13, color: C.t2, marginBottom: 6 }}>{comp.strategy}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: comp.color, marginBottom: 12, fontStyle: "italic" }}>{comp.keyInsight}</div>
+                    {comp.topPages.map((page, i) => (
+                      <div key={i} style={{ padding: "5px 0", borderTop: `1px solid ${C.borderL}`, fontSize: 11, display: "flex", justifyContent: "space-between", gap: 8 }}>
+                        <span style={{ color: C.t3, fontFamily: FONT.mono, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{page.url}</span>
+                        <span style={{ fontWeight: 600, fontFamily: FONT.mono, flexShrink: 0 }}>{page.traffic}</span>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+
+              {/* Pipeline Loss Callout */}
+              <CalloutBox color={C.danger} bg="rgba(220,38,38,0.04)" title="The Pipeline Leak">
+                <p style={{ margin: 0 }}>
+                  Thunes built their entire B2B organic pipeline with <strong>9 educational articles</strong> capturing 1,735 visits/month. Nium gets found through API docs they already had. Rapyd uses a broad blog strategy. Every week Neema doesn't have these pages, qualified pipeline &mdash; fintech CTOs, VP Payments, integration teams &mdash; goes directly to Thunes, Nium, and Rapyd. The barrier isn't authority or budget. It's architecture.
+                </p>
+              </CalloutBox>
+            </div>
+          )}
+
+          {/* ======= TAB 3: COMPETITIVE ARCHITECTURE ======= */}
+          {activeTab === 3 && (
+            <div>
+              <SectionLabel>Architecture Comparison</SectionLabel>
+              <h3 style={{ marginTop: 0, marginBottom: 8, fontWeight: 800, fontSize: 22, letterSpacing: -0.5 }}>Content Architecture Comparison</h3>
+              <p style={{ color: C.t3, fontSize: 13, marginBottom: 20 }}>
+                Neema has <strong style={{ color: C.danger }}>none</strong> of the content infrastructure that drives organic traffic for competitors.
+              </p>
+              <div style={{ overflowX: "auto", borderRadius: 12, border: `1px solid ${C.border}`, marginBottom: 28 }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                  <thead><tr style={S.tableHead}>
+                    <th style={{ textAlign: "left", ...S.tableCell }}>Content Feature</th>
+                    <th style={{ textAlign: "center", ...S.tableCell, background: "rgba(220,38,38,0.04)", minWidth: 80 }}>Neema</th>
+                    <th style={{ textAlign: "center", ...S.tableCell, minWidth: 80 }}>Wise</th>
+                    <th style={{ textAlign: "center", ...S.tableCell, minWidth: 80 }}>WU</th>
+                    <th style={{ textAlign: "center", ...S.tableCell, minWidth: 80 }}>Remitly</th>
+                  </tr></thead>
+                  <tbody>
+                    {architectureComparison.map(row => (
+                      <tr key={row.feature} style={S.tableRow}>
+                        <td style={{ ...S.tableCell, fontWeight: 600 }}>{row.feature}</td>
+                        <td style={{ textAlign: "center", ...S.tableCell, background: "rgba(220,38,38,0.04)" }}><CheckMark val={row.neema} /></td>
+                        <td style={{ textAlign: "center", ...S.tableCell }}><CheckMark val={row.wise} /></td>
+                        <td style={{ textAlign: "center", ...S.tableCell }}><CheckMark val={row.wu} /></td>
+                        <td style={{ textAlign: "center", ...S.tableCell }}><CheckMark val={row.remitly} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Wise Currency Converter */}
+              <CalloutBox color={C.teal} bg={C.tealDim} title="The Wise Playbook: Currency Converters as Top-of-Funnel">
+                <p style={{ margin: "0 0 14px 0" }}>Wise's biggest traffic driver isn't transfer pages &mdash; it's currency converter pages. They rank top 3 for:</p>
+                <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                  {[
+                    { kw: "usd to inr", vol: "1.37M/mo", pos: "#2" },
+                    { kw: "dollar to peso", vol: "423K/mo", pos: "#3" },
+                    { kw: "pesos to dollars", vol: "347K/mo", pos: "#2" },
+                    { kw: "usd to php", vol: "188K/mo", pos: "#2" },
+                  ].map(item => (
+                    <div key={item.kw} style={{ background: C.white, borderRadius: 10, padding: "10px 16px", fontSize: 13, border: `1px solid ${C.border}` }}>
+                      <div style={{ fontWeight: 700, fontFamily: FONT.mono, fontSize: 12 }}>{item.kw}</div>
+                      <div style={{ color: C.t3, fontSize: 12, marginTop: 2 }}>{item.vol} &mdash; Wise {item.pos}</div>
+                    </div>
+                  ))}
+                </div>
+                <p style={{ margin: "14px 0 0 0", fontSize: 13, color: C.t3 }}>These are people at the start of a money transfer journey. Capture them with a calculator, convert them with a transfer CTA.</p>
+              </CalloutBox>
+
+              {/* Taptap Send */}
+              <CalloutBox color={C.success} bg="rgba(22,163,74,0.04)" title="Proof It Works at Low DR: Taptap Send (DR 54)">
+                <p style={{ margin: "0 0 14px 0" }}>Taptap Send doesn't have Wise's authority or Western Union's brand. They just have the <strong>right pages for the right queries</strong>:</p>
+                <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                  {[
+                    { page: "/country-landing-pages/pakistan", kw: "send money to pakistan", pos: "#7", traffic: "246 visits" },
+                    { page: "/country-landing-pages/bangladesh", kw: "send money to bangladesh", pos: "#7", traffic: "112 visits" },
+                    { page: "/...morocco-no-transfer-fees", kw: "send money to morocco", pos: "#7", traffic: "26 visits" },
+                  ].map(item => (
+                    <div key={item.kw} style={{ background: C.white, borderRadius: 10, padding: "10px 16px", fontSize: 13, flex: 1, minWidth: 200, border: `1px solid ${C.border}` }}>
+                      <div style={{ fontWeight: 700 }}>{item.kw}</div>
+                      <div style={{ color: C.success, fontWeight: 700, fontFamily: FONT.mono, fontSize: 12 }}>{item.pos} &mdash; {item.traffic}</div>
+                      <div style={{ color: C.t3, fontSize: 11, fontFamily: FONT.mono, marginTop: 2 }}>{item.page}</div>
+                    </div>
+                  ))}
+                </div>
+                <p style={{ margin: "14px 0 0 0", fontSize: 13, color: C.t3 }}>DR 54 &mdash; lower than Wise (89) and WU (85). The barrier isn't authority, it's architecture.</p>
+              </CalloutBox>
+
+              {/* MyBambu */}
+              <CalloutBox color={C.warning} bg="rgba(245,158,11,0.06)" title="The MyBambu Revelation: Same DR, 85x More Traffic">
+                <p style={{ margin: 0, color: "#78350f" }}>
+                  MyBambu (DR 37) gets <strong>14,627 visits/month</strong>. Neema (DR 38) gets <strong>171</strong>. Same authority. Their secret: Spanish-language content targeting immigrants in the US &mdash; "cuenta bancaria" (9,900/mo, #7), "abrir cuenta de banco online" (1,400/mo, #5), "cuenta de banco para inmigrantes" (#1). If Neema serves Latin American transfer corridors, this is the search behavior your clients' customers are showing.
+                </p>
+              </CalloutBox>
+
+              {/* Consumer Competitors Table */}
+              <SectionLabel>Consumer & Remittance Competitor Landscape</SectionLabel>
+              <div style={{ overflowX: "auto", borderRadius: 12, border: `1px solid ${C.border}` }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                  <thead><tr style={S.tableHead}>
+                    <th style={{ textAlign: "left", ...S.tableCell }}>Competitor</th>
+                    <th style={{ textAlign: "center", ...S.tableCell }}>DR</th>
+                    <th style={{ textAlign: "right", ...S.tableCell }}>US Traffic/mo</th>
+                    <th style={{ textAlign: "right", ...S.tableCell }}>Keywords</th>
+                    <th style={{ textAlign: "left", ...S.tableCell }}>What's Working</th>
+                  </tr></thead>
+                  <tbody>
+                    {expandedConsumerCompetitors.map(c => (
+                      <tr key={c.name} style={{ ...S.tableRow, background: c.name === "Neema" ? "rgba(220,38,38,0.04)" : c.name === "MyBambu" ? "rgba(245,158,11,0.04)" : "transparent" }}>
+                        <td style={{ ...S.tableCell, fontWeight: c.name === "Neema" || c.name === "MyBambu" ? 700 : 500 }}>{c.name}</td>
+                        <td style={{ textAlign: "center", ...S.tableCell, fontFamily: FONT.mono }}>{c.dr || "\u2014"}</td>
+                        <td style={{ textAlign: "right", ...S.tableCell, fontWeight: 600, fontFamily: FONT.mono, color: c.name === "Neema" ? C.danger : C.t1 }}>{c.traffic.toLocaleString()}</td>
+                        <td style={{ textAlign: "right", ...S.tableCell, fontFamily: FONT.mono }}>{c.keywords}</td>
+                        <td style={{ ...S.tableCell, fontSize: 12, color: c.name === "Neema" ? C.danger : C.t3 }}>{c.highlight}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ======= TAB 4: POSITION GAPS ======= */}
+          {activeTab === 4 && (
+            <div>
+              <SectionLabel>Position Analysis</SectionLabel>
+              <h3 style={{ marginTop: 0, marginBottom: 8, fontWeight: 800, fontSize: 22, letterSpacing: -0.5 }}>Keywords Neema Should Rank For &mdash; But Doesn't</h3>
+              <p style={{ color: C.t3, fontSize: 13, marginBottom: 20 }}>"\u2014" means the domain has no page ranking in the top 100. Neema has no page for any of these terms.</p>
+              <div style={{ overflowX: "auto", borderRadius: 12, border: `1px solid ${C.border}` }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, minWidth: 600 }}>
+                  <thead><tr style={S.tableHead}>
+                    <th style={{ textAlign: "left", ...S.tableCell }}>Keyword</th>
+                    <th style={{ textAlign: "right", ...S.tableCell }}>Volume</th>
+                    <th style={{ textAlign: "center", ...S.tableCell }}>KD</th>
+                    <th style={{ textAlign: "center", ...S.tableCell, background: "rgba(220,38,38,0.04)" }}>Neema</th>
+                    <th style={{ textAlign: "center", ...S.tableCell }}>Wise</th>
+                    <th style={{ textAlign: "center", ...S.tableCell }}>WU</th>
+                    <th style={{ textAlign: "center", ...S.tableCell }}>Remitly</th>
+                  </tr></thead>
+                  <tbody>
+                    {positionGaps.map(row => (
+                      <tr key={row.keyword} style={S.tableRow}>
+                        <td style={{ ...S.tableCell, fontWeight: 600 }}>{row.keyword}</td>
+                        <td style={{ textAlign: "right", ...S.tableCell, fontWeight: 600, fontFamily: FONT.mono }}>{row.volume.toLocaleString()}</td>
+                        <td style={{ textAlign: "center", ...S.tableCell }}><DifficultyBadge value={row.difficulty} /></td>
+                        <td style={{ textAlign: "center", ...S.tableCell, background: "rgba(220,38,38,0.04)" }}><PositionCell value={row.neemaPos} /></td>
+                        <td style={{ textAlign: "center", ...S.tableCell }}><PositionCell value={row.wisePos} /></td>
+                        <td style={{ textAlign: "center", ...S.tableCell }}><PositionCell value={row.wuPos} /></td>
+                        <td style={{ textAlign: "center", ...S.tableCell }}><PositionCell value={row.remitlyPos} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <h3 style={{ marginTop: 36, marginBottom: 8, fontWeight: 800, fontSize: 20, letterSpacing: -0.5 }}>SERP Snapshot: "send money to mexico" <span style={{ fontFamily: FONT.mono, fontSize: 14, color: C.t3, fontWeight: 500 }}>7,800/mo</span></h3>
+              <p style={{ color: C.t3, fontSize: 13, marginBottom: 16 }}>Note FelixPago (DR 56) on page 1 &mdash; proof that authority alone isn't the barrier.</p>
+              <div style={{ overflowX: "auto", borderRadius: 12, border: `1px solid ${C.border}` }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                  <thead><tr style={S.tableHead}>
+                    <th style={{ textAlign: "center", ...S.tableCell, width: 50 }}>#</th>
+                    <th style={{ textAlign: "left", ...S.tableCell }}>Domain</th>
+                    <th style={{ textAlign: "center", ...S.tableCell }}>DR</th>
+                    <th style={{ textAlign: "left", ...S.tableCell }}>URL Path</th>
+                  </tr></thead>
+                  <tbody>
+                    {serpSnapshot.map(row => (
+                      <tr key={row.position} style={{ ...S.tableRow, background: row.domain === "felixpago.com" ? C.tealDim : "transparent" }}>
+                        <td style={{ textAlign: "center", ...S.tableCell, fontWeight: 700, fontFamily: FONT.mono }}>{row.position}</td>
+                        <td style={{ ...S.tableCell, fontWeight: 600 }}>{row.domain}</td>
+                        <td style={{ textAlign: "center", ...S.tableCell, fontFamily: FONT.mono }}>{row.dr}</td>
+                        <td style={{ ...S.tableCell, fontSize: 12, color: C.t3, fontFamily: FONT.mono }}>{row.url}</td>
+                      </tr>
+                    ))}
+                    <tr style={{ background: "rgba(220,38,38,0.04)" }}>
+                      <td style={{ textAlign: "center", ...S.tableCell, fontWeight: 700, fontFamily: FONT.mono }}>\u2014</td>
+                      <td style={{ ...S.tableCell, fontWeight: 700, color: C.danger }}>getneema.com</td>
+                      <td style={{ textAlign: "center", ...S.tableCell, fontFamily: FONT.mono }}>38</td>
+                      <td style={{ ...S.tableCell, fontSize: 12, color: C.danger, fontStyle: "italic" }}>No page exists</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ======= TAB 5: TALKING POINTS ======= */}
+          {activeTab === 5 && (
+            <div>
+              <SectionLabel>Call Preparation</SectionLabel>
+              <h3 style={{ marginTop: 0, marginBottom: 24, fontWeight: 800, fontSize: 22, letterSpacing: -0.5 }}>Talking Points</h3>
+
+              {[
+                {
+                  num: 1, title: "The Discovery Problem", color: C.danger,
+                  quote: "We looked at your US organic presence. Right now, 89% of your search traffic comes from people searching 'neema' \u2014 people who already know you. When someone searches 'send money to mexico' \u2014 7,800 times a month \u2014 they see Western Union, Remitly, Wise, MoneyGram, even FelixPago. They don't see Neema. You're invisible to the exact audience that's actively looking for what you offer.",
+                },
+                {
+                  num: 2, title: "The Corridor Pattern \u2014 Structured Demand", color: C.teal,
+                  quote: "Here's what most people miss about money transfer SEO. The demand isn't random \u2014 it's structured into corridors, and every corridor follows the exact same search pattern. 'Send money to Mexico,' 'best way to send money to Mexico,' 'cheapest way to send money to Mexico.' Now replace Mexico with Philippines \u2014 same pattern. India \u2014 same pattern. We mapped 17 active corridors from the US generating 32,000 searches a month. Most have keyword difficulty under 10, meaning the competition is there but it's reachable. You don't need 17 different strategies. You need one template and 17 deployments. That's how you go from 171 visits to thousands \u2014 systematically.",
+                },
+                {
+                  num: 3, title: "The Currency Converter Goldmine", color: C.warning,
+                  quote: "You know how Wise gets 6.5 million organic visits a month in the US? It's not their transfer pages. It's their currency converter. 'USD to pesos' \u2014 423,000 searches a month. 'USD to PHP' \u2014 188,000. 'USD to PKR' \u2014 112,000. That's 441,000 monthly searches just for the top currency pairs. These are people at the very start of thinking about sending money. Wise captures them with a simple currency calculator, then offers the transfer. It's a content-as-acquisition strategy, and we can build it for Neema's key corridors.",
+                },
+                {
+                  num: 4, title: "The MyBambu Mirror \u2014 Same DR, 85x Traffic", color: C.purple,
+                  quote: "There's a company called MyBambu with the exact same domain rating as you \u2014 DR 37 vs your 38. They get 14,600 organic visits a month. You get 171. Their secret? They write in Spanish for immigrants in the US. 'Cuenta bancaria' gets searched 9,900 times a month. 'Abrir cuenta de banco online' gets 1,400. If your platform serves the Latin American transfer corridor, this is the search behavior your clients' customers are showing.",
+                },
+                {
+                  num: 5, title: "B2B: The Pipeline Leak", color: C.success,
+                  quote: "On the B2B side, it's even more striking. When a fintech CTO searches 'cross border payment solutions' \u2014 4,500 searches a month \u2014 they find Thunes. When someone looks for 'mass payouts' \u2014 3,500 a month \u2014 Thunes again. When a payments team evaluates 'payment orchestration platform' \u2014 1,100 a month \u2014 they find Rapyd. Three different problems, three different search paths, all leading to your competitors. The difficulty scores show these terms are reachable \u2014 Thunes built their pipeline with 9 educational articles. It's about having the right pages for each search cluster. Every week without them, that's qualified pipeline \u2014 CTOs, VP Payments \u2014 going directly to Thunes, Nium, and Rapyd.",
+                },
+              ].map(aha => <ExpandableTalkingPoint key={aha.num} {...aha} />)}
+
+              <CalloutBox color={C.success} bg="rgba(22,163,74,0.04)" title="Transition to Next Steps">
+                <p style={{ margin: 0, fontStyle: "italic" }}>
+                  "This is the US market view. The demand pattern repeats in every market you serve. We've also run the same analysis for Israel \u2014 the pattern is identical there. STB Union with a DR of 23 beats you for '\u05D4\u05E2\u05D1\u05E8\u05EA \u05DB\u05E1\u05E3 \u05DC\u05D7\u05D5\u05DC,' and a tiny currency converter site with DR 28 gets 21,000 visits a month. What we'd want to do next is pick 2\u20133 corridors and markets that matter most to your business and show you exactly what's there, who's capturing it, and what it would take to own it. The playbook is proven. FelixPago does it at DR 56. Taptap Send does it at DR 54. MyBambu does it at DR 37. The question isn't whether it works \u2014 it's how fast you want to move."
+                </p>
+              </CalloutBox>
+            </div>
+          )}
+        </div>
+
+        {/* ===== Footer ===== */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginTop: 32, paddingTop: 20, borderTop: `1px solid ${C.border}` }}>
+          <img src="https://cutinside.com/wp-content/uploads/2025/01/Logo.svg" alt="Cut Inside" style={{ height: 16, opacity: 0.5 }} />
+          <span style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t3, letterSpacing: 0.5 }}>Data from Ahrefs &mdash; March 2025 &mdash; US Market</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(NeemaBrief));
+</script>
+</body>
+</html>

@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marin Bikes — Search Intelligence Brief | Cut Inside</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { -webkit-font-smoothing: antialiased; line-height: 1.7; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeInSlow { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); } 50% { box-shadow: 0 0 0 6px rgba(220,38,38,0.06); } }
+  @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+  @media print {
+    button, .no-print { display: none !important; }
+    div[data-brief] { padding: 0 !important; }
+    * { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/prop-types@15/prop-types.min.js" crossorigin></script>
+<script src="https://unpkg.com/recharts@2.15.3/umd/Recharts.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, FunnelChart, Funnel, LabelList, LineChart, Line } = Recharts;
+
+/* ===== Brand Tokens ===== */
+const C = {
+  teal: "#0D9488", tealL: "#14B8A6", tealD: "#0A7A70",
+  tealDim: "rgba(13,148,136,0.06)", tealDim2: "rgba(13,148,136,0.10)", tealGlow: "rgba(13,148,136,0.22)",
+  danger: "#DC2626", dangerDim: "rgba(220,38,38,0.06)", warning: "#F59E0B", warningDim: "rgba(245,158,11,0.08)", success: "#16a34a", successDim: "rgba(22,163,74,0.06)", purple: "#7c3aed", purpleDim: "rgba(124,58,237,0.06)",
+  bg: "#FAFAFA", white: "#FFFFFF", off: "#F3F4F6",
+  border: "#E5E7EB", borderL: "#F0F0F0",
+  t1: "#111111", t2: "#4B5563", t3: "#9CA3AF",
+  marin: "#003DA5", marinDim: "rgba(0,61,165,0.08)",
+  trek: "#E4002B", trekDim: "rgba(228,0,43,0.06)",
+};
+const FONT = { body: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", mono: "'JetBrains Mono', monospace" };
+const MARIN_LOGO = "https://marinbikesjapan.com/wp-content/uploads/2024/11/logo_usa.jpg";
+const TREK_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Trek_Bicycle_Corporation_logo.svg/960px-Trek_Bicycle_Corporation_logo.svg.png";
+
+const tabs = ["The Market Lens", "Non-Branded Visibility", "The Need Gap", "Pairs & Triples", "The Wheel Size Case", "Strategic Implications"];
+
+/* ========== DATA ========== */
+
+/* Layer overview / funnel data */
+const funnelLayers = [
+  { name: "All Non-Branded", keywords: 68558, volume: 11065550, marinKw: 33, marinVol: 5630, trekKw: 4898, trekVol: 1309820 },
+  { name: "Need-Based NB", keywords: 13556, volume: 2078220, marinKw: 4, marinVol: 1040, trekKw: 1649, trekVol: 408130 },
+  { name: "Type-Based NB", keywords: 18473, volume: 3433080, marinKw: 11, marinVol: 2270, trekKw: 2365, trekVol: 807610 },
+  { name: "Pairs (Type+Need)", keywords: 5543, volume: 978420, marinKw: 2, marinVol: 650, trekKw: 1008, trekVol: 240190 },
+  { name: "Type+Size Pairs", keywords: 413, volume: 57350, marinKw: 0, marinVol: 0, trekKw: 95, trekVol: 12470 },
+  { name: "Triples (Type+2 Needs)", keywords: 789, volume: 105910, marinKw: 0, marinVol: 0, trekKw: 146, trekVol: 20260 },
+];
+
+/* Non-branded top-10 competitor comparison */
+const nbCompetitors = [
+  { name: "Trek", keywords: 4898, volume: 1309820, color: C.trek },
+  { name: "Canyon", keywords: 1796, volume: 417990, color: "#FF6B00" },
+  { name: "Specialized", keywords: 974, volume: 350550, color: "#E31937" },
+  { name: "Giant", keywords: 728, volume: 150860, color: "#1B1B1B" },
+  { name: "Cannondale", keywords: 381, volume: 106400, color: "#00B140" },
+  { name: "Santa Cruz", keywords: 139, volume: 34260, color: "#FF4136" },
+  { name: "Scott", keywords: 64, volume: 8250, color: "#FFD700" },
+  { name: "Marin", keywords: 33, volume: 5630, color: C.marin },
+];
+
+/* High-volume NB terms where Marin is absent */
+const absentTerms = [
+  { keyword: "mountain bike", volume: 49500, trekRank: 5 },
+  { keyword: "electric mountain bike", volume: 22200, trekRank: 3 },
+  { keyword: "full suspension mountain bikes", volume: 8100, trekRank: 4 },
+  { keyword: "mountain bikes for sale", volume: 8100, trekRank: 10 },
+  { keyword: "hardtail mountain bike", volume: 6600, trekRank: 6 },
+  { keyword: "full suspension mountain bike", volume: 6600, trekRank: 3 },
+  { keyword: "downhill mountain bike", volume: 6600, trekRank: 16 },
+  { keyword: "e mountain bike", volume: 5400, trekRank: 5 },
+];
+
+/* Need-based NB competitor comparison */
+const needCompetitors = [
+  { name: "Trek", keywords: 1649, volume: 408130 },
+  { name: "Specialized", keywords: 280, volume: 69340 },
+  { name: "Giant", keywords: 200, volume: 45650 },
+  { name: "Marin", keywords: 4, volume: 1040 },
+];
+
+/* Pairs competitor comparison */
+const pairCompetitors = [
+  { name: "Trek", keywords: 1008, volume: 240190 },
+  { name: "Specialized", keywords: 242, volume: 65310 },
+  { name: "Giant", keywords: 130, volume: 31630 },
+  { name: "Marin", keywords: 2, volume: 650 },
+];
+
+/* Pair examples */
+const pairExamples = [
+  { keyword: "electric bicycles for adults", volume: 3600, trekRank: 16, needs: "electric + age" },
+  { keyword: "bicycle for men hybrid", volume: 3600, trekRank: 8, needs: "hybrid + gender" },
+  { keyword: "electric bicycle adults", volume: 2900, trekRank: 15, needs: "electric + age" },
+  { keyword: "bicycle women's mountain bike", volume: 2400, trekRank: 6, needs: "mountain + gender" },
+  { keyword: "10 speed racer bicycle", volume: 1900, trekRank: 50, needs: "road + speed" },
+  { keyword: "mens cruising bicycle", volume: 1900, trekRank: 19, needs: "cruiser + gender" },
+  { keyword: "female road bicycle", volume: 1600, trekRank: 5, needs: "road + gender" },
+];
+
+/* Triple examples */
+const tripleExamples = [
+  { keyword: "24 inch ladies mountain bike", volume: 480, needs: "mountain + size + gender", trekRank: 26 },
+  { keyword: "24 inch youth mountain bike", volume: 390, needs: "mountain + size + age", trekRank: 8 },
+  { keyword: "kids mountain bike 24", volume: 320, needs: "mountain + size + age", trekRank: 6 },
+  { keyword: "mens mountain bike 29 inch", volume: 320, needs: "mountain + size + gender", trekRank: 10 },
+  { keyword: "mens 29 inch mountain bike", volume: 260, needs: "mountain + size + gender", trekRank: 12 },
+  { keyword: "mountain bike 26 inch mens", volume: 140, needs: "mountain + size + gender", trekRank: 10 },
+];
+
+/* Wheel size data */
+const wheelSizeTerms = [
+  { keyword: "20 bicycle", volume: 2900, trekRank: 9, marinRank: 50 },
+  { keyword: "26 inch bicycle", volume: 1900, trekRank: 5, marinRank: 50 },
+  { keyword: "24 bicycle", volume: 1600, trekRank: 10, marinRank: 50 },
+  { keyword: "29 bicycle", volume: 1000, trekRank: 11, marinRank: 50 },
+  { keyword: "29 inch bike", volume: 29420, trekRank: 6, marinRank: 50 },
+  { keyword: "29 inch mountain bike", volume: 27420, trekRank: 6, marinRank: 50 },
+];
+
+/* Branded data */
+const brandedBreakdown = [
+  { name: "Rank #1", keywords: 180, volume: 60080, color: C.success },
+  { name: "Rank #2-3", keywords: 21, volume: 1850, color: C.tealL },
+  { name: "Rank #4-10", keywords: 14, volume: 1870, color: C.warning },
+  { name: "Rank 11+", keywords: 14, volume: 1380, color: "#F97316" },
+  { name: "Unranked", keywords: 18, volume: 2900, color: C.danger },
+];
+
+/* Marin keyword drop across layers */
+const marinDropData = [
+  { layer: "All NB", marinKw: 33, label: "33" },
+  { layer: "Need-Based", marinKw: 4, label: "4" },
+  { layer: "Pairs", marinKw: 2, label: "2" },
+  { layer: "Type+Size", marinKw: 0, label: "0" },
+  { layer: "Triples", marinKw: 0, label: "0" },
+];
+
+const trekDropData = [
+  { layer: "All NB", trekKw: 4898, label: "4,898" },
+  { layer: "Need-Based", trekKw: 1649, label: "1,649" },
+  { layer: "Pairs", trekKw: 1008, label: "1,008" },
+  { layer: "Type+Size", trekKw: 95, label: "95" },
+  { layer: "Triples", trekKw: 146, label: "146" },
+];
+
+/* ========== STYLES ========== */
+const S = {
+  label: { fontFamily: FONT.mono, fontSize: 11, letterSpacing: 2.5, textTransform: "uppercase", color: C.teal, fontWeight: 600 },
+  mono: { fontFamily: FONT.mono },
+  card: { background: C.white, borderRadius: 20, border: `1px solid ${C.border}`, boxShadow: "0 1px 3px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.03)", position: "relative", overflow: "hidden", transition: "all .3s cubic-bezier(.16,1,.3,1)" },
+  tableHead: { fontFamily: FONT.mono, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", color: C.teal, fontWeight: 600, background: C.bg, borderBottom: `2px solid ${C.border}`, position: "sticky", top: 0, zIndex: 1 },
+  tableRow: { borderBottom: `1px solid ${C.borderL}`, transition: "background .25s" },
+  tableCell: { padding: "12px 16px", fontSize: 13 },
+};
+
+/* ========== SHARED COMPONENTS ========== */
+
+const AnimatedNumber = ({ value, prefix = "", suffix = "", color = C.t1, duration = 1200 }) => {
+  const [display, setDisplay] = useState("0");
+  const numericVal = parseFloat(String(value).replace(/[^0-9.]/g, ""));
+  const isNumeric = !isNaN(numericVal) && numericVal > 0;
+  const hasDecimal = String(value).includes(".");
+  useEffect(() => {
+    if (!isNumeric) { setDisplay(value); return; }
+    const startTime = performance.now();
+    const animate = (now) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(eased * numericVal);
+      setDisplay(hasDecimal ? (eased * numericVal).toFixed(1) : current.toLocaleString());
+      if (progress < 1) requestAnimationFrame(animate);
+      else setDisplay(hasDecimal ? numericVal.toFixed(1) : numericVal.toLocaleString());
+    };
+    requestAnimationFrame(animate);
+  }, [value]);
+  return <span style={{ fontSize: 36, fontWeight: 800, color, lineHeight: 1.1, letterSpacing: -1.5 }}>{prefix}{display}{suffix}</span>;
+};
+
+const MetricCard = ({ label, value, subtitle, color = C.t1 }) => {
+  const match = String(value).match(/^([0-9,.]+)(.*)$/);
+  const numPart = match ? match[1].replace(/,/g, "") : null;
+  const suffixPart = match ? match[2] : "";
+  const isAnimatable = numPart && !isNaN(parseFloat(numPart));
+  const accentColor = color === C.danger ? C.danger : color === C.success ? C.success : C.teal;
+  return (
+    <div style={{ ...S.card, padding: "28px 28px", flex: 1, minWidth: 170, borderTop: `4px solid ${accentColor}`, borderLeft: "none" }}>
+      <div style={{ ...S.label, marginBottom: 10 }}>{label}</div>
+      {isAnimatable ? <AnimatedNumber value={numPart} suffix={suffixPart} color={color} /> : <div style={{ fontSize: 36, fontWeight: 800, color, lineHeight: 1.1, letterSpacing: -1.5 }}>{value}</div>}
+      {subtitle && <div style={{ fontSize: 12, color: C.t3, marginTop: 8 }}>{subtitle}</div>}
+    </div>
+  );
+};
+
+const PositionCell = ({ value }) => {
+  if (value === "\u2014" || value === 50 || value === "50") return <span style={{ color: C.danger, fontWeight: 600, fontFamily: FONT.mono, fontSize: 11 }}>UNRANKED</span>;
+  const v = parseInt(value);
+  const color = v <= 3 ? C.success : v <= 10 ? C.warning : C.danger;
+  return <span style={{ fontFamily: FONT.mono, color, fontWeight: 700 }}>#{v}</span>;
+};
+
+const SectionLabel = ({ children }) => (
+  <div style={{ ...S.label, marginBottom: 20, display: "flex", alignItems: "center", gap: 10 }}>
+    <span style={{ width: 28, height: 2, background: C.teal, display: "inline-block", borderRadius: 1 }} />
+    {children}
+  </div>
+);
+
+const CalloutBox = ({ color = C.teal, bg, title, children }) => (
+  <div style={{ background: bg || C.tealDim, borderRadius: "0 16px 16px 0", padding: "28px 32px", borderLeft: `4px solid ${color}`, marginBottom: 24 }}>
+    {title && <h4 style={{ margin: "0 0 12px 0", fontSize: 16, fontWeight: 700, color: C.t1, display: "flex", alignItems: "center", gap: 8 }}>{title}</h4>}
+    <div style={{ fontSize: 15, lineHeight: 1.7, color: C.t2 }}>{children}</div>
+  </div>
+);
+
+const NeedBadge = ({ needs }) => {
+  const colorMap = { buy: C.teal, used: C.purple, gender: "#DB2777", comparison: C.warning, "rider level": C.success, price: "#F97316", "buy + used": C.purple, "buy + price": "#F97316", "comparison + rider level": C.success, "comparison + gender": "#DB2777" };
+  const bgMap = { buy: C.tealDim2, used: C.purpleDim, gender: "rgba(219,39,119,0.08)", comparison: C.warningDim, "rider level": C.successDim, price: "rgba(249,115,22,0.08)", "buy + used": C.purpleDim, "buy + price": "rgba(249,115,22,0.08)", "comparison + rider level": C.successDim, "comparison + gender": "rgba(219,39,119,0.08)" };
+  return <span style={{ fontFamily: FONT.mono, fontSize: 10, fontWeight: 600, color: colorMap[needs] || C.teal, background: bgMap[needs] || C.tealDim, padding: "3px 8px", borderRadius: 100, letterSpacing: 0.5 }}>{needs.toUpperCase()}</span>;
+};
+
+const ExpandableTalkingPoint = ({ num, title, color, quote }) => {
+  const [expanded, setExpanded] = useState(false);
+  const firstLine = quote.split(".").slice(0, 2).join(".") + ".";
+  return (
+    <div style={{ marginBottom: 16, background: C.white, borderRadius: 14, padding: 24, border: `1px solid ${C.border}`, borderLeft: `3px solid ${color}`, cursor: "pointer", transition: "all .3s cubic-bezier(.16,1,.3,1)" }} onClick={() => setExpanded(!expanded)}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: expanded ? 14 : 0 }}>
+        <span style={{ background: color, color: "#fff", width: 30, height: 30, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, fontFamily: FONT.mono, flexShrink: 0 }}>{num}</span>
+        <h4 style={{ margin: 0, fontSize: 16, fontWeight: 700, flex: 1 }}>{title}</h4>
+        <span style={{ fontFamily: FONT.mono, fontSize: 18, color: C.t3, transform: expanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform .3s cubic-bezier(.16,1,.3,1)", flexShrink: 0 }}>&#9662;</span>
+      </div>
+      {!expanded && <div style={{ fontSize: 13, color: C.t3, marginTop: 8, marginLeft: 42, lineHeight: 1.6 }}>{firstLine} <span style={{ color: C.teal, fontWeight: 600, fontSize: 12 }}>Click to read more</span></div>}
+      {expanded && <div style={{ background: C.bg, borderRadius: 10, padding: 20, fontSize: 14, lineHeight: 1.7, fontStyle: "italic", color: C.t2, borderLeft: `2px solid ${C.borderL}`, animation: "fadeIn .35s ease" }}>&ldquo;{quote}&rdquo;</div>}
+    </div>
+  );
+};
+
+/* Helper: format large numbers */
+const fmt = (n) => {
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + "M";
+  if (n >= 1000) return (n / 1000).toFixed(0) + "K";
+  return n.toLocaleString();
+};
+
+/* Custom tooltip for charts */
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div style={{ background: C.white, padding: "12px 16px", borderRadius: 12, border: `1px solid ${C.border}`, boxShadow: "0 4px 16px rgba(0,0,0,0.08)", fontSize: 12, fontFamily: FONT.body }}>
+      <div style={{ fontWeight: 700, marginBottom: 4 }}>{label}</div>
+      {payload.map((p, i) => (
+        <div key={i} style={{ color: p.color || p.fill, fontFamily: FONT.mono, fontSize: 11 }}>{p.name}: {typeof p.value === "number" ? p.value.toLocaleString() : p.value}</div>
+      ))}
+    </div>
+  );
+};
+
+/* ========== MAIN ========== */
+function MarinBrief() {
+  const [activeTab, setActiveTab] = useState(0);
+
+  return (
+    <div data-brief style={{ fontFamily: FONT.body, background: C.bg, minHeight: "100vh", padding: "48px 32px", color: C.t1, WebkitFontSmoothing: "antialiased" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+
+        {/* ===== Header ===== */}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 40, flexWrap: "wrap", gap: 20 }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 10 }}>
+              <img src="https://cutinside.com/wp-content/uploads/2025/01/Logo.svg" alt="Cut Inside" style={{ height: 22 }} />
+              <span style={{ width: 1, height: 20, background: C.border, display: "inline-block" }} />
+              <span style={{ ...S.label, marginBottom: 0 }}>SEARCH INTELLIGENCE BRIEF</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+              <img src={MARIN_LOGO} alt="Marin Bikes" style={{ height: 40, objectFit: "contain", borderRadius: 8 }} />
+              <h1 style={{ fontSize: 34, fontWeight: 800, margin: 0, letterSpacing: -1.5 }}>Marin Bikes</h1>
+              <span style={{ fontFamily: FONT.mono, fontSize: 12, color: C.t3, background: C.off, padding: "4px 12px", borderRadius: 100, fontWeight: 500 }}>marinbikes.com</span>
+            </div>
+            <p style={{ color: C.t3, fontSize: 13, margin: "6px 0 0 0", fontFamily: FONT.mono, letterSpacing: 0.3 }}>Non-Branded Demand Analysis ·US Market ·March 2026</p>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+            <button onClick={() => { navigator.clipboard.writeText(document.querySelector("[data-brief]").innerText).then(() => { const b = document.getElementById("copy-btn"); if (b) { b.textContent = "Copied!"; setTimeout(() => { b.textContent = "Copy Text"; }, 2000); } }); }} id="copy-btn" style={{ fontFamily: FONT.mono, fontSize: 11, fontWeight: 600, letterSpacing: 0.5, padding: "8px 16px", borderRadius: 100, background: C.white, color: C.t2, border: `1px solid ${C.border}`, cursor: "pointer" }}>Copy Text</button>
+            <button onClick={() => window.print()} style={{ fontFamily: FONT.mono, fontSize: 11, fontWeight: 600, letterSpacing: 0.5, padding: "8px 16px", borderRadius: 100, background: C.teal, color: "#fff", border: "none", cursor: "pointer" }}>Print / PDF</button>
+          </div>
+        </div>
+
+        {/* ===== Key Metrics ===== */}
+        <div style={{ display: "flex", gap: 20, marginBottom: 32, flexWrap: "wrap" }}>
+          <MetricCard label="Queries Analyzed" value="92345" subtitle="Total bicycle market" />
+          <MetricCard label="NB Searches/mo" value="11M" subtitle="Non-branded demand" />
+          <MetricCard label="Top 10 Keywords" value="33" subtitle="vs. Trek 4,898" color={C.danger} />
+          <MetricCard label="Triples Captured" value="0" subtitle="789 opportunities" color={C.danger} />
+        </div>
+
+        {/* ===== Core Finding ===== */}
+        <div style={{ ...S.card, padding: "32px 36px", marginBottom: 36, borderLeft: `4px solid ${C.teal}`, borderRadius: "0 20px 20px 0" }}>
+          <div style={{ ...S.label, marginBottom: 14 }}>CORE FINDING</div>
+          <div style={{ fontSize: 17, fontWeight: 500, lineHeight: 1.7, color: C.t1 }}>
+            Marin Bikes ranks #1 for <strong style={{ color: C.success }}>180 branded keywords</strong> capturing ~60,000 searches/month. Strong brand recognition. But in non-branded demand, <strong style={{ color: C.teal }}>11 million monthly searches</strong> where real purchase decisions begin, Marin holds just <strong style={{ color: C.danger }}>33 Top 10 positions</strong> capturing 5,630 searches. As demand becomes more specific (need-based &rarr; pairs &rarr; triples), Marin's presence drops to near-zero: <strong style={{ color: C.danger }}>4 keywords for needs, 2 for pairs, 0 for triples</strong>. The more a user knows what they want, the less likely they are to find Marin.
+          </div>
+        </div>
+
+        {/* ===== Tabs ===== */}
+        <div style={{ display: "flex", borderBottom: `1px solid ${C.borderL}`, marginBottom: 32, overflowX: "auto", gap: 0 }}>
+          {tabs.map((tab, i) => (
+            <button key={tab} onClick={() => setActiveTab(i)} style={{ padding: "14px 20px", border: "none", borderBottom: activeTab === i ? `2px solid ${C.teal}` : "2px solid transparent", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: FONT.body, background: "transparent", color: activeTab === i ? C.t1 : C.t3, whiteSpace: "nowrap", transition: "all 0.25s cubic-bezier(.16,1,.3,1)" }}>
+              <span style={{ fontFamily: FONT.mono, fontSize: 11, color: C.teal, marginRight: 6, fontWeight: 600 }}>{String(i + 1).padStart(2, "0")}</span>
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* ===== Tab Content ===== */}
+        <div style={{ ...S.card, padding: "36px 40px" }}>
+
+          {/* ======= TAB 0: THE MARKET LENS ======= */}
+          {activeTab === 0 && (
+            <div style={{ animation: "fadeIn .4s ease" }}>
+              <SectionLabel>Framework Recap</SectionLabel>
+              <h3 style={{ marginTop: 0, marginBottom: 8, fontWeight: 800, fontSize: 28, letterSpacing: -1 }}>The Progressive Demand Funnel</h3>
+              <p style={{ color: C.t2, fontSize: 16, marginBottom: 32, lineHeight: 1.7 }}>
+                In the general methodology, we showed how bicycle search demand narrows from broad non-branded queries to increasingly specific combinations. <strong>Each layer represents more informed, more intentional demand</strong>: users who know what type of bike they want, what rider profile they fit, and what attributes define their ideal bike. Here's how the 92,345-keyword market breaks down.
+              </p>
+
+              {/* Visual Funnel */}
+              <div style={{ marginBottom: 36, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                {[
+                  { label: "ALL NON-BRANDED", sublabel: "General bicycle queries", kw: "68,558 keywords", vol: "11.07M/mo", width: "100%", bg: `linear-gradient(135deg, ${C.tealDim}, rgba(13,148,136,0.03))`, borderColor: C.tealL, radiusTop: true },
+                  { label: "NEED-BASED", sublabel: "Size, color, buy, used, price, gender, rider level...", kw: "13,556 keywords", vol: "2.08M/mo", width: "82%", bg: `linear-gradient(135deg, rgba(13,148,136,0.10), rgba(13,148,136,0.04))`, borderColor: C.teal },
+                  { label: "TYPE-BASED", sublabel: "Mountain bike, road bike, electric bike...", kw: "18,473 keywords", vol: "3.43M/mo", width: "68%", bg: `linear-gradient(135deg, rgba(13,148,136,0.14), rgba(13,148,136,0.06))`, borderColor: C.tealD },
+                  { label: "PAIRS (TYPE + NEED)", sublabel: '"electric bicycles for adults", "female road bicycle"', kw: "5,543 keywords", vol: "978K/mo", width: "52%", bg: `linear-gradient(135deg, rgba(245,158,11,0.10), rgba(245,158,11,0.04))`, borderColor: C.warning },
+                  { label: "TYPE + SIZE", sublabel: '"29 inch mountain bike", "24 inch kids bike"', kw: "413 keywords", vol: "57K/mo", width: "38%", bg: `linear-gradient(135deg, rgba(249,115,22,0.10), rgba(249,115,22,0.04))`, borderColor: "#F97316" },
+                  { label: "TRIPLES (TYPE + 2+ NEEDS)", sublabel: '"mens mountain bike 29 inch", "24 inch youth mountain bike"', kw: "789 keywords", vol: "105.9K/mo", width: "26%", bg: `linear-gradient(135deg, rgba(220,38,38,0.10), rgba(220,38,38,0.04))`, borderColor: C.danger, radiusBottom: true },
+                ].map((tier, i) => (
+                  <div key={i} style={{
+                    width: tier.width,
+                    background: tier.bg,
+                    padding: "18px 24px",
+                    borderLeft: `3px solid ${tier.borderColor}`,
+                    borderRight: `3px solid ${tier.borderColor}`,
+                    ...(tier.radiusTop ? { borderRadius: "14px 14px 0 0", borderTop: `3px solid ${tier.borderColor}` } : {}),
+                    ...(tier.radiusBottom ? { borderRadius: "0 0 14px 14px", borderBottom: `3px solid ${tier.borderColor}` } : {}),
+                    transition: "all .3s ease",
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+                      <div>
+                        <div style={{ ...S.label, marginBottom: 2, color: tier.borderColor }}>{tier.label}</div>
+                        <div style={{ fontSize: 12, color: C.t3 }}>{tier.sublabel}</div>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ fontFamily: FONT.mono, fontSize: 18, fontWeight: 800, color: tier.borderColor }}>{tier.vol}</div>
+                        <div style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t3 }}>{tier.kw}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <CalloutBox color={C.warning} bg={C.warningDim} title="Why This Matters">
+                As queries get more specific, they signal <strong>a more informed, more intentional user</strong>. A user searching "mountain bike" is exploring. A user searching "mens 29 inch mountain bike" knows their wheel size, their gender category, and their bike type. Brands that appear at every layer of this funnel capture demand at every stage. The question for Marin: <strong>how much of this funnel do they own?</strong>
+              </CalloutBox>
+
+              {/* Marin's progressive disappearance */}
+              <SectionLabel>Marin's Presence Across Layers</SectionLabel>
+              <h3 style={{ marginTop: 0, marginBottom: 16, fontWeight: 800, fontSize: 20, letterSpacing: -0.5, display: "flex", alignItems: "center", gap: 10 }}>
+                <img src={MARIN_LOGO} alt="" style={{ height: 24, objectFit: "contain", borderRadius: 4 }} />
+                Keywords in the Top 10
+              </h3>
+              <div style={{ display: "flex", gap: 24, flexWrap: "wrap", marginBottom: 16 }}>
+                <div style={{ flex: 2, minWidth: 300 }}>
+                  <div style={{ height: 300 }}>
+                    <ResponsiveContainer>
+                      <BarChart data={marinDropData} margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke={C.borderL} />
+                        <XAxis dataKey="layer" tick={{ fontSize: 11, fontFamily: FONT.mono, fill: C.t2 }} />
+                        <YAxis tick={{ fontSize: 11, fontFamily: FONT.mono, fill: C.t3 }} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Bar dataKey="marinKw" name="Marin Top 10 Keywords" fill={C.marin} radius={[6, 6, 0, 0]}>
+                          {marinDropData.map((entry, i) => (
+                            <Cell key={i} fill={entry.marinKw === 0 ? C.danger : C.marin} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+                <div style={{ flex: 1, minWidth: 240 }}>
+                  <div style={{ ...S.card, padding: 20, borderLeft: `3px solid ${C.danger}`, marginBottom: 14 }}>
+                    <div style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t3, marginBottom: 4 }}>ALL NB &rarr; TRIPLES</div>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: C.danger, letterSpacing: -1 }}>33 &rarr; 0</div>
+                    <div style={{ fontSize: 12, color: C.t2, marginTop: 4 }}>Marin's Top 10 keywords vanish as specificity increases</div>
+                  </div>
+                  <div style={{ ...S.card, padding: 20, borderLeft: `3px solid ${C.teal}`, marginBottom: 14 }}>
+                    <div style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t3, marginBottom: 4 }}>TREK ACROSS SAME LAYERS</div>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: C.teal, letterSpacing: -1 }}>4,898 &rarr; 146</div>
+                    <div style={{ fontSize: 12, color: C.t2, marginTop: 4 }}>Trek maintains presence at every layer</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ======= TAB 1: NON-BRANDED VISIBILITY ======= */}
+          {activeTab === 1 && (
+            <div style={{ animation: "fadeIn .4s ease" }}>
+              <SectionLabel>Non-Branded Competition</SectionLabel>
+              <h3 style={{ marginTop: 0, marginBottom: 8, fontWeight: 800, fontSize: 28, letterSpacing: -1 }}>Who Owns Non-Branded Demand?</h3>
+              <p style={{ color: C.t2, fontSize: 16, marginBottom: 32, lineHeight: 1.7 }}>
+                Of the 68,558 non-branded bicycle keywords generating 11 million monthly searches, Marin holds just <strong>33 Top 10 positions</strong> capturing 5,630 searches/month. Trek dominates with 4,898 keywords capturing 1.31 million searches. That's a <strong style={{ color: C.danger }}>148x keyword gap</strong>.
+              </p>
+
+              {/* Competitor bar chart - combined keywords + volume */}
+              <h4 style={{ fontWeight: 700, fontSize: 15, marginBottom: 12 }}>Non-Branded Top 10: Keywords &amp; Volume by Brand</h4>
+              <div style={{ height: 380, marginBottom: 32 }}>
+                <ResponsiveContainer>
+                  <BarChart data={nbCompetitors} layout="vertical" margin={{ top: 5, right: 30, bottom: 5, left: 90 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={C.borderL} />
+                    <XAxis type="number" tick={{ fontSize: 10, fontFamily: FONT.mono, fill: C.t3 }} tickFormatter={(v) => v >= 1000000 ? (v/1000000).toFixed(1) + "M" : v >= 1000 ? (v/1000).toFixed(0) + "K" : v} />
+                    <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fontFamily: FONT.body, fontWeight: 600, fill: C.t1 }} width={85} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Bar dataKey="keywords" name="Keywords in Top 10" radius={[0, 4, 4, 0]}>
+                      {nbCompetitors.map((entry, i) => (
+                        <Cell key={i} fill={entry.name === "Marin" ? C.danger : entry.color} />
+                      ))}
+                    </Bar>
+                    <Bar dataKey="volume" name="Monthly Search Volume" radius={[0, 4, 4, 0]} opacity={0.45}>
+                      {nbCompetitors.map((entry, i) => (
+                        <Cell key={i} fill={entry.name === "Marin" ? C.danger : entry.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Marin vs Trek side-by-side */}
+              <div style={{ display: "flex", gap: 20, marginBottom: 32, flexWrap: "wrap" }}>
+                <div style={{ ...S.card, padding: 20, flex: 1, minWidth: 180, borderLeft: `3px solid ${C.marin}` }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                    <img src={MARIN_LOGO} alt="" style={{ height: 18, objectFit: "contain", borderRadius: 3 }} />
+                    <span style={{ ...S.label, color: C.marin, marginBottom: 0 }}>TOP 10</span>
+                  </div>
+                  <div style={{ fontSize: 32, fontWeight: 800, color: C.marin, letterSpacing: -1 }}>33 <span style={{ fontSize: 14, fontWeight: 500, color: C.t3 }}>keywords</span></div>
+                  <div style={{ fontFamily: FONT.mono, fontSize: 13, color: C.t2, marginTop: 4 }}>5,630 vol/mo</div>
+                </div>
+                <div style={{ ...S.card, padding: 20, flex: 1, minWidth: 180, borderLeft: `3px solid ${C.trek}` }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                    <img src={TREK_LOGO} alt="" style={{ height: 18, objectFit: "contain" }} />
+                    <span style={{ ...S.label, color: C.trek, marginBottom: 0 }}>TOP 10</span>
+                  </div>
+                  <div style={{ fontSize: 32, fontWeight: 800, color: C.trek, letterSpacing: -1 }}>4,898 <span style={{ fontSize: 14, fontWeight: 500, color: C.t3 }}>keywords</span></div>
+                  <div style={{ fontFamily: FONT.mono, fontSize: 13, color: C.t2, marginTop: 4 }}>1,309,820 vol/mo</div>
+                </div>
+                <div style={{ ...S.card, padding: 20, flex: 1, minWidth: 180, borderLeft: `3px solid ${C.danger}` }}>
+                  <div style={{ ...S.label, color: C.danger, marginBottom: 6 }}>THE GAP</div>
+                  <div style={{ fontSize: 32, fontWeight: 800, color: C.danger, letterSpacing: -1 }}>148x</div>
+                  <div style={{ fontFamily: FONT.mono, fontSize: 13, color: C.t2, marginTop: 4 }}>keyword count difference</div>
+                </div>
+                <div style={{ ...S.card, padding: 20, flex: 1, minWidth: 180, borderLeft: `3px solid ${C.marin}` }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                    <img src={MARIN_LOGO} alt="" style={{ height: 18, objectFit: "contain", borderRadius: 3 }} />
+                    <span style={{ ...S.label, color: C.marin, marginBottom: 0 }}>TOP 20</span>
+                  </div>
+                  <div style={{ fontSize: 32, fontWeight: 800, color: C.marin, letterSpacing: -1 }}>151 <span style={{ fontSize: 14, fontWeight: 500, color: C.t3 }}>keywords</span></div>
+                  <div style={{ fontFamily: FONT.mono, fontSize: 13, color: C.t2, marginTop: 4 }}>36,340 vol/mo</div>
+                </div>
+              </div>
+
+              {/* High-volume absent terms */}
+              <SectionLabel>Invisible Where It Matters Most</SectionLabel>
+              <p style={{ color: C.t3, fontSize: 13, marginBottom: 16 }}>High-volume non-branded terms where Marin is completely absent (rank 50 = not in top 50). These are Marin's core categories.</p>
+              <div style={{ overflowX: "auto", borderRadius: 16, border: `1px solid ${C.border}`, marginBottom: 20 }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                  <thead><tr style={S.tableHead}>
+                    <th style={{ textAlign: "left", ...S.tableCell }}>Keyword</th>
+                    <th style={{ textAlign: "right", ...S.tableCell }}>Volume/mo</th>
+                    <th style={{ textAlign: "center", ...S.tableCell }}><img src={TREK_LOGO} alt="Trek" style={{ height: 16, objectFit: "contain", verticalAlign: "middle" }} /></th>
+                    <th style={{ textAlign: "center", ...S.tableCell }}><img src={MARIN_LOGO} alt="Marin" style={{ height: 16, objectFit: "contain", verticalAlign: "middle", borderRadius: 2 }} /></th>
+                  </tr></thead>
+                  <tbody>
+                    {absentTerms.map(row => (
+                      <tr key={row.keyword} style={{ ...S.tableRow }}>
+                        <td style={{ ...S.tableCell, fontWeight: 600 }}>{row.keyword}</td>
+                        <td style={{ textAlign: "right", ...S.tableCell, fontFamily: FONT.mono, fontWeight: 700, color: C.t1 }}>{row.volume.toLocaleString()}</td>
+                        <td style={{ textAlign: "center", ...S.tableCell }}><PositionCell value={row.trekRank} /></td>
+                        <td style={{ textAlign: "center", ...S.tableCell, background: C.dangerDim }}><PositionCell value={50} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <CalloutBox color={C.teal} title="What This Means">
+                These 8 keywords represent <strong>113,100 monthly searches</strong> in Marin's core product categories. Competitors like Trek have dedicated pages for each of these terms. Marin currently doesn't have equivalent pages, which means the site isn't yet structured to participate in this part of the market. This is a starting point, not a verdict.
+              </CalloutBox>
+            </div>
+          )}
+
+          {/* ======= TAB 2: THE NEED GAP ======= */}
+          {activeTab === 2 && (
+            <div style={{ animation: "fadeIn .4s ease" }}>
+              <SectionLabel>Need-Based Demand</SectionLabel>
+              <h3 style={{ marginTop: 0, marginBottom: 8, fontWeight: 800, fontSize: 28, letterSpacing: -1 }}>When Users Specify What They Need, Marin Disappears</h3>
+              <p style={{ color: C.t2, fontSize: 16, marginBottom: 32, lineHeight: 1.7 }}>
+                13,556 non-branded keywords include a <strong>specific need</strong> like size, gender, age group, speed, body type, rider level, color, or material preference. These queries signal a user who knows what kind of rider they are and what attributes matter to them. Marin's presence drops from 33 keywords (all NB) to just <strong style={{ color: C.danger }}>4 keywords</strong> in the Top 10.
+              </p>
+
+              {/* Need metrics */}
+              <div style={{ display: "flex", gap: 20, marginBottom: 32, flexWrap: "wrap" }}>
+                <MetricCard label="Need-Based NB" value="13556" subtitle="Keywords with specific needs" />
+                <MetricCard label="Monthly Searches" value="2.08M" subtitle="High-intent demand" />
+                <MetricCard label="Marin Top 10" value="4" subtitle="Down from 33 in all NB" color={C.danger} />
+                <MetricCard label="Trek Top 10" value="1649" subtitle="412x more than Marin" color={C.success} />
+              </div>
+
+              {/* Need-based competitor comparison - combined */}
+              <SectionLabel>Top 10 Keywords ·Need-Based NB</SectionLabel>
+              <div style={{ height: 300, marginBottom: 28 }}>
+                <ResponsiveContainer>
+                  <BarChart data={needCompetitors} margin={{ top: 10, right: 20, bottom: 10, left: 10 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={C.borderL} />
+                    <XAxis dataKey="name" tick={{ fontSize: 12, fontFamily: FONT.body, fontWeight: 600, fill: C.t1 }} />
+                    <YAxis yAxisId="left" tick={{ fontSize: 10, fontFamily: FONT.mono, fill: C.t3 }} />
+                    <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10, fontFamily: FONT.mono, fill: C.t3 }} tickFormatter={(v) => fmt(v)} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Bar yAxisId="left" dataKey="keywords" name="Keywords in Top 10" radius={[6, 6, 0, 0]}>
+                      {needCompetitors.map((entry, i) => (
+                        <Cell key={i} fill={entry.name === "Marin" ? C.danger : entry.name === "Trek" ? C.trek : C.teal} />
+                      ))}
+                    </Bar>
+                    <Bar yAxisId="right" dataKey="volume" name="Volume Captured" radius={[6, 6, 0, 0]} opacity={0.4}>
+                      {needCompetitors.map((entry, i) => (
+                        <Cell key={i} fill={entry.name === "Marin" ? C.danger : entry.name === "Trek" ? C.trek : C.teal} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* The drop visualization */}
+              <SectionLabel>The Specificity Drop</SectionLabel>
+              <div style={{ display: "flex", gap: 20, marginBottom: 28, flexWrap: "wrap" }}>
+                {[
+                  { label: "All Non-Branded", marinKw: 33, marinVol: "5,630", border: C.teal },
+                  { label: "Need-Based NB", marinKw: 4, marinVol: "1,040", border: C.warning },
+                ].map((item, i) => (
+                  <div key={i} style={{ flex: 1, minWidth: 200 }}>
+                    <div style={{ ...S.card, padding: 24, borderLeft: `3px solid ${item.border}`, textAlign: "center" }}>
+                      <div style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t3, marginBottom: 8 }}>{item.label.toUpperCase()}</div>
+                      <div style={{ fontSize: 48, fontWeight: 900, color: item.marinKw <= 4 ? C.danger : C.marin, letterSpacing: -2 }}>{item.marinKw}</div>
+                      <div style={{ fontSize: 12, color: C.t3, marginTop: 4 }}>keywords in Top 10</div>
+                      <div style={{ fontFamily: FONT.mono, fontSize: 14, color: C.t2, marginTop: 8 }}>{item.marinVol} vol/mo</div>
+                    </div>
+                  </div>
+                ))}
+                <div style={{ flex: 1, minWidth: 200, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: 56, fontWeight: 900, color: C.danger, letterSpacing: -2 }}>-89%</div>
+                    <div style={{ fontSize: 13, color: C.t2, fontWeight: 600, marginTop: 4 }}>keyword visibility drop</div>
+                    <div style={{ fontSize: 12, color: C.t3, marginTop: 2 }}>when needs are specified</div>
+                  </div>
+                </div>
+              </div>
+
+              <CalloutBox color={C.teal} title="What This Means">
+                Need-based queries represent users who have moved beyond browsing. They know they want a specific size, price range, or purpose. <strong>2.08 million monthly searches</strong> sit in this layer. Marin captures 1,040 of those searches. That's <strong>0.05% capture rate</strong> for need-based demand, effectively invisible at the exact moment users are narrowing their choice set.
+              </CalloutBox>
+
+              {/* Need taxonomy */}
+              <SectionLabel>The Need Taxonomy</SectionLabel>
+              <p style={{ color: C.t3, fontSize: 13, marginBottom: 16 }}>The 12 need types we identified in the bicycle market. Each represents a dimension that users actively filter by, and that Marin's site structure doesn't support.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 10, marginBottom: 16 }}>
+                {["Size", "Color", "Buy Intent", "Used", "Comparison", "Price", "Rider Level", "Speed", "Body Type", "Age", "Gender", "Metal/Material"].map((need, i) => (
+                  <div key={i} style={{ ...S.card, padding: "12px 16px", textAlign: "center", borderLeft: `3px solid ${i < 4 ? C.teal : i < 8 ? C.warning : C.purple}` }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: C.t1 }}>{need}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ======= TAB 3: PAIRS & TRIPLES ======= */}
+          {activeTab === 3 && (
+            <div style={{ animation: "fadeIn .4s ease" }}>
+              <SectionLabel>Combination Searches</SectionLabel>
+              <h3 style={{ marginTop: 0, marginBottom: 8, fontWeight: 800, fontSize: 28, letterSpacing: -1 }}>Pairs & Triples: The Most Specific Searches</h3>
+              <p style={{ color: C.t2, fontSize: 16, marginBottom: 32, lineHeight: 1.7 }}>
+                When users combine a bicycle type with a defining attribute like <em>"electric bicycles for adults"</em>, <em>"mens mountain bike 29 inch"</em>, or <em>"female road bicycle"</em>, they are describing exactly who they are and what they need. These are the most qualified searches in the market. <strong style={{ color: C.danger }}>Marin has 2 keywords in pairs, and 0 in triples.</strong>
+              </p>
+
+              {/* Pair metrics */}
+              <div style={{ display: "flex", gap: 20, marginBottom: 32, flexWrap: "wrap" }}>
+                <MetricCard label="Pair Keywords" value="5543" subtitle="Type + Need combinations" />
+                <MetricCard label="Pair Volume" value="978K/mo" subtitle="High-intent searches" />
+                <MetricCard label="Marin in Pairs" value="2" subtitle="vs. Trek 1,008" color={C.danger} />
+                <MetricCard label="Marin in Triples" value="0" subtitle="789 triple opportunities" color={C.danger} />
+              </div>
+
+              {/* Pairs comparison */}
+              <SectionLabel>Pairs: Type + Need (Top 10 Positions)</SectionLabel>
+              <div style={{ display: "flex", gap: 24, flexWrap: "wrap", marginBottom: 28 }}>
+                <div style={{ flex: 1, minWidth: 320 }}>
+                  <div style={{ height: 280 }}>
+                    <ResponsiveContainer>
+                      <BarChart data={pairCompetitors} margin={{ top: 10, right: 20, bottom: 10, left: 10 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke={C.borderL} />
+                        <XAxis dataKey="name" tick={{ fontSize: 12, fontFamily: FONT.body, fontWeight: 600, fill: C.t1 }} />
+                        <YAxis tick={{ fontSize: 10, fontFamily: FONT.mono, fill: C.t3 }} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Bar dataKey="keywords" name="Pair Keywords in Top 10" radius={[6, 6, 0, 0]}>
+                          {pairCompetitors.map((entry, i) => (
+                            <Cell key={i} fill={entry.name === "Marin" ? C.danger : entry.name === "Trek" ? C.trek : C.teal} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+                <div style={{ flex: 1, minWidth: 320 }}>
+                  {/* Side stats */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    <div style={{ ...S.card, padding: 20, borderLeft: `3px solid ${C.danger}` }}>
+                      <div style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t3, marginBottom: 4 }}>TYPE + SIZE PAIRS</div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: C.t1 }}>413 keywords, 57,350 vol/mo</div>
+                          <div style={{ fontSize: 12, color: C.t3, marginTop: 2 }}>e.g., "29 inch mountain bike", "24 inch kids bike"</div>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ fontSize: 11, color: C.danger, fontFamily: FONT.mono, fontWeight: 700, display: "flex", alignItems: "center", gap: 4, justifyContent: "flex-end" }}><img src={MARIN_LOGO} alt="" style={{ height: 12, objectFit: "contain", borderRadius: 2 }} /> 0</div>
+                          <div style={{ fontSize: 11, color: C.teal, fontFamily: FONT.mono, display: "flex", alignItems: "center", gap: 4, justifyContent: "flex-end" }}><img src={TREK_LOGO} alt="" style={{ height: 12, objectFit: "contain" }} /> 95</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ ...S.card, padding: 20, borderLeft: `3px solid ${C.danger}` }}>
+                      <div style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t3, marginBottom: 4 }}>TRIPLES (TYPE + 2+ NEEDS)</div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: C.t1 }}>789 keywords, 105,910 vol/mo</div>
+                          <div style={{ fontSize: 12, color: C.t3, marginTop: 2 }}>Highest intent layer in the market</div>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ fontSize: 11, color: C.danger, fontFamily: FONT.mono, fontWeight: 700, display: "flex", alignItems: "center", gap: 4, justifyContent: "flex-end" }}><img src={MARIN_LOGO} alt="" style={{ height: 12, objectFit: "contain", borderRadius: 2 }} /> 0</div>
+                          <div style={{ fontSize: 11, color: C.teal, fontFamily: FONT.mono, display: "flex", alignItems: "center", gap: 4, justifyContent: "flex-end" }}><img src={TREK_LOGO} alt="" style={{ height: 12, objectFit: "contain" }} /> 146</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pair examples table */}
+              <SectionLabel>Pair Examples ·Type + Need</SectionLabel>
+              <p style={{ color: C.t3, fontSize: 13, marginBottom: 16 }}>Marin is rank 50 (unranked) for all of these. Trek consistently appears on page 1.</p>
+              <div style={{ overflowX: "auto", borderRadius: 16, border: `1px solid ${C.border}`, marginBottom: 28 }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                  <thead><tr style={S.tableHead}>
+                    <th style={{ textAlign: "left", ...S.tableCell }}>Keyword</th>
+                    <th style={{ textAlign: "center", ...S.tableCell }}>Need Type</th>
+                    <th style={{ textAlign: "right", ...S.tableCell }}>Volume/mo</th>
+                    <th style={{ textAlign: "center", ...S.tableCell }}><img src={TREK_LOGO} alt="Trek" style={{ height: 16, objectFit: "contain", verticalAlign: "middle" }} /></th>
+                    <th style={{ textAlign: "center", ...S.tableCell }}><img src={MARIN_LOGO} alt="Marin" style={{ height: 16, objectFit: "contain", verticalAlign: "middle", borderRadius: 2 }} /></th>
+                  </tr></thead>
+                  <tbody>
+                    {pairExamples.map(row => (
+                      <tr key={row.keyword} style={S.tableRow}>
+                        <td style={{ ...S.tableCell, fontWeight: 600 }}>{row.keyword}</td>
+                        <td style={{ textAlign: "center", ...S.tableCell }}><NeedBadge needs={row.needs} /></td>
+                        <td style={{ textAlign: "right", ...S.tableCell, fontFamily: FONT.mono, fontWeight: 700 }}>{row.volume.toLocaleString()}</td>
+                        <td style={{ textAlign: "center", ...S.tableCell }}><PositionCell value={row.trekRank} /></td>
+                        <td style={{ textAlign: "center", ...S.tableCell, background: C.dangerDim }}><PositionCell value={50} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Triple examples */}
+              <SectionLabel>Triple Examples ·Type + 2+ Needs</SectionLabel>
+              <p style={{ color: C.t3, fontSize: 13, marginBottom: 16 }}>These are the most specific searches in the market. Users are combining bike type with wheel size AND their demographic, exactly describing who they are and what they need. Marin captures none of them.</p>
+              <div style={{ overflowX: "auto", borderRadius: 16, border: `1px solid ${C.border}`, marginBottom: 20 }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                  <thead><tr style={S.tableHead}>
+                    <th style={{ textAlign: "left", ...S.tableCell }}>Keyword</th>
+                    <th style={{ textAlign: "center", ...S.tableCell }}>Need Combination</th>
+                    <th style={{ textAlign: "right", ...S.tableCell }}>Volume/mo</th>
+                    <th style={{ textAlign: "center", ...S.tableCell }}><img src={TREK_LOGO} alt="Trek" style={{ height: 16, objectFit: "contain", verticalAlign: "middle" }} /></th>
+                    <th style={{ textAlign: "center", ...S.tableCell, background: C.dangerDim }}><img src={MARIN_LOGO} alt="Marin" style={{ height: 16, objectFit: "contain", verticalAlign: "middle", borderRadius: 2 }} /></th>
+                  </tr></thead>
+                  <tbody>
+                    {tripleExamples.map(row => (
+                      <tr key={row.keyword} style={S.tableRow}>
+                        <td style={{ ...S.tableCell, fontWeight: 600 }}>{row.keyword}</td>
+                        <td style={{ textAlign: "center", ...S.tableCell }}><NeedBadge needs={row.needs} /></td>
+                        <td style={{ textAlign: "right", ...S.tableCell, fontFamily: FONT.mono, fontWeight: 700 }}>{row.volume.toLocaleString()}</td>
+                        <td style={{ textAlign: "center", ...S.tableCell }}><PositionCell value={row.trekRank} /></td>
+                        <td style={{ textAlign: "center", ...S.tableCell, background: C.dangerDim }}><PositionCell value={50} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <CalloutBox color={C.danger} bg={C.dangerDim} title="The Demand Capture Gap Is Structural">
+                Pairs represent 978,420 monthly searches. Triples represent 105,910. Combined, that's over <strong>1 million monthly searches</strong> from users who are specifying both their bike type AND who they are: their age group, their gender, their wheel size, their riding context. Marin captures <strong>650 of those searches</strong>, a 0.06% share. These are users describing exactly the kind of rider Marin builds bikes for, using the attributes Marin's site doesn't surface.
+              </CalloutBox>
+            </div>
+          )}
+
+          {/* ======= TAB 4: THE WHEEL SIZE CASE ======= */}
+          {activeTab === 4 && (
+            <div style={{ animation: "fadeIn .4s ease" }}>
+              <SectionLabel>Deep Dive</SectionLabel>
+              <h3 style={{ marginTop: 0, marginBottom: 8, fontWeight: 800, fontSize: 28, letterSpacing: -1 }}>The Wheel Size Case: 146,000 Searches Marin Doesn't Appear In</h3>
+              <p style={{ color: C.t2, fontSize: 16, marginBottom: 32, lineHeight: 1.7 }}>
+                Wheel size is one of the most common attributes users include when searching for a bike. There are <strong>1,148 non-branded keywords</strong> that include a wheel size, generating <strong>146,480 monthly searches</strong>. Marin currently ranks in the Top 10 for <strong style={{ color: C.danger }}>none of them</strong>. This is the clearest example of the gap between Marin's site structure and how users actually search.
+              </p>
+
+              {/* Hero numbers */}
+              <div style={{ display: "flex", gap: 20, marginBottom: 32, flexWrap: "wrap" }}>
+                <MetricCard label='"29-inch bike" searches' value="29420/mo" subtitle="Standalone wheel size query" />
+                <MetricCard label='"mountain bikes" searches' value="120000/mo" subtitle="Category searches" />
+                <MetricCard label='"29-inch mountain bike"' value="27420/mo" subtitle="Combined query" />
+                <MetricCard label="Marin Avg Rank" value="~48" subtitle="Effectively invisible" color={C.danger} />
+              </div>
+
+              {/* Trek vs Marin spotlight */}
+              <div style={{ display: "flex", gap: 20, marginBottom: 28, flexWrap: "wrap" }}>
+                <div style={{ flex: 1, minWidth: 300, ...S.card, padding: 24, borderLeft: `3px solid ${C.trek}` }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                    <img src={TREK_LOGO} alt="" style={{ height: 20, objectFit: "contain" }} />
+                    <span style={{ ...S.label, color: C.trek, marginBottom: 0 }}>APPROACH</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                    <span style={{ fontSize: 32, fontWeight: 900, color: C.trek }}>#6</span>
+                    <span style={{ fontSize: 14, color: C.t2 }}>for "29 inch bike" (29,420/mo)</span>
+                  </div>
+                  <div style={{ fontSize: 13, color: C.t2, lineHeight: 1.6, marginBottom: 12 }}>
+                    Trek has a <strong>dedicated, optimized landing page</strong> for 29-inch bikes. The page features:
+                  </div>
+                  <ul style={{ fontSize: 13, color: C.t2, lineHeight: 1.8, paddingLeft: 20, margin: 0 }}>
+                    <li>Wheel size prominently in title and navigation</li>
+                    <li>Filterable product grid by wheel size</li>
+                    <li>Content explaining 29" advantages</li>
+                    <li>Internal links from category pages</li>
+                  </ul>
+                </div>
+                <div style={{ flex: 1, minWidth: 300, ...S.card, padding: 24, borderLeft: `3px solid ${C.danger}`, animation: "pulseGlow 3s infinite" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                    <img src={MARIN_LOGO} alt="" style={{ height: 20, objectFit: "contain", borderRadius: 3 }} />
+                    <span style={{ ...S.label, color: C.danger, marginBottom: 0 }}>APPROACH</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                    <span style={{ fontSize: 28, fontWeight: 900, color: C.danger }}>UNRANKED</span>
+                    <span style={{ fontSize: 14, color: C.t2 }}>for "29 inch bike"</span>
+                  </div>
+                  <div style={{ fontSize: 13, color: C.t2, lineHeight: 1.6, marginBottom: 12 }}>
+                    Marin's site has <strong>no wheel size infrastructure</strong>:
+                  </div>
+                  <ul style={{ fontSize: 13, color: C.danger, lineHeight: 1.8, paddingLeft: 20, margin: 0, fontWeight: 600 }}>
+                    <li>No wheel size filtering or browsing</li>
+                    <li>No wheel-size-based landing pages</li>
+                    <li>Wheel size buried in product specs</li>
+                    <li>No category pages organized by wheel size</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Wheel size landscape table */}
+              <SectionLabel>Size Query Landscape</SectionLabel>
+              <p style={{ color: C.t3, fontSize: 13, marginBottom: 16 }}>1,148 size-related non-branded keywords generating 146,480 monthly searches. Marin's Top 10 presence: <strong style={{ color: C.danger }}>zero</strong>.</p>
+              <div style={{ overflowX: "auto", borderRadius: 16, border: `1px solid ${C.border}`, marginBottom: 28 }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                  <thead><tr style={S.tableHead}>
+                    <th style={{ textAlign: "left", ...S.tableCell }}>Keyword</th>
+                    <th style={{ textAlign: "right", ...S.tableCell }}>Volume/mo</th>
+                    <th style={{ textAlign: "center", ...S.tableCell }}><img src={TREK_LOGO} alt="Trek" style={{ height: 16, objectFit: "contain", verticalAlign: "middle" }} /></th>
+                    <th style={{ textAlign: "center", ...S.tableCell }}><img src={MARIN_LOGO} alt="Marin" style={{ height: 16, objectFit: "contain", verticalAlign: "middle", borderRadius: 2 }} /></th>
+                  </tr></thead>
+                  <tbody>
+                    {wheelSizeTerms.map(row => (
+                      <tr key={row.keyword} style={S.tableRow}>
+                        <td style={{ ...S.tableCell, fontWeight: 600 }}>{row.keyword}</td>
+                        <td style={{ textAlign: "right", ...S.tableCell, fontFamily: FONT.mono, fontWeight: 700, color: C.t1 }}>{row.volume.toLocaleString()}</td>
+                        <td style={{ textAlign: "center", ...S.tableCell }}><PositionCell value={row.trekRank} /></td>
+                        <td style={{ textAlign: "center", ...S.tableCell, background: C.dangerDim }}><PositionCell value={row.marinRank} /></td>
+                      </tr>
+                    ))}
+                    <tr style={{ background: C.dangerDim, fontWeight: 700 }}>
+                      <td style={{ ...S.tableCell, fontWeight: 800 }}>TOTAL SIZE-RELATED NB</td>
+                      <td style={{ textAlign: "right", ...S.tableCell, fontFamily: FONT.mono, fontWeight: 800, color: C.danger }}>146,480</td>
+                      <td style={{ textAlign: "center", ...S.tableCell, fontFamily: FONT.mono, color: C.teal, fontWeight: 700 }}>Present</td>
+                      <td style={{ textAlign: "center", ...S.tableCell, fontFamily: FONT.mono, color: C.danger, fontWeight: 800 }}>ZERO</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Size = Category note */}
+              <CalloutBox color={C.teal} title="Why Wheel Size Matters in Search">
+                <p style={{ margin: 0 }}>
+                  Wheel size often functions as a category shorthand: 29" typically signals trail/XC, 26" signals cruisers, 20" means kids'/BMX, 700c means road. Users who search by wheel size already know what kind of bike they want. The key point: <strong>Marin builds bikes in all these wheel sizes, but the site has no way to browse, filter, or land on products by this attribute</strong>. No filter, no category page, no landing page. That's the gap.
+                </p>
+              </CalloutBox>
+
+              {/* Branded context */}
+              <SectionLabel>Context: Branded Performance</SectionLabel>
+              <p style={{ color: C.t3, fontSize: 13, marginBottom: 16 }}>Marin's branded search is healthy: 245 keywords, ~68,000 monthly searches, rank #1 for 180 of them. This confirms strong brand recognition. The problem is purely non-branded.</p>
+              <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+                {brandedBreakdown.map(item => (
+                  <div key={item.name} style={{ ...S.card, padding: "16px 20px", flex: 1, minWidth: 140, borderLeft: `3px solid ${item.color}` }}>
+                    <div style={{ fontFamily: FONT.mono, fontSize: 10, color: C.t3, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>{item.name}</div>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: item.color, letterSpacing: -0.5 }}>{item.keywords} <span style={{ fontSize: 12, fontWeight: 500, color: C.t3 }}>kw</span></div>
+                    <div style={{ fontFamily: FONT.mono, fontSize: 12, color: C.t2 }}>{item.volume.toLocaleString()} vol/mo</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ======= TAB 5: STRATEGIC IMPLICATIONS ======= */}
+          {activeTab === 5 && (
+            <div style={{ animation: "fadeIn .4s ease" }}>
+              <SectionLabel>Strategic Framework</SectionLabel>
+              <h3 style={{ marginTop: 0, marginBottom: 8, fontWeight: 800, fontSize: 28, letterSpacing: -1 }}>This Is a Site-Market Fit Problem</h3>
+              <p style={{ color: C.t2, fontSize: 16, marginBottom: 32, lineHeight: 1.7 }}>
+                The data tells a clear story: Marin's website structure doesn't reflect how users search for bicycles. This isn't a content quality issue or a link building problem. <strong>The site's taxonomy, navigation, and page architecture are disconnected from the demand patterns in the market.</strong> Users search by type + need + attribute. Marin's site shows products by category name only.
+              </p>
+
+              {/* Summary cards */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20, marginBottom: 40 }}>
+                <div style={{ ...S.card, padding: 24, borderLeft: `3px solid ${C.danger}` }}>
+                  <div style={{ fontSize: 18, marginBottom: 8 }}>Site Structure Gap</div>
+                  <div style={{ fontSize: 40, fontWeight: 900, color: C.danger, letterSpacing: -2 }}>0%</div>
+                  <div style={{ fontSize: 13, color: C.t2, lineHeight: 1.6, marginTop: 8 }}>of the 12 identified search need dimensions (size, gender, price, rider level, etc.) are reflected in Marin's navigation or page structure</div>
+                </div>
+                <div style={{ ...S.card, padding: 24, borderLeft: `3px solid ${C.warning}` }}>
+                  <div style={{ fontSize: 18, marginBottom: 8 }}>Demand Disconnection</div>
+                  <div style={{ fontSize: 40, fontWeight: 900, color: C.warning, letterSpacing: -2 }}>11M</div>
+                  <div style={{ fontSize: 13, color: C.t2, lineHeight: 1.6, marginTop: 8 }}>monthly non-branded searches represent a market Marin's site barely participates in, capturing just 0.05% of total demand</div>
+                </div>
+                <div style={{ ...S.card, padding: 24, borderLeft: `3px solid ${C.teal}` }}>
+                  <div style={{ fontSize: 18, marginBottom: 8 }}>Brand Strength</div>
+                  <div style={{ fontSize: 40, fontWeight: 900, color: C.success, letterSpacing: -2 }}>73%</div>
+                  <div style={{ fontSize: 13, color: C.t2, lineHeight: 1.6, marginTop: 8 }}>of branded keywords rank #1. Users who search for Marin find Marin. But the site doesn't attract users who don't yet know they want Marin.</div>
+                </div>
+              </div>
+
+              {/* Three pillars */}
+              <SectionLabel>Three Action Areas</SectionLabel>
+              <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 40 }}>
+                {[
+                  {
+                    num: "01", title: "Taxonomy Alignment", color: C.teal,
+                    desc: "Rebuild the site's category structure to reflect how users search. Add wheel size, rider level, gender, and price as navigable dimensions. Not just filters on product listing pages \u2014 actual category pages that can rank independently.",
+                    metric: "Unlocks: 146K+ size-related searches, 2.08M need-based searches"
+                  },
+                  {
+                    num: "02", title: "Need-Based Landing Pages", color: C.warning,
+                    desc: "Create optimized landing pages for high-volume type+need combinations: '29 inch mountain bike', 'women's mountain bike', 'electric bicycles for adults'. These pages bridge Marin's product catalog with user search patterns.",
+                    metric: "Unlocks: 978K pair searches, 105K triple searches"
+                  },
+                  {
+                    num: "03", title: "Content Architecture", color: C.purple,
+                    desc: "Build educational and comparison content that targets the informational layer: 'best mountain bike for beginners', 'hardtail vs full suspension', 'mountain bike size guide'. This captures users at the top of the funnel and guides them to Marin products.",
+                    metric: "Unlocks: 11M+ total NB demand participation"
+                  },
+                ].map(pillar => (
+                  <div key={pillar.num} style={{ ...S.card, padding: 24, borderLeft: `3px solid ${pillar.color}` }}>
+                    <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
+                      <span style={{ background: pillar.color, color: "#fff", width: 36, height: 36, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, fontFamily: FONT.mono, flexShrink: 0 }}>{pillar.num}</span>
+                      <div style={{ flex: 1 }}>
+                        <h4 style={{ margin: "0 0 8px 0", fontSize: 18, fontWeight: 700 }}>{pillar.title}</h4>
+                        <p style={{ fontSize: 14, color: C.t2, lineHeight: 1.6, margin: "0 0 10px 0" }}>{pillar.desc}</p>
+                        <div style={{ fontFamily: FONT.mono, fontSize: 12, color: pillar.color, fontWeight: 600 }}>{pillar.metric}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+            </div>
+          )}
+        </div>
+
+        {/* ===== Footer ===== */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 48, paddingTop: 24, borderTop: `1px solid ${C.border}` }}>
+          <img src="https://cutinside.com/wp-content/uploads/2025/01/Logo.svg" alt="Cut Inside" style={{ height: 16, opacity: 0.5 }} />
+          <span style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t3, letterSpacing: 0.5 }}>Data from Ahrefs ·March 2026 ·US Market</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(MarinBrief));
+</script>
+</body>
+</html>
