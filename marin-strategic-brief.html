@@ -57,8 +57,8 @@ const tabs = ["The Market Lens", "Non-Branded Visibility", "The Need Gap", "Pair
 /* Layer overview / funnel data */
 const funnelLayers = [
   { name: "All Non-Branded", keywords: 68558, volume: 11065550, marinKw: 33, marinVol: 5630, trekKw: 4898, trekVol: 1309820 },
-  { name: "Need-Based NB", keywords: 13556, volume: 2078220, marinKw: 4, marinVol: 1040, trekKw: 1649, trekVol: 408130 },
   { name: "Type-Based NB", keywords: 18473, volume: 3433080, marinKw: 11, marinVol: 2270, trekKw: 2365, trekVol: 807610 },
+  { name: "Need-Based NB", keywords: 13556, volume: 2078220, marinKw: 4, marinVol: 1040, trekKw: 1649, trekVol: 408130 },
   { name: "Pairs (Type+Need)", keywords: 5543, volume: 978420, marinKw: 2, marinVol: 650, trekKw: 1008, trekVol: 240190 },
   { name: "Type+Size Pairs", keywords: 413, volume: 57350, marinKw: 0, marinVol: 0, trekKw: 95, trekVol: 12470 },
   { name: "Triples (Type+2 Needs)", keywords: 789, volume: 105910, marinKw: 0, marinVol: 0, trekKw: 146, trekVol: 20260 },
@@ -147,6 +147,7 @@ const brandedBreakdown = [
 /* Marin keyword drop across layers */
 const marinDropData = [
   { layer: "All NB", marinKw: 33, label: "33" },
+  { layer: "Type-Based", marinKw: 11, label: "11" },
   { layer: "Need-Based", marinKw: 4, label: "4" },
   { layer: "Pairs", marinKw: 2, label: "2" },
   { layer: "Type+Size", marinKw: 0, label: "0" },
@@ -155,6 +156,7 @@ const marinDropData = [
 
 const trekDropData = [
   { layer: "All NB", trekKw: 4898, label: "4,898" },
+  { layer: "Type-Based", trekKw: 2365, label: "2,365" },
   { layer: "Need-Based", trekKw: 1649, label: "1,649" },
   { layer: "Pairs", trekKw: 1008, label: "1,008" },
   { layer: "Type+Size", trekKw: 95, label: "95" },
@@ -343,8 +345,8 @@ function MarinBrief() {
               <div style={{ marginBottom: 36, display: "flex", flexDirection: "column", alignItems: "center" }}>
                 {[
                   { label: "ALL NON-BRANDED", sublabel: "General bicycle queries", kw: "68,558 keywords", vol: "11.07M/mo", width: "100%", bg: `linear-gradient(135deg, ${C.tealDim}, rgba(13,148,136,0.03))`, borderColor: C.tealL, radiusTop: true },
-                  { label: "NEED-BASED", sublabel: "Size, color, buy, used, price, gender, rider level...", kw: "13,556 keywords", vol: "2.08M/mo", width: "82%", bg: `linear-gradient(135deg, rgba(13,148,136,0.10), rgba(13,148,136,0.04))`, borderColor: C.teal },
-                  { label: "TYPE-BASED", sublabel: "Mountain bike, road bike, electric bike...", kw: "18,473 keywords", vol: "3.43M/mo", width: "68%", bg: `linear-gradient(135deg, rgba(13,148,136,0.14), rgba(13,148,136,0.06))`, borderColor: C.tealD },
+                  { label: "TYPE-BASED", sublabel: "Mountain bike, road bike, electric bike...", kw: "18,473 keywords", vol: "3.43M/mo", width: "82%", bg: `linear-gradient(135deg, rgba(13,148,136,0.10), rgba(13,148,136,0.04))`, borderColor: C.teal },
+                  { label: "NEED-BASED", sublabel: "Size, color, buy, used, price, gender, rider level...", kw: "13,556 keywords", vol: "2.08M/mo", width: "68%", bg: `linear-gradient(135deg, rgba(13,148,136,0.14), rgba(13,148,136,0.06))`, borderColor: C.tealD },
                   { label: "PAIRS (TYPE + NEED)", sublabel: '"electric bicycles for adults", "female road bicycle"', kw: "5,543 keywords", vol: "978K/mo", width: "52%", bg: `linear-gradient(135deg, rgba(245,158,11,0.10), rgba(245,158,11,0.04))`, borderColor: C.warning },
                   { label: "TYPE + SIZE", sublabel: '"29 inch mountain bike", "24 inch kids bike"', kw: "413 keywords", vol: "57K/mo", width: "38%", bg: `linear-gradient(135deg, rgba(249,115,22,0.10), rgba(249,115,22,0.04))`, borderColor: "#F97316" },
                   { label: "TRIPLES (TYPE + 2+ NEEDS)", sublabel: '"mens mountain bike 29 inch", "24 inch youth mountain bike"', kw: "789 keywords", vol: "105.9K/mo", width: "26%", bg: `linear-gradient(135deg, rgba(220,38,38,0.10), rgba(220,38,38,0.04))`, borderColor: C.danger, radiusBottom: true },
