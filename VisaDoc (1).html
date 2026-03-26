@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisaDoc | Professional Electronic Visa Services</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .gradient-bg { background: radial-gradient(circle at top right, #1e40af, #1e3a8a, #0f172a); }
+        .glass-card { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.2); }
+        
+        /* Infinite Scroll Animations */
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        @keyframes scroll-slow {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .animate-scroll {
+            display: flex;
+            width: max-content;
+            animation: scroll 30s linear infinite;
+        }
+
+        .animate-scroll-reviews {
+            display: flex;
+            width: max-content;
+            animation: scroll-slow 50s linear infinite;
+        }
+        
+        .animate-scroll:hover, .animate-scroll-reviews:hover { 
+            animation-play-state: paused; 
+        }
+
+        .step-card:hover .step-number { transform: scale(1.1) rotate(5deg); background-color: #2563eb; color: white; }
+        
+        .trust-star { color: #00b67a; fill: #00b67a; }
+        .review-card { width: 350px; flex-shrink: 0; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 overflow-x-hidden">
+
+    <!-- Header / ניווט עליון לפי איפיון -->
+    <header class="fixed w-full z-50 bg-white/95 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-2">
+                    <div class="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-200">
+                        <i data-lucide="file-check-2" class="text-white w-6 h-6"></i>
+                    </div>
+                    <span class="text-2xl font-extrabold tracking-tight text-slate-800 italic">Visa<span class="text-blue-600 not-italic">Doc</span></span>
+                </div>
+                
+                <nav class="hidden lg:flex space-x-8 text-sm font-bold text-slate-600">
+                    <!-- Destinations -->
+                    <div class="relative group cursor-pointer">
+                        <span class="flex items-center gap-1 group-hover:text-blue-600 transition-colors">Destinations <i data-lucide="chevron-down" class="w-4 h-4 transition-transform group-hover:rotate-180"></i></span>
+                        <div class="absolute top-full -left-4 w-52 bg-white shadow-2xl rounded-2xl border border-slate-100 py-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all translate-y-2 group-hover:translate-y-0">
+                            <a href="#" class="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 hover:text-blue-600 transition-colors">🇬🇧 United Kingdom (ETA)</a>
+                            <a href="#" class="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 hover:text-blue-600 transition-colors">🇹🇭 Thailand (E-Visa)</a>
+                            <a href="#" class="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 hover:text-blue-600 transition-colors">🇨🇦 Canada (eTA)</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Visa Guides / Article Hub -->
+                    <a href="#" class="hover:text-blue-600 transition-colors">Visa Guides</a>
+                    
+                    <!-- Purpose of Visit -->
+                    <div class="relative group cursor-pointer">
+                        <span class="flex items-center gap-1 group-hover:text-blue-600 transition-colors">Purpose of Visit <i data-lucide="chevron-down" class="w-4 h-4"></i></span>
+                        <div class="absolute top-full -left-4 w-48 bg-white shadow-xl rounded-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                            <a href="#" class="block px-4 py-2 hover:bg-blue-50 hover:text-blue-600">Tourism</a>
+                            <a href="#" class="block px-4 py-2 hover:bg-blue-50 hover:text-blue-600">Business</a>
+                            <a href="#" class="block px-4 py-2 hover:bg-blue-50 hover:text-blue-600">Study</a>
+                        </div>
+                    </div>
+
+                    <!-- User Dashboard / Check Status -->
+                    <a href="#" class="flex items-center gap-2 hover:text-blue-600 transition-colors">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Check Status
+                    </a>
+
+                    <a href="#" class="hover:text-blue-600 transition-colors">Contact</a>
+                </nav>
+
+                <div class="flex items-center gap-4">
+                    <!-- Language Dropdown -->
+                    <div class="relative group hidden sm:block">
+                        <button class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest bg-slate-100 px-4 py-2 rounded-full hover:bg-slate-200 transition-all">
+                            <i data-lucide="globe" class="w-3.5 h-3.5"></i>
+                            <span>English (US)</span>
+                        </button>
+                        <div class="absolute right-0 top-full mt-2 w-44 bg-white shadow-xl rounded-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 hover:bg-blue-50 transition-colors">English (US)</a>
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 hover:bg-blue-50 transition-colors">Français</a>
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 hover:bg-blue-50 transition-colors">Español</a>
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 hover:bg-blue-50 transition-colors">Deutsch</a>
+                        </div>
+                    </div>
+                    <button class="bg-slate-900 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-lg">
+                        Login
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section / סקשיין ראשי -->
+    <section class="pt-32 pb-12 gradient-bg relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <h1 class="text-4xl md:text-7xl font-extrabold text-white mb-6 leading-tight tracking-tight">
+                Secure Your Travel Authorization <br><span class="text-blue-400">Without the Bureaucracy</span>
+            </h1>
+            <p class="text-lg md:text-xl text-blue-100 max-w-3xl mx-auto mb-10 font-medium opacity-90">
+                Official agent service for UK ETA, Canada eTA and global visas. 
+                Expert review and guaranteed application accuracy since 2011.
+            </p>
+
+            <!-- Hero CTA Card -->
+            <div class="max-w-4xl mx-auto glass-card rounded-3xl shadow-2xl p-6 md:p-10 border border-white/10">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                    <div class="text-left space-y-3">
+                        <label class="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">My Passport</label>
+                        <div class="relative">
+                            <i data-lucide="id-card" class="absolute left-4 top-1/2 -translate-y-1/2 text-blue-600 w-5 h-5"></i>
+                            <select class="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl appearance-none focus:ring-2 focus:ring-blue-500 outline-none font-bold text-slate-800 cursor-pointer">
+                                <option>United States</option>
+                                <option>Israel</option>
+                                <option>France</option>
+                                <option>Canada</option>
+                                <option>Germany</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="text-left space-y-3">
+                        <label class="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">My Destination</label>
+                        <div class="relative">
+                            <i data-lucide="map-pin" class="absolute left-4 top-1/2 -translate-y-1/2 text-blue-600 w-5 h-5"></i>
+                            <select class="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl appearance-none focus:ring-2 focus:ring-blue-500 outline-none font-bold text-slate-800 cursor-pointer">
+                                <option value="uk">United Kingdom (ETA)</option>
+                                <option value="th">Thailand (E-Visa)</option>
+                                <option value="ca">Canada (eTA)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="openAppModal()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl hover:bg-blue-700 transform hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
+                        GET STARTED
+                        <i data-lucide="arrow-right" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Stats Row -->
+    <div class="bg-white py-12 border-b border-slate-100 relative z-20 -mt-8 mx-auto max-w-6xl rounded-3xl shadow-xl px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div class="text-center border-r border-slate-100 last:border-0">
+                <div class="text-3xl font-black text-slate-900 mb-1">100,000+</div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Visas Provided</div>
+            </div>
+            <div class="text-center border-r border-slate-100 last:border-0">
+                <div class="text-3xl font-black text-slate-900 mb-1">15 Years</div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Expert Experience</div>
+            </div>
+            <div class="text-center border-r border-slate-100 last:border-0 flex flex-col items-center justify-center">
+                <div class="flex items-center gap-1 mb-1">
+                    <span class="text-3xl font-black text-slate-900">4.9/5</span>
+                    <i data-lucide="star" class="trust-star w-6 h-6"></i>
+                </div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Trustpilot Score</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-black text-slate-900 mb-1">50+</div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Supported Nations</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Infinite Logo Carousel -->
+    <div class="bg-slate-50 py-12 border-b border-slate-100 overflow-hidden relative">
+        <div class="animate-scroll">
+            <div class="flex items-center gap-24 px-12">
+                <div class="flex items-center gap-2 font-black text-2xl text-green-600"><i data-lucide="star" class="fill-green-600"></i> Trustpilot</div>
+                <div class="flex items-center gap-2 font-bold text-xl text-blue-900"><i data-lucide="shield" class="text-blue-600 fill-blue-50"></i> Norton <span class="font-normal text-slate-400 text-sm">Secured</span></div>
+                <div class="flex items-center gap-2 font-black text-xl text-slate-800 italic uppercase tracking-tighter">TravelSafe</div>
+                <div class="flex items-center gap-2 font-extrabold text-xl text-indigo-700 tracking-tighter">GlobalPass</div>
+                <div class="flex items-center gap-2 font-bold text-xl text-slate-900"><i data-lucide="lock" class="text-blue-600"></i> Secured by SSL</div>
+                <div class="flex items-center gap-2 font-bold text-xl text-red-600">SGS Verified</div>
+            </div>
+            <div class="flex items-center gap-24 px-12">
+                <div class="flex items-center gap-2 font-black text-2xl text-green-600"><i data-lucide="star" class="fill-green-600"></i> Trustpilot</div>
+                <div class="flex items-center gap-2 font-bold text-xl text-blue-900"><i data-lucide="shield" class="text-blue-600 fill-blue-50"></i> Norton <span class="font-normal text-slate-400 text-sm">Secured</span></div>
+                <div class="flex items-center gap-2 font-black text-xl text-slate-800 italic uppercase tracking-tighter">TravelSafe</div>
+                <div class="flex items-center gap-2 font-extrabold text-xl text-indigo-700 tracking-tighter">GlobalPass</div>
+                <div class="flex items-center gap-2 font-bold text-xl text-slate-900"><i data-lucide="lock" class="text-blue-600"></i> Secured by SSL</div>
+                <div class="flex items-center gap-2 font-bold text-xl text-red-600">SGS Verified</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Eligibility Checker -->
+    <section class="py-24 max-w-7xl mx-auto px-4">
+        <div class="bg-slate-900 rounded-[3rem] p-12 text-white shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-96 h-96 bg-blue-600/20 rounded-full -mr-48 -mt-48 blur-3xl"></div>
+            <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-4xl font-extrabold mb-6">Do I Need a Visa?</h2>
+                    <p class="text-slate-400 text-lg">Check your eligibility instantly across 150+ countries. Get clarity on your travel requirements before you book your tickets.</p>
+                </div>
+                <div class="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10">
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Nationality</label>
+                                <select class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl outline-none font-bold text-white cursor-pointer hover:bg-slate-700 transition-all">
+                                    <option>Israel</option><option>USA</option><option>France</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Destination</label>
+                                <select class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl outline-none font-bold text-white cursor-pointer hover:bg-slate-700 transition-all">
+                                    <option>United Kingdom</option><option>Thailand</option><option>Canada</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Purpose of Visit</label>
+                            <select class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl outline-none font-bold text-white cursor-pointer hover:bg-slate-700 transition-all">
+                                <option>Tourism / Vacation</option><option>Business / Meetings</option><option>Study (Short term)</option>
+                            </select>
+                        </div>
+                        <button class="w-full py-4 bg-blue-600 text-white font-black rounded-xl shadow-lg hover:bg-blue-700 transition-all uppercase tracking-widest">Check Eligibility Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3 Steps Section -->
+    <section class="py-24 max-w-7xl mx-auto px-4 text-center">
+        <span class="text-blue-600 font-black text-xs uppercase tracking-[0.4em]">Optimized Process</span>
+        <h2 class="text-4xl font-extrabold text-slate-900 mt-4 mb-16">Your Journey in 3 Simple Steps</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="step-card bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100 relative group transition-all hover:shadow-xl hover:border-blue-100">
+                <div class="step-number absolute -top-5 -left-5 w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center font-black text-2xl text-slate-400 transition-all shadow-sm">1</div>
+                <div class="bg-blue-50 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:bg-blue-600 transition-all">
+                    <i data-lucide="edit-3" class="text-blue-600 w-10 h-10 group-hover:text-white transition-all"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Smart Application</h3>
+                <p class="text-slate-600 leading-relaxed">Fill out our optimized 10-field form. Our OCR technology auto-fills details from your passport instantly.</p>
+            </div>
+            <div class="step-card bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100 relative group transition-all hover:shadow-xl hover:border-blue-100">
+                <div class="step-number absolute -top-5 -left-5 w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center font-black text-2xl text-slate-400 transition-all shadow-sm">2</div>
+                <div class="bg-blue-50 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:bg-blue-600 transition-all">
+                    <i data-lucide="credit-card" class="text-blue-600 w-10 h-10 group-hover:text-white transition-all"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Secure Payment</h3>
+                <p class="text-slate-600 leading-relaxed">Select your preferred speed. All payments are encrypted via Stripe/PayPal for your peace of mind.</p>
+            </div>
+            <div class="step-card bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100 relative group transition-all hover:shadow-xl hover:border-blue-100">
+                <div class="step-number absolute -top-5 -left-5 w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center font-black text-2xl text-slate-400 transition-all shadow-sm">3</div>
+                <div class="bg-blue-50 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:bg-blue-600 transition-all">
+                    <i data-lucide="mail-check" class="text-blue-600 w-10 h-10 group-hover:text-white transition-all"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Instant Confirmation</h3>
+                <p class="text-slate-600 leading-relaxed">Once verified, your official visa authorization is sent directly to your inbox.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-24 bg-slate-100">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-extrabold text-slate-900 mb-4">Flexible Processing Options</h2>
+                <p class="text-slate-600 font-medium">Professional assistance tailored to your timeline</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-200 transition-all hover:shadow-lg">
+                    <h3 class="font-bold text-slate-500 uppercase tracking-widest text-xs mb-4">Standard</h3>
+                    <div class="text-5xl font-black text-slate-900 mb-6">$49<span class="text-sm text-slate-400 font-bold tracking-normal"> / app</span></div>
+                    <ul class="space-y-4 mb-10 text-slate-600">
+                        <li class="flex items-center gap-3"><i data-lucide="clock" class="w-5 h-5 text-slate-300"></i> Up to 3 Business Days</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-5 h-5 text-green-500"></i> Quality Check</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-5 h-5 text-green-500"></i> Standard Support</li>
+                    </ul>
+                    <button onclick="openSelectModal('Standard')" class="w-full py-4 bg-slate-50 border-2 border-slate-200 rounded-2xl font-black text-slate-700 hover:bg-white hover:border-blue-600 hover:text-blue-600 transition-all">SELECT STANDARD</button>
+                </div>
+                <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl border-4 border-blue-600 relative transform scale-105 z-10">
+                    <div class="absolute -top-5 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] font-black px-6 py-2 rounded-full uppercase tracking-[0.2em]">Priority Lane</div>
+                    <h3 class="font-bold text-blue-600 uppercase tracking-widest text-xs mb-4">Rush Lane</h3>
+                    <div class="text-5xl font-black text-slate-900 mb-6">$79<span class="text-sm text-slate-400 font-bold tracking-normal"> / app</span></div>
+                    <ul class="space-y-4 mb-10 text-slate-700 font-medium">
+                        <li class="flex items-center gap-3"><i data-lucide="zap" class="w-5 h-5 text-amber-500"></i> 48-Hour Guarantee</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check-circle-2" class="w-5 h-5 text-green-500"></i> Priority Review</li>
+                        <li class="flex items-center gap-3"><i data-lucide="shield" class="w-5 h-5 text-blue-600"></i> Rejection Insurance Avail.</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check-circle-2" class="w-5 h-5 text-green-500"></i> 24/7 Priority Chat</li>
+                    </ul>
+                    <button onclick="openSelectModal('Rush')" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black shadow-xl hover:bg-blue-700 transition-all tracking-widest">SELECT RUSH</button>
+                </div>
+                <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-200 transition-all hover:shadow-lg">
+                    <h3 class="font-bold text-slate-500 uppercase tracking-widest text-xs mb-4">Urgent</h3>
+                    <div class="text-5xl font-black text-slate-900 mb-6">$129<span class="text-sm text-slate-400 font-bold tracking-normal"> / app</span></div>
+                    <ul class="space-y-4 mb-10 text-slate-600">
+                        <li class="flex items-center gap-3"><i data-lucide="rocket" class="w-5 h-5 text-amber-500"></i> 12-Hour Priority</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-5 h-5 text-green-500"></i> Manual Submission</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-5 h-5 text-green-500"></i> Dedicated Manager</li>
+                        <li class="flex items-center gap-3"><i data-lucide="check" class="w-5 h-5 text-green-500"></i> Full Protection Incl.</li>
+                    </ul>
+                    <button onclick="openSelectModal('Express')" class="w-full py-4 bg-slate-50 border-2 border-slate-200 rounded-2xl font-black text-slate-700 hover:bg-white hover:border-blue-600 hover:text-blue-600 transition-all">SELECT EXPRESS</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trustpilot Carousel Section (Moved below Pricing) -->
+    <section class="py-20 bg-white overflow-hidden border-y border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 mb-12 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-green-100 p-2 rounded-lg"><i data-lucide="star" class="text-green-600 fill-green-600 w-6 h-6"></i></div>
+                <h2 class="text-3xl font-extrabold text-slate-900 italic">Visa<span class="text-blue-600 not-italic">Doc</span> <span class="not-italic text-slate-400 ml-2 text-2xl font-bold uppercase tracking-widest">Reviews</span></h2>
+            </div>
+            <div class="hidden md:flex items-center gap-4 bg-slate-50 px-6 py-3 rounded-2xl border border-slate-200">
+                <span class="text-sm font-bold text-slate-500 uppercase tracking-widest">Excellent 4.9/5</span>
+                <div class="flex gap-0.5">
+                    <i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i>
+                    <i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i>
+                    <i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i>
+                    <i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i>
+                    <i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="animate-scroll-reviews">
+            <div class="flex gap-6 px-3">
+                <!-- Review Card 1 -->
+                <div class="review-card bg-slate-50 p-8 rounded-3xl border border-slate-100">
+                    <div class="flex gap-0.5 mb-4"><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i></div>
+                    <h4 class="font-bold text-slate-900 mb-3 text-lg">"Super fast and easy!"</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-6 h-20 overflow-hidden">I was stressed about the new UK ETA rules, but VisaDoc made it so simple. Got my approval in just 2 days. Highly recommended.</p>
+                    <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-xs font-bold text-blue-600">SM</div>
+                        <div class="text-sm font-bold text-slate-800">Sarah Miller</div>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="review-card bg-slate-50 p-8 rounded-3xl border border-slate-100">
+                    <div class="flex gap-0.5 mb-4"><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i></div>
+                    <h4 class="font-bold text-slate-900 mb-3 text-lg">"Expert review saved me"</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-6 h-20 overflow-hidden">They caught a typo in my passport number before submission. That alone saved my entire business trip to London. Professional team!</p>
+                    <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+                        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-xs font-bold text-indigo-600">JD</div>
+                        <div class="text-sm font-bold text-slate-800">Julien Dupont</div>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="review-card bg-slate-50 p-8 rounded-3xl border border-slate-100">
+                    <div class="flex gap-0.5 mb-4"><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i></div>
+                    <h4 class="font-bold text-slate-900 mb-3 text-lg">"Great for families"</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-6 h-20 overflow-hidden">Applying for a family of five was a breeze. One dashboard to manage everyone's status. Best service in years.</p>
+                    <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+                        <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-xs font-bold text-amber-600">RL</div>
+                        <div class="text-sm font-bold text-slate-800">Robert L.</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Duplicated Set -->
+            <div class="flex gap-6 px-3">
+                <div class="review-card bg-slate-50 p-8 rounded-3xl border border-slate-100"><div class="flex gap-0.5 mb-4"><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i></div>
+                <h4 class="font-bold text-slate-900 mb-3 text-lg">"Super fast and easy!"</h4><p class="text-sm text-slate-600 leading-relaxed mb-6 h-20 overflow-hidden">I was stressed about the new UK ETA rules, but VisaDoc made it so simple. Got my approval in just 2 days. Highly recommended.</p>
+                <div class="flex items-center gap-3 pt-4 border-t border-slate-100"><div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-xs font-bold text-blue-600">SM</div><div class="text-sm font-bold text-slate-800">Sarah Miller</div></div></div>
+                <div class="review-card bg-slate-50 p-8 rounded-3xl border border-slate-100"><div class="flex gap-0.5 mb-4"><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i></div>
+                <h4 class="font-bold text-slate-900 mb-3 text-lg">"Expert review saved me"</h4><p class="text-sm text-slate-600 leading-relaxed mb-6 h-20 overflow-hidden">They caught a typo in my passport number before submission. That alone saved my entire business trip to London. Professional team!</p>
+                <div class="flex items-center gap-3 pt-4 border-t border-slate-100"><div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-xs font-bold text-indigo-600">JD</div><div class="text-sm font-bold text-slate-800">Julien Dupont</div></div></div>
+                <div class="review-card bg-slate-50 p-8 rounded-3xl border border-slate-100"><div class="flex gap-0.5 mb-4"><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i><i data-lucide="star" class="trust-star w-4 h-4 fill-current"></i></div>
+                <h4 class="font-bold text-slate-900 mb-3 text-lg">"Great for families"</h4><p class="text-sm text-slate-600 leading-relaxed mb-6 h-20 overflow-hidden">Applying for a family of five was a breeze. One dashboard to manage everyone's status. Best service in years.</p>
+                <div class="flex items-center gap-3 pt-4 border-t border-slate-100"><div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-xs font-bold text-amber-600">RL</div><div class="text-sm font-bold text-slate-800">Robert L.</div></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visa Protection Plan -->
+    <section class="py-12 max-w-4xl mx-auto px-4">
+        <div class="bg-white border-2 border-dashed border-blue-200 rounded-[2.5rem] p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group hover:border-blue-500 transition-all duration-500">
+            <div class="absolute top-0 right-0 p-4 bg-blue-600 text-white text-[10px] font-black rounded-bl-2xl uppercase tracking-widest">Optional Add-on</div>
+            <div class="bg-blue-100 p-6 rounded-[2rem] group-hover:bg-blue-600 transition-colors duration-500">
+                <i data-lucide="umbrella" class="text-blue-600 w-12 h-12 group-hover:text-white transition-colors"></i>
+            </div>
+            <div class="flex-1 text-center md:text-left">
+                <h4 class="text-2xl font-extrabold text-slate-900 mb-2">Visa Rejection Protection Plan</h4>
+                <p class="text-slate-600 mb-4 leading-relaxed">Add for only <span class="text-blue-600 font-black">$20.00</span> per applicant. Get a <span class="font-bold text-slate-900 underline underline-offset-4 decoration-blue-600">100% refund of our service fee</span> if denied.</p>
+            </div>
+            <div class="w-full md:w-auto">
+                <label class="flex items-center justify-center gap-3 bg-slate-50 px-6 py-4 rounded-2xl border-2 border-slate-200 cursor-pointer hover:bg-blue-50 hover:border-blue-200 transition-all group/toggle">
+                    <input type="checkbox" class="w-5 h-5 accent-blue-600 cursor-pointer">
+                    <span class="font-black text-slate-700 uppercase text-xs tracking-widest">ADD TO PLAN</span>
+                </label>
+            </div>
+        </div>
+    </section>
+
+    <!-- Travel Insights -->
+    <section class="py-24 max-w-7xl mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center md:items-end mb-12 gap-6">
+            <div>
+                <span class="text-blue-600 font-black text-xs uppercase tracking-[0.4em]">Expert Knowledge</span>
+                <h2 class="text-4xl font-extrabold text-slate-900 mt-4 italic tracking-tight underline decoration-blue-200 decoration-8 underline-offset-4">Visa<span class="text-blue-600 not-italic">Doc</span> Insights</h2>
+            </div>
+            <a href="#" class="bg-white border border-slate-200 px-8 py-3 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 transition-all flex items-center gap-2 group">
+                Browse all guides <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-all"></i>
+            </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="group cursor-pointer">
+                <div class="aspect-[4/3] bg-slate-200 rounded-[2.5rem] mb-6 overflow-hidden relative shadow-inner">
+                    <img src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700">
+                </div>
+                <h3 class="text-2xl font-extrabold group-hover:text-blue-600 transition-colors leading-tight">Mastering the New UK ETA: A Complete 2026 Tourist Guide</h3>
+            </div>
+            <div class="group cursor-pointer">
+                <div class="aspect-[4/3] bg-slate-200 rounded-[2.5rem] mb-6 overflow-hidden relative shadow-inner">
+                    <img src="https://images.unsplash.com/photo-1520117003479-60b15f21e337?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700">
+                </div>
+                <h3 class="text-2xl font-extrabold group-hover:text-blue-600 transition-colors leading-tight">Biometric Passport Requirements: Common Mistakes to Avoid</h3>
+            </div>
+            <div class="group cursor-pointer">
+                <div class="aspect-[4/3] bg-slate-200 rounded-[2.5rem] mb-6 overflow-hidden relative shadow-inner">
+                    <img src="https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700">
+                </div>
+                <h3 class="text-2xl font-extrabold group-hover:text-blue-600 transition-colors leading-tight">Thailand E-Visa: Simplifying Entry for Business & Leisure</h3>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed FAQ Section -->
+    <section class="py-24 bg-white border-t border-slate-100">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-extrabold text-slate-900">Frequently Asked Questions</h2>
+                <p class="text-slate-500 mt-4">Everything you need to know about VisaDoc and global visas.</p>
+            </div>
+            <div class="space-y-4">
+                <div class="group border border-slate-200 rounded-[2rem] overflow-hidden transition-all hover:border-blue-600">
+                    <button class="w-full px-8 py-6 text-left flex justify-between items-center bg-white" onclick="toggleFaq(this)">
+                        <span class="font-bold text-lg text-slate-800">What is the difference between VisaDoc and applying directly?</span>
+                        <i data-lucide="plus" class="w-6 h-6 text-blue-600 transition-transform duration-300"></i>
+                    </button>
+                    <div class="max-h-0 overflow-hidden transition-all duration-300 bg-slate-50"><div class="px-8 py-6 text-slate-600 leading-relaxed border-t">While you can apply directly, VisaDoc provides professional review, OCR fast data entry, 24/7 expert support, and catching common errors to prevent rejection.</div></div>
+                </div>
+                <div class="group border border-slate-200 rounded-[2rem] overflow-hidden transition-all hover:border-blue-600">
+                    <button class="w-full px-8 py-6 text-left flex justify-between items-center bg-white" onclick="toggleFaq(this)">
+                        <span class="font-bold text-lg text-slate-800">How long does the UK ETA application take?</span>
+                        <i data-lucide="plus" class="w-6 h-6 text-blue-600 transition-transform duration-300"></i>
+                    </button>
+                    <div class="max-h-0 overflow-hidden transition-all duration-300 bg-slate-50"><div class="px-8 py-6 text-slate-600 leading-relaxed border-t">Our standard takes up to 3 business days. Urgent travel lanes (Rush/Express) guarantee processing in 48 and 12 hours respectively.</div></div>
+                </div>
+                <div class="group border border-slate-200 rounded-[2rem] overflow-hidden transition-all hover:border-blue-600">
+                    <button class="w-full px-8 py-6 text-left flex justify-between items-center bg-white" onclick="toggleFaq(this)">
+                        <span class="font-bold text-lg text-slate-800">Is my personal information secure?</span>
+                        <i data-lucide="plus" class="w-6 h-6 text-blue-600 transition-transform duration-300"></i>
+                    </button>
+                    <div class="max-h-0 overflow-hidden transition-all duration-300 bg-slate-50"><div class="px-8 py-6 text-slate-600 leading-relaxed border-t">Yes. We use bank-grade 256-bit SSL encryption. We are GDPR compliant, and your data is deleted after processing as per policy.</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white py-24">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-16 gap-8">
+                <div class="flex items-center gap-2">
+                    <div class="bg-blue-600 p-2 rounded-xl"><i data-lucide="file-check-2" class="text-white w-8 h-8"></i></div>
+                    <span class="text-4xl font-extrabold italic tracking-tighter">Visa<span class="text-blue-500 not-italic">Doc</span></span>
+                </div>
+                <nav class="flex flex-wrap justify-center gap-8 text-sm font-black text-slate-400 uppercase tracking-widest">
+                    <a href="#" class="hover:text-white">Destinations</a><a href="#" class="hover:text-white">Privacy</a><a href="#" class="hover:text-white">Terms</a><a href="#" class="hover:text-white">Contact</a>
+                </nav>
+            </div>
+            <div class="text-center border-t border-slate-800 pt-12">
+                <p class="text-slate-500 text-[10px] max-w-2xl mx-auto leading-relaxed uppercase tracking-widest opacity-60 mb-8">VisaDoc is a professional visa agency. We are not a government entity. Official portals offer services at lower government-only fees.</p>
+                <div class="flex justify-center gap-8 opacity-30 grayscale hover:grayscale-0 transition-all">
+                    <img src="https://img.icons8.com/color/48/000000/visa.png" class="h-6"><img src="https://img.icons8.com/color/48/000000/mastercard.png" class="h-6"><img src="https://img.icons8.com/color/48/000000/stripe.png" class="h-6"><img src="https://img.icons8.com/color/48/000000/paypal.png" class="h-6">
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals (Application & Selection) -->
+    <div id="selectModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/90 backdrop-blur-xl" onclick="closeSelectModal()"></div>
+        <div class="bg-white rounded-[3rem] p-10 max-w-lg w-full relative z-10 shadow-2xl animate-pop">
+            <button onclick="closeSelectModal()" class="absolute top-8 right-8 p-2 hover:bg-slate-100 rounded-full"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <div class="text-center mb-8">
+                <div class="bg-blue-100 text-blue-600 w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto mb-6"><i data-lucide="plane-takeoff" class="w-10 h-10"></i></div>
+                <h3 class="text-3xl font-extrabold mb-2" id="modalTierTitle">Service Selected</h3>
+                <p class="text-slate-500 font-medium">Please confirm your destination.</p>
+            </div>
+            <div class="space-y-4">
+                <select id="modalDest" class="w-full p-5 bg-slate-50 border-2 border-slate-200 rounded-2xl outline-none font-bold text-slate-800">
+                    <option value="uk">United Kingdom (ETA)</option><option value="ca">Canada (eTA)</option><option value="th">Thailand (E-Visa)</option>
+                </select>
+                <button onclick="goToForm()" class="w-full py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl hover:bg-blue-700 transition-all">PROCEED TO APPLICATION</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="appModal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onclick="closeAppModal()"></div>
+        <div class="absolute inset-y-0 right-0 w-full max-w-xl bg-white shadow-2xl flex flex-col animate-slide-in">
+            <div class="p-8 border-b flex justify-between items-center">
+                <div><h2 class="text-2xl font-black">VisaDoc Application</h2><p class="text-xs font-black text-blue-600 uppercase tracking-widest mt-1">Professional Review Lane</p></div>
+                <button onclick="closeAppModal()" class="p-3 hover:bg-slate-100 rounded-full"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-10 text-center">
+                <p class="text-slate-600 mb-8 italic">Please fill your details according to your passport.</p>
+                <form class="space-y-8 text-left">
+                    <div class="space-y-2"><label class="text-xs font-black text-slate-400 uppercase tracking-widest">Full Legal Name</label><input type="text" class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold" placeholder="Johnathan Smith"></div>
+                    <div class="grid grid-cols-2 gap-6"><div class="space-y-2"><label class="text-xs font-black text-slate-400 uppercase tracking-widest">Passport #</label><input type="text" class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold" placeholder="A1234567"></div><div class="space-y-2"><label class="text-xs font-black text-slate-400 uppercase tracking-widest">DOB</label><input type="date" class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold"></div></div>
+                    <div class="p-10 bg-blue-50 border-2 border-dashed border-blue-200 rounded-[2.5rem] text-center group cursor-pointer hover:bg-blue-100 transition-all">
+                        <div class="bg-blue-600 p-5 rounded-3xl w-fit mx-auto mb-6"><i data-lucide="camera" class="text-white w-10 h-10"></i></div>
+                        <h5 class="text-xl font-black text-blue-900">Upload Passport Page</h5>
+                    </div>
+                </form>
+            </div>
+            <div class="p-10 border-t bg-slate-50"><button class="w-full py-6 bg-blue-600 text-white font-black rounded-3xl shadow-xl hover:bg-blue-700 transition-all uppercase text-sm tracking-widest">Next Step</button></div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        function openAppModal() { document.getElementById('appModal').classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+        function closeAppModal() { document.getElementById('appModal').classList.add('hidden'); document.body.style.overflow = 'auto'; }
+        function openSelectModal(tier) { document.getElementById('modalTierTitle').innerText = `${tier} Service Selection`; document.getElementById('selectModal').classList.remove('hidden'); document.getElementById('selectModal').classList.add('flex'); document.body.style.overflow = 'hidden'; }
+        function closeSelectModal() { document.getElementById('selectModal').classList.add('hidden'); document.getElementById('selectModal').classList.remove('flex'); document.body.style.overflow = 'auto'; }
+        function goToForm() { closeSelectModal(); openAppModal(); }
+        function toggleFaq(btn) { const content = btn.nextElementSibling; const icon = btn.querySelector('i'); const isOpen = content.style.maxHeight !== '0px' && content.style.maxHeight !== ''; document.querySelectorAll('.max-h-0').forEach(el => el.style.maxHeight = '0px'); if (!isOpen) { content.style.maxHeight = content.scrollHeight + 'px'; icon.style.transform = 'rotate(45deg)'; } else { icon.style.transform = 'rotate(0deg)'; } }
+        window.onscroll = () => { const header = document.querySelector('header'); if (window.scrollY > 20) header.classList.add('shadow-xl'); else header.classList.remove('shadow-xl'); };
+    </script>
+    <style>
+        @keyframes slide-in { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes pop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .animate-slide-in { animation: slide-in 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .animate-pop { animation: pop 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    </style>
+</body>
+</html>
