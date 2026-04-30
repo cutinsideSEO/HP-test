@@ -1,0 +1,2252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Canyon x Cut Inside -- Strategic Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --teal:#0D9488;--teal-l:#14B8A6;--teal-d:#0A7A70;
+    --teal-dim:rgba(13,148,136,0.06);--teal-dim-2:rgba(13,148,136,0.10);--teal-glow:rgba(13,148,136,0.22);
+    --danger:#DC2626;--danger-dim:rgba(220,38,38,0.06);
+    --warning:#F59E0B;--warning-dim:rgba(245,158,11,0.10);
+    --success:#16A34A;--success-dim:rgba(22,163,74,0.08);
+    --purple:#7C3AED;--purple-dim:rgba(124,58,237,0.08);
+    --pink:#DB2777;--pink-dim:rgba(219,39,119,0.08);
+    --accent-blue:#4A90D9;--accent-blue-dim:rgba(74,144,217,0.08);
+    --bg:#FAFAFA;--white:#FFFFFF;--off:#F3F4F6;
+    --border:#E5E7EB;--border-l:#F0F0F0;
+    --t1:#111111;--t2:#4B5563;--t3:#9CA3AF;
+    /* Canyon brand palette */
+    --canyon:#111111;
+    --canyon-accent:#00B0D6;
+    --canyon-soft:rgba(17,17,17,0.06);
+    --canyon-soft-2:rgba(17,17,17,0.10);
+    --trek:#E31837;
+    --trek-dim:rgba(227,24,55,0.08);
+    /* Specialized: shifted from #ED1C24 to #B91C3C burgundy to avoid Trek-red clash */
+    --specialized:#B91C3C;
+    --schwinn:#F59E0B;
+    --cannondale:#7C3AED;
+    --aventon:#4A90D9;
+    --radius-card:20px;
+    --radius-callout:0 16px 16px 0;
+    --radius-table:16px;
+    --shadow-card:0 1px 3px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.03);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    -webkit-font-smoothing:antialiased;
+    line-height:1.7;
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    background:var(--bg);
+    color:var(--t1);
+  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:translateY(0);} }
+  @keyframes fadeInSlow { from { opacity:0; transform:translateY(16px);} to { opacity:1; transform:translateY(0);} }
+  @keyframes surfacePulse {
+    0%{box-shadow:0 0 0 0 rgba(0,176,214,0.45);}
+    70%{box-shadow:0 0 0 14px rgba(0,176,214,0);}
+    100%{box-shadow:0 0 0 0 rgba(0,176,214,0);}
+  }
+  @keyframes surfaceMove {
+    0%{transform:translateY(0);opacity:0.3;}
+    60%{transform:translateY(-160px);opacity:1;}
+    100%{transform:translateY(-160px);opacity:1;}
+  }
+  button{font-family:inherit;}
+  button:focus-visible, a:focus-visible, [role="tab"]:focus-visible{
+    outline:2px solid var(--teal); outline-offset:2px;
+  }
+  @media print {
+    button, .no-print { display:none !important; }
+    .tab-content-print { display:block !important; }
+    * { break-inside:avoid; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/prop-types@15/prop-types.min.js" crossorigin></script>
+<script src="https://unpkg.com/recharts@2.15.3/umd/Recharts.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useRef, useMemo } = React;
+const {
+  LineChart, Line, BarChart, Bar,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer, Cell, ReferenceLine, LabelList
+} = Recharts;
+
+/* ========= TOKENS ========= */
+const C = {
+  teal:"#0D9488", tealL:"#14B8A6", tealD:"#0A7A70",
+  tealDim:"rgba(13,148,136,0.06)", tealDim2:"rgba(13,148,136,0.10)", tealGlow:"rgba(13,148,136,0.22)",
+  danger:"#DC2626", dangerDim:"rgba(220,38,38,0.06)",
+  warning:"#F59E0B", warningDim:"rgba(245,158,11,0.10)",
+  success:"#16A34A", successDim:"rgba(22,163,74,0.08)",
+  purple:"#7C3AED", purpleDim:"rgba(124,58,237,0.08)",
+  pink:"#DB2777", pinkDim:"rgba(219,39,119,0.08)",
+  accentBlue:"#4A90D9", accentBlueDim:"rgba(74,144,217,0.08)",
+  bg:"#FAFAFA", white:"#FFFFFF", off:"#F3F4F6",
+  border:"#E5E7EB", borderL:"#F0F0F0",
+  t1:"#111111", t2:"#4B5563", t3:"#9CA3AF",
+  canyon:"#111111", canyonAccent:"#00B0D6",
+  canyonSoft:"rgba(17,17,17,0.06)", canyonSoft2:"rgba(17,17,17,0.10)",
+  trek:"#E31837", trekDim:"rgba(227,24,55,0.08)",
+  specialized:"#B91C3C", // shifted from #ED1C24 per design-spec to avoid Trek red clash
+  schwinn:"#F59E0B",
+  cannondale:"#7C3AED",
+  aventon:"#4A90D9",
+};
+const FONT = {
+  body:"'Inter',-apple-system,BlinkMacSystemFont,sans-serif",
+  mono:"'JetBrains Mono',monospace"
+};
+
+const LOGO_PATHS = {
+  canyon: "./assets/canyon-logo.png",
+  trek:   "./assets/trek-logo.png",
+  specialized: "./assets/specialized-logo.jpg", // note: file is jpg, not png
+  cutInside: "https://cutinside.com/wp-content/uploads/2025/01/Logo.svg",
+};
+
+/* ========= STORY (from brand-story.json, verbatim) ========= */
+const STORY = {
+  meta: {
+    targetBrand: "Canyon",
+    market: "us-bicycle",
+    pattern: "The Underrated Architect",
+    posture: "Architect",
+    generatedAt: "2026-04-19"
+  },
+  marketLens: {
+    id: "marketLens",
+    label: "The Market Lens",
+    headline: "Canyon in the non-branded funnel",
+    subheadline: "Canyon is a 4.4% share brand already winning the consideration layer. The ceiling is not brand awareness and it is not a site rebuild. It is a small set of specific gaps where Canyon's own pages exist but are not being seen.",
+    intro: "The general market research mapped how 92,351 US bicycle keywords collapse as users describe their need: from the full non-branded pool, into need-based queries, into compound pairs and triples. Canyon holds the foundational layers (2,689 Top 10 at all non-branded, 1,121 at need-based, 2,083 at type-based) -- but the gap to Trek widens as the funnel narrows into specific need combinations. Trek leads 3.9x at type+gender (511 vs 132 Top 10 keywords), 5.6x at type+size (162 vs 29), and 31x at the deepest compound layer (triple type+gender+size, 31 vs 1). The pattern is monotonic: the deeper the compound, the wider Trek's lead.",
+    funnelCollapseChart: {
+      layers: ["allNonBranded","needBased","typeBased","pairTypeGender","pairTypeSize","tripleGenderSize"],
+      layerLabels: ["All non-branded","Need-based","Type-based","Type + gender","Type + size","Type + gender + size"],
+      targetTop10PerLayer: [2689,1121,2083,132,29,1],
+      primaryCompetitorTop10PerLayer: [8387,2727,3819,511,162,31],
+      primaryCompetitor: "Trek",
+      caption: "Canyon's gap widens as the funnel narrows. Multipliers grow from 3.12x at the all-NB layer to 5.6x at type+size and 31x at the triple type+gender+size group. Each chart point is a real gap pulled directly from the keyword set, not an aggregate average."
+    },
+    patternName: "The Underrated Architect",
+    calloutBox: {
+      title: "What this tab establishes",
+      body: "Canyon already has 2,689 non-branded Top 10 keywords, more than Specialized (1,706), Giant (1,463), and Cannondale (807) combined. The question this brief answers is not whether Canyon can compete in non-branded search. The question is why three specific, narrowly-defined niches still leak to competitors with less architecture."
+    }
+  },
+  nonBrandedVisibility: {
+    id: "nonBrandedVisibility",
+    label: "Non-Branded Visibility",
+    headline: "Where Canyon appears, and where it still does not",
+    intro: "Canyon's non-branded footprint is the largest in the premium performance segment. The brand is #1 in gravel, #2 in mountain, #2 in road, and carries better road-category average rank than Trek. The volume that does not return Canyon is narrow and identifiable, not diffuse.",
+    metrics: [
+      { label: "Non-branded Top 10 keywords", value: 2689, context: "of 68,222 total NB keywords tracked" },
+      { label: "Non-branded Top 10 volume", value: 644780, context: "of 11.03M total NB monthly volume" },
+      { label: "Average NB rank", value: 9.56, context: "better than Specialized (12.01) and Giant (11.83)" },
+      { label: "Trek NB Top 10 keywords", value: 8387, context: "3.12x Canyon at the all-non-branded level" }
+    ],
+    peerComparisonLine: "Trek leads non-branded keyword count 3.12x (8,387 vs 2,689) -- but Trek's branded volume is 6.4x Canyon's, which means the NB gap should be wider than it actually is. Canyon converts roughly twice as many NB Top 10 keywords per unit of branded volume as Trek does. In gravel, Canyon outranks Trek outright; in road, Canyon's average rank (8.7) beats Trek's (9.5). Trek leads volume; Canyon leads efficiency.",
+    submarketTable: [
+      { submarket: "Gravel", canyonRank: 1, canyonTop10: 317, canyonAvgRank: 7.2, leader: "Canyon" },
+      { submarket: "Road", canyonRank: 2, canyonTop10: 809, canyonAvgRank: 8.7, leader: "Trek", note: "Canyon's avg rank beats Trek's 9.5" },
+      { submarket: "Mountain", canyonRank: 2, canyonTop10: 752, canyonAvgRank: 9.6, leader: "Trek" },
+      { submarket: "Electric", canyonRank: null, canyonTop10: 63, canyonAvgRank: 11.9, leader: "Aventon", note: "Catalog-depth gap, not a search gap" },
+      { submarket: "Hybrid", canyonRank: null, canyonTop10: 62, canyonAvgRank: null, leader: "Trek", note: "Canyon's US hybrid shelf is e-hybrid only, off-strategy" }
+    ],
+    highVolumeAbsentTable: [
+      { keyword: "electric bicycle", volume: 27100, canyonRank: "unranked", topCompetitor: "Amazon", topCompetitorRank: 4, note: "Page exists, domain authority gap" },
+      { keyword: "bicycle helmets", volume: 12100, canyonRank: "unranked", topCompetitor: "Trek", topCompetitorRank: 10, note: "No dedicated helmet landing page" },
+      { keyword: "kids bicycle", volume: 5400, canyonRank: "unranked", topCompetitor: "Schwinn", topCompetitorRank: 2, note: "Off-strategy, Canyon does not sell kids' bikes in the US" },
+      { keyword: "adult bicycle", volume: 4400, canyonRank: "unranked", topCompetitor: "Dicks", topCompetitorRank: 3 },
+      { keyword: "womens bicycle", volume: 4400, canyonRank: "unranked", topCompetitor: "Dicks", topCompetitorRank: 2, note: "Women's hub exists but is footer-only" },
+      { keyword: "mens bicycle", volume: 3600, canyonRank: "unranked", topCompetitor: "Dicks", topCompetitorRank: 3 }
+    ],
+    callout: "The gap is narrow and sorted. Most of the volume absent here is volume Canyon is not architected for: kids, big-box retail queries, and pure head-term generics. The addressable set is small, named, and surfaces in the next three tabs.",
+    peerComparison: {
+      leftBrand: "trek", leftValue: "8,387", leftLabel: "NB Top 10",
+      rightBrand: "canyon", rightValue: "2,689", rightLabel: "NB Top 10",
+      multiplier: "3.12x", multiplierLabel: "Trek lead", multiplierTone: "warning"
+    }
+  },
+  needGap: {
+    id: "needGap",
+    label: "The Need Gap",
+    headline: "When users describe who they are, Canyon still shows up",
+    intro: "The need-based layer is where most brands at Canyon's branded scale collapse. This is the layer where a query stops being 'mountain bike' and starts being 'mountain bike for a specific person': a gender, a size, a skill level, an age. Canyon does not collapse here. Canyon carries 1,121 Top 10 keywords into the need-based layer, ahead of Specialized (591), Schwinn (917), and Giant (460). The fall-off versus Trek is 2.43x, tighter than the 3.12x gap at the all-non-branded level.",
+    funnelStep: {
+      fromLayer: "allNonBranded", toLayer: "needBased",
+      targetBefore: 2689, targetAfter: 1121,
+      retentionRate: 0.42,
+      competitorBefore: 8387, competitorAfter: 2727,
+      competitorRetentionRate: 0.33,
+      interpretation: "Canyon retains 42% of its NB Top 10 keywords when a need is added to the query. Trek retains 33%. At the need layer, Canyon is closing the multiplier gap."
+    },
+    needExamples: [
+      { keyword: "womens mountain bike", volume: 3600, needs: ["gender"], canyonRank: 10, trekRank: 4, note: "Canyon page-one edge; Trek top-five. Canyon's Women's hub and Women's Road LP exist; Women's MTB LP is missing." },
+      { keyword: "kids mountain bike", volume: 3600, needs: ["age"], canyonRank: 4, trekRank: 3, note: "Canyon ranks despite not selling kids' bikes in the US, pulled by MTB category authority. Trek still edges Canyon by one position." },
+      { keyword: "womens road bike", volume: 2400, needs: ["gender"], canyonRank: 9, trekRank: 2, note: "Canyon's Women's Road LP (33 products, 2,100 words) is doing the work from the footer; Trek captures the top-three slot." },
+      { keyword: "bike women road", volume: 1600, needs: ["gender"], canyonRank: 7, trekRank: 4, note: "Canyon page-one but a slot below Trek." },
+      { keyword: "female road bicycle", volume: 1600, needs: ["gender"], canyonRank: 9, trekRank: 4, note: "Same Women's Road LP, same five-position deficit to Trek." },
+      { keyword: "27.5 mountain bike", volume: 1300, needs: ["size"], canyonRank: 9, trekRank: 3, note: "Canyon's dedicated 27.5 landing page (2,100 words) is ranking, but only from footer and organic entry. Trek top-three off MTB nav." },
+      { keyword: "lightweight mountain bike", volume: 1000, needs: ["size"], canyonRank: 1, trekRank: 9, note: "The one need example where Canyon outranks Trek. Lightweight is a Canyon-owned descriptor.", canyonAhead: true }
+    ],
+    framing: "Canyon is present at the need layer -- but 'present' is doing a lot of work. On six of seven examples, Trek ranks higher on the same SERP, often by 4 to 7 positions. Canyon's pages exist, they rank, but they consistently sit behind Trek's MTB and Women's category pages because Trek's nav exposes the need filters Canyon hides in the footer. Lightweight is the exception that proves the rule: where Canyon's editorial voice owns the descriptor, Canyon owns the SERP."
+  },
+  pairsTriples: {
+    id: "pairsTriples",
+    label: "Pairs & Triples",
+    headline: "Canyon holds the compound layer, with one named exception",
+    intro: "Pairs and triples are the layers where most premium brands flatten. A query like 'electric mountain bike' is a pair (type + type); 'womens mountain bike 27.5' is a triple (gender + type + size). Canyon holds 958 Top 10 keywords at pairs and 177 at triples, well above the 20-threshold that separates brands with durable compound presence from brands without. The single exception sits at the type + size slice, and it is the hero of the next tab.",
+    pairsData: {
+      totalKeywords: 5541, totalVolume: 978250,
+      canyonTop10: 958, canyonTop10Volume: 205600, canyonAvgRank: 8.99,
+      trekTop10: 1524, trekMultiplier: 1.59
+    },
+    triplesData: {
+      totalKeywords: 789, totalVolume: 105910,
+      canyonTop10: 177, canyonTop10Volume: 22150, canyonAvgRank: 9.7,
+      trekTop10: 246, trekMultiplier: 1.39
+    },
+    typeSizeCallout: {
+      label: "Type + size",
+      totalKeywords: 413, totalVolume: 57350,
+      canyonTop10: 29, canyonAvgRank: 9.77,
+      trekTop10: 162, trekMultiplier: 5.59,
+      headline: "This is the layer where Canyon trails Trek most. The brief's hero gap opens here."
+    },
+    typeSizeHeadToHead: {
+      sectionLabel: "Type + Need: Same Query, Two Positions",
+      headline: "Where the compound-layer gap actually lives",
+      subhead: "Same MTB-plus-need queries. Canyon's pages exist for the wheel-size hero. Trek wins the SERP anyway, and the same pattern repeats once the need shifts from size to gender or intent.",
+      examples: [
+        { needType: "size",       keyword: "29 inch mountain bike",       volume: 1900, canyonRank: "unranked", trekRank: 10, gapNote: "Canyon's 29er LP exists (1,800 words). It does not surface on this query." },
+        { needType: "size",       keyword: "27.5 mountain bike",          volume: 1300, canyonRank: 9,          trekRank: 3,  gapNote: "Brief's hero keyword. Canyon page-one edge vs Trek top-three.", hero: true },
+        { needType: "size",       keyword: "29er mountain bike",          volume: 880,  canyonRank: 5,          trekRank: 2,  gapNote: "The closest Canyon gets. Trek still ranks ahead." },
+        { needType: "size",       keyword: "27.5 mountain bike wheels",   volume: 480,  canyonRank: "unranked", trekRank: 9,  gapNote: "Wheel-spec query. Canyon does not show." },
+        { needType: "size",       keyword: "29 inch mountain bikes",      volume: 320,  canyonRank: 18,         trekRank: 6,  gapNote: "Plural variant of the head term. Canyon page-two; Trek page-one." },
+        { needType: "size",       keyword: "mens mountain bike 29 inch",  volume: 320,  canyonRank: "unranked", trekRank: 6,  gapNote: "Triple: gender + type + size. Canyon's gender architecture stops at road." },
+        { needType: "size",       keyword: "27.5 inch mountain bike",     volume: 260,  canyonRank: 9,          trekRank: 4,  gapNote: "Spelling variant. Same gap." },
+        { needType: "gender",     keyword: "mens mountain bike",          volume: 3600, canyonRank: "unranked", trekRank: 3,  gapNote: "Type + gender. No Mens MTB LP exists; the gendered architecture stops at Women's Road." },
+        { needType: "comparison", keyword: "best mountain bikes",         volume: 3600, canyonRank: 11,         trekRank: 5,  gapNote: "Type + 'best of' intent. Editorial slot that Canyon's blog does not contest yet." },
+        { needType: "level",      keyword: "beginner mountain bike",      volume: 1000, canyonRank: "unranked", trekRank: 4,  gapNote: "Type + rider level. Canyon sells entry-trim MTBs (Stoic, Spectral AL base) but has no beginner hub to capture the query." }
+      ],
+      footnote: "Source: full keyword set, US bicycle market, March 2026. Each row is one query, both brands measured on the same SERP."
+    },
+    pairGroupsIntro: "Each card below is a NEED COMBINATION (a group), not a single keyword. Aggregates show how many Top 10 keywords each brand captures across the full group, plus the example queries that anchor the gap. Multi-competitor coverage included so the gap is visible against Canyon's premium peer (Specialized) and the value tier (Schwinn).",
+    pairGroups: [
+      {
+        label: "Type + Gender",
+        sublabel: "MTB / Road / Hybrid + men / women / unisex",
+        totalKeywords: 886,
+        totalVolume: 159230,
+        target: { top10: 132, top10Volume: 32630, avgRank: 6.0 },
+        primary: { brand: "Trek", top10: 511, top10Volume: 116520, avgRank: 5.7, multiple: "3.9x" },
+        peers: [
+          { brand: "Specialized", top10: 48 },
+          { brand: "Cannondale", top10: 70 },
+          { brand: "Schwinn",    top10: 238 }
+        ],
+        examples: [
+          { keyword: "mens mountain bike",     volume: 3600, canyonRank: "unranked", trekRank: 3 },
+          { keyword: "hybrid bikes for men",   volume: 2900, canyonRank: "unranked", trekRank: 1 },
+          { keyword: "womens mountain bike",   volume: 3600, canyonRank: 10,         trekRank: 4 }
+        ],
+        diagnosis: "On-strategy gap. Women's Road LP exists; Women's MTB / Gravel are 404, and the men's qualifier is missing from the existing MTB category metadata. Schwinn outranks Canyon at this group by 1.8x."
+      },
+      {
+        label: "Type + Buy",
+        sublabel: "MTB / Road / Electric + 'for sale' / 'buy' intent",
+        totalKeywords: 365,
+        totalVolume: 102080,
+        target: { top10: 48, top10Volume: 20160, avgRank: 7.0 },
+        primary: { brand: "Trek", top10: 184, top10Volume: 76860, avgRank: 6.7, multiple: "3.8x" },
+        peers: [
+          { brand: "Specialized", top10: 18 },
+          { brand: "Cannondale", top10: 5  },
+          { brand: "Schwinn",    top10: 49 }
+        ],
+        examples: [
+          { keyword: "mountain bikes for sale",   volume: 8100, canyonRank: 11,         trekRank: 5 },
+          { keyword: "road bikes for sale",       volume: 4400, canyonRank: 8,          trekRank: 5 },
+          { keyword: "electric bicycle for sale", volume: 5400, canyonRank: "unranked", trekRank: 8 }
+        ],
+        diagnosis: "On-strategy gap. Canyon's DTC checkout is the strongest in the market, but the SERP for 'for sale' intent is owned by Trek's category pages. The fix is metadata + 'buy' qualifiers on existing MTB and Road category pages, not a new LP."
+      },
+      {
+        label: "Type + Age",
+        sublabel: "MTB / Road / Electric + adults / kids / youth",
+        totalKeywords: 296,
+        totalVolume: 71800,
+        target: { top10: 29, top10Volume: 13560, avgRank: 6.9 },
+        primary: { brand: "Trek", top10: 125, top10Volume: 34910, avgRank: 5.8, multiple: "4.3x" },
+        peers: [
+          { brand: "Specialized", top10: 28 },
+          { brand: "Cannondale", top10: 42 },
+          { brand: "Schwinn",    top10: 62 }
+        ],
+        examples: [
+          { keyword: "electric bicycles for adults", volume: 3600, canyonRank: "unranked", trekRank: 9 },
+          { keyword: "kids mountain bike",            volume: 3600, canyonRank: 4,          trekRank: 3 },
+          { keyword: "adult electric bicycles",       volume: 1300, canyonRank: "unranked", trekRank: 10 }
+        ],
+        diagnosis: "Mixed. Kids is structurally off-strategy (Canyon does not sell kids' bikes in the US). But 'adult electric' and 'electric bicycles for adults' are addressable -- the gap is metadata on the existing Roadlite:ON / Pathlite:ON pages."
+      },
+      {
+        label: "Type + Comparison",
+        sublabel: "MTB / Road / Gravel + 'best of' / 'vs' / brand-comparison",
+        canyonLeads: true,
+        totalKeywords: 2137,
+        totalVolume: 353230,
+        target: { top10: 374, top10Volume: 70340, avgRank: 5.7 },
+        primary: { brand: "Trek", top10: 187, top10Volume: 36250, avgRank: 7.0, multiple: "0.50x" },
+        peers: [
+          { brand: "Specialized", top10: 259 },
+          { brand: "Cannondale", top10: 61  },
+          { brand: "Schwinn",    top10: 44  }
+        ],
+        examples: [
+          { keyword: "best road bikes 2025", volume: 5400, canyonRank: 7,  trekRank: 14 },
+          { keyword: "best mountain bikes",  volume: 3600, canyonRank: 11, trekRank: 5  },
+          { keyword: "good road bicycle",    volume: 1900, canyonRank: 12, trekRank: 10 }
+        ],
+        diagnosis: "Canyon LEADS this group 2x at the aggregate level. The brief's editorial-hub action plays here: at the head term ('best mountain bikes,' 3,600/mo) Canyon trails Trek, but across the long tail Canyon's editorial voice wins. A first-party 'best of' hub converts this aggregate strength into head-term wins."
+      }
+    ],
+    tripleGroups: [
+      {
+        label: "Type + Buy + Used",
+        sublabel: "Used / second-hand purchase intent",
+        totalKeywords: 64,
+        totalVolume: 13390,
+        target: { top10: 0, top10Volume: 0, avgRank: null },
+        primary: { brand: "Trek", top10: 43, top10Volume: 9410, avgRank: 7.5, multiple: "Trek owns" },
+        peers: [
+          { brand: "Specialized", top10: 0 },
+          { brand: "Cannondale", top10: 0 },
+          { brand: "Schwinn",    top10: 3 }
+        ],
+        examples: [
+          { keyword: "used mountain bikes for sale",  volume: 2400, canyonRank: "unranked", trekRank: 7 },
+          { keyword: "used road bikes for sale",       volume: 1300, canyonRank: 18,         trekRank: 8 },
+          { keyword: "used electric bicycle for sale", volume: 1000, canyonRank: "unranked", trekRank: 4 }
+        ],
+        diagnosis: "Off-strategy. Canyon is DTC new-bike only -- no used market by design. Shown as context for the brief's framing, not an action item."
+      },
+      {
+        label: "Type + Gender + Size",
+        sublabel: "MTB / Road + men / women + 24 / 27.5 / 29 inch",
+        totalKeywords: 48,
+        totalVolume: 5390,
+        target: { top10: 1, top10Volume: 40, avgRank: 8.0 },
+        primary: { brand: "Trek", top10: 31, top10Volume: 3630, avgRank: 6.5, multiple: "31x" },
+        peers: [
+          { brand: "Specialized", top10: 0  },
+          { brand: "Cannondale", top10: 5  },
+          { brand: "Schwinn",    top10: 26 }
+        ],
+        examples: [
+          { keyword: "mens mountain bike 29 inch",     volume: 320, canyonRank: "unranked", trekRank: 6  },
+          { keyword: "24 inch ladies mountain bike",   volume: 480, canyonRank: "unranked", trekRank: 16 },
+          { keyword: "girls 24 inch mountain bike",    volume: 260, canyonRank: "unranked", trekRank: 9  }
+        ],
+        diagnosis: "Compound on-strategy gap on the men's-29 / women's-27.5 sub-slice (rest is kids 24 inch, off-strategy). Mens 29 inch overlaps with the wheel-size hero; the fix routes through gender-architecture deliverables in Tab 06."
+      },
+      {
+        label: "Type + Buy + Gender",
+        sublabel: "MTB / Road + men / women + 'for sale' intent",
+        totalKeywords: 26,
+        totalVolume: 3350,
+        target: { top10: 1, top10Volume: 140, avgRank: 7.0 },
+        primary: { brand: "Trek", top10: 25, top10Volume: 2760, avgRank: 7.5, multiple: "25x" },
+        peers: [
+          { brand: "Specialized", top10: 1  },
+          { brand: "Cannondale", top10: 1  },
+          { brand: "Schwinn",    top10: 15 }
+        ],
+        examples: [
+          { keyword: "mens mountain bikes for sale", volume: 590, canyonRank: "unranked", trekRank: 12 },
+          { keyword: "mountain bikes for sale men",  volume: 320, canyonRank: "unranked", trekRank: 7  },
+          { keyword: "mens road bicycles for sale",  volume: 170, canyonRank: 15,          trekRank: 8  }
+        ],
+        diagnosis: "Compound gap where Type+Buy meets Type+Gender. Trek and Schwinn carry these queries through gendered category pages with 'shop now' hooks. The fix compounds with the gender architecture from Tab 06."
+      }
+    ],
+    callout: "Across pair groups, Trek leads Canyon 3.9x at gender, 4.3x at age, 3.8x at purchase intent, and 5.4x at size. Canyon leads Trek only at the comparison group. Across triple groups the multiplier widens further (25-31x where Trek captures men's-purchase and men's-size sub-slices Canyon does not surface). Wheel size is the largest single instance and the easiest fix; the next tab isolates it as the hero, with the other three groups routed through the editorial and gender deliverables in Tab 06."
+  },
+  deepDive: {
+    id: "deepDive",
+    label: "Compound Architecture",
+    headline: "Built, Not Surfaced: Four Instances of the Same Pattern",
+    oneSentence: "Wheel size is the largest single instance: 57,350 monthly searches, a 5.59x Trek lead, and Canyon's 29er + 27.5 LPs ranking from the footer. Gender, rider level, and 'best of' intent show the same architecture gap -- pages or PDPs that exist but are not surfaced -- at smaller scale. The bulk of this tab dives into the wheel-size hero; the section just below names the four instances first.",
+    openingLine: "Canyon's pages exist. They rank. Trek wins anyway -- across four dimensions, with the same structural cause.",
+    patternInstances: {
+      sectionLabel: "The Pattern, in Four Dimensions",
+      headline: "Same architecture gap, four instances",
+      intro: "Each instance below has the same shape: Canyon has the asset (a page, a PDP, a product family), the asset ranks, and Trek still wins because Trek's nav and metadata expose the dimension Canyon's nav hides. Wheel size is the hero because it is the largest single instance and the easiest to verify in a browser. The other three are evidence the pattern is structural, not coincidental.",
+      instances: [
+        {
+          label: "Wheel Size",
+          isHero: true,
+          headTerm: "29 inch mountain bike",
+          headTermVolume: 1900,
+          canyonRank: "unranked",
+          trekRank: 10,
+          dimensionVolume: 57350,
+          addressableVolume: 43000,
+          gapMultiplier: "5.59x",
+          structuralCause: "29er and 27.5 LPs exist (1,800 to 2,100 words each). Neither is linked from the primary nav."
+        },
+        {
+          label: "Gender",
+          isHero: false,
+          headTerm: "mens mountain bike",
+          headTermVolume: 3600,
+          canyonRank: "unranked",
+          trekRank: 3,
+          dimensionVolume: 30000,
+          addressableVolume: 22000,
+          gapMultiplier: null,
+          structuralCause: "Women's Road LP exists; Women's MTB and Gravel are 404. Men's qualifier is missing from MTB metadata."
+        },
+        {
+          label: "Rider Level",
+          isHero: false,
+          headTerm: "beginner mountain bike",
+          headTermVolume: 1000,
+          canyonRank: "unranked",
+          trekRank: 4,
+          dimensionVolume: 7000,
+          addressableVolume: 5800,
+          gapMultiplier: null,
+          structuralCause: "No beginner / entry-level hub. Stoic and Spectral AL base trims are buried inside model family pages."
+        },
+        {
+          label: "'Best of' Intent",
+          isHero: false,
+          headTerm: "best mountain bikes",
+          headTermVolume: 3600,
+          canyonRank: 11,
+          trekRank: 5,
+          dimensionVolume: 12000,
+          addressableVolume: 7110,
+          gapMultiplier: null,
+          structuralCause: "No first-party 'best of' editorial. Third-party reviewers own the SERP."
+        }
+      ],
+      totalAddressableVolume: 77910,
+      footnote: "The four instances together represent ~78,000 monthly searches Canyon is structurally positioned to capture but does not, all from the same root cause: the dimension is filterable inside the site, but not surfaced in nav, metadata, or editorial copy."
+    },
+    heroSectionLabel: "Hero Instance: Wheel Size",
+    marketContext: {
+      headline: "Wheel size is the industry's primary product specification",
+      points: [
+        "29, 27.5, and 700c are the three numbers the mountain and road markets organize around.",
+        "Every major brand's lineup is indexed by wheel size at the SKU level.",
+        "Users searching '27.5 mountain bike' or '29 inch bike' are effectively category-qualifying, one step before a model name.",
+        "For Canyon specifically, this is the single non-branded layer where the gap to Trek (5.59x) is materially larger than the brand's overall volume gap (3.12x at all-non-branded)."
+      ]
+    },
+    demandShape: {
+      cards: [
+        { label: "All wheel-size non-branded", volume: 57350, keywordCount: 413, note: "The full type + size layer.", tone: "total" },
+        { label: "MTB wheel-size core ('29 inch mountain bike', '27.5 mountain bike')", volume: 2600, keywordCount: 18, note: "Core wins Canyon can contest now.", tone: "core" },
+        { label: "Addressable slice (MTB + road-700c + electric)", volume: 43000, keywordCount: 300, note: "Net of kids, BMX, and cruiser sizes Canyon does not sell.", tone: "addressable" },
+        { label: "Off-strategy fraction (kids, BMX, cruiser: 20 / 24 / 26 inch)", volume: 7200, keywordCount: 68, note: "Structurally unwinnable for Canyon.", tone: "off" }
+      ]
+    },
+    heroKeyword: {
+      keyword: "27.5 mountain bike", volume: 1300, canyonRank: 9,
+      competitor: "Trek",
+      competitorContext: "Trek dominates the wheel-size layer 5.6x at the dimension level",
+      canyonPage: "https://www.canyon.com/en-us/lp/mountain-bikes/27-5/",
+      canyonPageLabel: "canyon.com/en-us/lp/mountain-bikes/27-5/",
+      slideLine: "27.5 mountain bike, 1,300/mo, Canyon #9, Trek dominates the layer 5.6x",
+      why: "Canyon already ranks page one (#9) with its existing 27.5 LP, which makes the story verifiable in a single browser click. The keyword sits inside the largest dimension-level gap vs Trek (5.59x) and carries the brief's core message: the page exists, it ranks, but it is hidden from Canyon's own users. Moving 27.5 from page-two margins to the competitive set is the concrete, checkable win.",
+      trekNote: "MTB category + wheel-size filter in the nav",
+      bottomStrip: "CANYON HOLDS THE PAGE. THE DISCOVERABILITY HOLDS THE GAP."
+    },
+    competitorBenchmark: [
+      { brand: "Trek", top10: 162, top10Volume: 26220, avgRank: 9.48, multipleOfCanyon: 5.59, tag: "LEADER", note: "Wheel-size queries served off MTB category pages with wheel-size filters exposed." },
+      { brand: "Schwinn", top10: 97, top10Volume: 15150, avgRank: 7.6, multipleOfCanyon: 3.34, note: "Wins come from the cruiser/kids wheel-size slice Canyon does not sell." },
+      { brand: "Cannondale", top10: 42, top10Volume: 8110, avgRank: 10.4, multipleOfCanyon: 1.45 },
+      { brand: "Canyon", top10: 29, top10Volume: 3870, avgRank: 9.77, multipleOfCanyon: 1.0, tag: "TARGET", note: "Target brand." },
+      { brand: "Specialized", top10: 14, top10Volume: 1260, avgRank: 14.05, multipleOfCanyon: 0.48, note: "The peer comparison. Canyon leads Specialized at this dimension by 2.07x, even though Specialized is 1.8x larger in branded volume." }
+    ],
+    structuralEvidence: [
+      { finding: "29er landing page exists at /lp/mountain-bikes/29-inch/ with 1,800 words of editorial", source: "site-audit", status: "present" },
+      { finding: "27.5 landing page exists at /lp/mountain-bikes/27-5/ with 2,100 words", source: "site-audit", status: "present" },
+      { finding: "Neither page is linked from the primary navigation or the mega menu", source: "site-audit", status: "absent" },
+      { finding: "Entry to these pages is only via footer 'similar search terms' or direct organic search", source: "site-audit", status: "absent" },
+      { finding: "No dedicated landing page exists for 700c (the road wheel size)", source: "site-audit", status: "absent" },
+      { finding: "Wheel-size filter exists on the MTB listing but is not exposed in the Bikes mega menu", source: "site-audit", status: "absent" },
+      { finding: "PDPs already call out wheel size explicitly: 'Spectral CF available as 29 only', 'Spectral AL in 29er or mullet'", source: "site-audit", status: "present" }
+    ],
+    structuralEvidenceHeading: "On canyon.com, seven structural findings.",
+    multiplierLogic: {
+      headline: "The fix compounds across pages that already exist",
+      body: "Surfacing the 29er and 27.5 LPs in the mega menu and linking them from MTB category copy does not require building pages. It lifts pages that already carry editorial weight and real product grids. The structural move is a navigation change, not a content program. Every wheel-size page that gets exposed also picks up internal link equity from the mega menu, a second-order lift that applies to any future attribute page, including the 700c road LP that is not yet built."
+    },
+    peerCheck: {
+      question: "Does the peer competitor (Specialized) win this gap?",
+      answer: "No. Specialized has only 14 Top 10 wheel-size keywords versus Canyon's 29. This dimension is contested by Trek (the volume leader) and Schwinn (the value segment). Canyon is not losing to a similar-scale performance brand here; Canyon is losing to a brand with more category-page discoverability. The fix is about surfacing, not repositioning."
+    },
+    conclusion: "Canyon is unranked or page-two margin for '27.5 mountain bike' and '29 inch bike' despite owning landing pages that rank. The pages work; the discoverability does not. Wheel size is the largest of four compound-architecture instances (gender, rider level, and 'best of' intent are the others) and the only one where closing the gap requires no new editorial -- just a nav and metadata decision. The Strategic Implications tab routes the editorial fix at the other three.",
+    megaMenuCaption: "The pages already rank. Surfacing them is a nav change, not an editorial program."
+  },
+  implications: {
+    id: "implications",
+    label: "Strategic Implications",
+    headline: "A surfacing problem, not a building problem",
+    frame: "Canyon is already the brand the data points to at 4.4% share. The site is structured to win. The three actions below sharpen what is already in place: surface the attribute pages that rank from the footer, build the editorial and rider-level content the SERP rewards, and complete the gender architecture that stopped at road. The head-to-head evidence in tabs 03 and 04 names the queries each action is designed to capture. No rebuild, no repositioning, no 'compete like a dealer-network brand' conversation.",
+    actionAreas: [
+      {
+        title: "Wheel-Size Surfacing",
+        summary: "Expose the existing 29er and 27.5 landing pages in the primary nav and build the one wheel-size page that is genuinely missing.",
+        deliverables: [
+          "Add a 'Shop by Wheel Size' module to the Mountain Bikes mega menu, linking to the existing 29er and 27.5 landing pages",
+          "Add wheel-size chips to the MTB category page hero area, above the current filter rail",
+          "Cross-link the 29er and 27.5 LPs from the Spectral, Lux, Neuron, and Torque family pages, and from the 'related categories' footer block",
+          "Build a /lp/road-bikes/700c/ page mirroring the 29er LP template (1,800 to 2,100 words, product grid, editorial)",
+          "Maintain the current title tags on 29er and 27.5 LPs; they rank, do not rewrite for its own sake"
+        ],
+        addressable: "43,000 monthly searches at the addressable slice of the wheel-size dimension. Names the queries 'mens mountain bike 29 inch' (320/mo, Canyon unranked, Trek #6), '29 inch mountain bike' (1,900/mo, Canyon unranked, Trek #10), '27.5 mountain bike' (1,300/mo, Canyon #9, Trek #3).",
+        addressableShort: "43,000 / MO"
+      },
+      {
+        title: "Editorial + Rider-Level Hub",
+        summary: "Bring the blog hub into the primary navigation, publish the first-party review pages the PDPs do not cover, and stand up a beginner / entry-level destination the SERP currently routes to editorial competitors.",
+        deliverables: [
+          "Add a 'Stories' or 'Advice' link to the primary nav, pointing to /blog-content/advice/",
+          "Add an 'Advice' column to the Bikes mega menu with links to four to six top buyer's-guide articles (sizing, choosing a category, maintenance basics)",
+          "Consolidate the five blog sub-hubs (advice, electric, mountain, road, gravel) into a unified landing experience with cross-category filtering",
+          "Publish first-party review pages for the eight highest-volume 'canyon [model] review' queries currently at avg rank 11: Spectral, Neuron, Ultimate, Endurace, Grail, Lux Trail, Aeroad, Torque",
+          "Build a 'Best Mountain Bikes' editorial hub featuring Canyon's lineup with category-by-category recommendations, indexed for 'best mountain bikes' (3,600/mo, Trek #5, Canyon #11)",
+          "Build a Beginner / Entry-Level MTB hub linking to Stoic and Spectral AL base trims, with editorial on first-bike sizing and progression. Targets 'beginner mountain bike' (1,000/mo, Trek #4, Canyon unranked) and 'best beginner mountain bike' (1,000/mo, Trek #4, Canyon #15)",
+          "Add a visible Sizing utility link from the primary nav or category pages to resolve the 'canyon bike sizing' and 'where are canyon bikes made' leaks to Facebook"
+        ],
+        addressable: "13,000+ monthly searches across branded informational leaks, first-party reviews, 'best of' editorial intent, and rider-level (beginner / entry) hubs.",
+        addressableShort: "13,000 / MO"
+      },
+      {
+        title: "Gender Architecture Completion",
+        summary: "Finish the women's architecture Canyon already started, and resolve the men's-qualifier gap with metadata, not a new LP.",
+        deliverables: [
+          "Build /lp/mountain-bikes/women/ and /lp/gravel-bikes/women/ on the same template as the existing Women's Road LP (currently both 404). Targets 'womens mountain bike' (3,600/mo, Canyon #10, Trek #4) and 'women's mountain bike' (3,600/mo, Canyon #11, Trek #3)",
+          "Add a gender filter to the MTB, Road, Gravel, and Electric category listings (Women / Unisex)",
+          "Expose the Women's hub in the primary nav (currently footer-only)",
+          "Cross-link the three women's LPs (Road, MTB, Gravel) from each other and from the women-bikes/ hub",
+          "On the existing MTB category and Spectral / Stoic / Torque family pages, add 'men's,' 'unisex,' and 'all riders' qualifiers to title tags, H1s, and intro copy to capture 'mens mountain bike' (3,600/mo, Canyon unranked, Trek #3) without building a separate Men's LP. Canyon's gender-neutral family pages remain the default; a men's split would dilute the core PDPs."
+        ],
+        addressable: "22,000+ monthly searches across gender-qualifier queries -- women's MTB / Gravel architecture and men's-qualifier metadata on existing pages.",
+        addressableShort: "22,000 / MO"
+      }
+    ],
+    closingCallout: {
+      title: "A surfacing problem, not a building problem",
+      body: "Canyon already has the pages, the editorial weight, and the product grids. The work is to make them visible in the places users reach first. Three targeted site moves, no rebuild."
+    }
+  }
+};
+
+const TABS = [
+  { id: "marketLens",           label: "The Market Lens",         num: "01" },
+  { id: "nonBrandedVisibility", label: "Non-Branded Visibility",  num: "02" },
+  { id: "needGap",              label: "The Need Gap",            num: "03" },
+  { id: "pairsTriples",         label: "Pairs & Triples",         num: "04" },
+  { id: "deepDive",             label: STORY.deepDive.label,      num: "05" },
+  { id: "implications",         label: "Strategic Implications",  num: "06" }
+];
+
+/* ========= STYLES ========= */
+const S = {
+  label: { fontFamily: FONT.mono, fontSize: 11, letterSpacing: 2.5, textTransform: "uppercase", color: C.teal, fontWeight: 600 },
+  mono: { fontFamily: FONT.mono },
+  card: {
+    background: C.white,
+    borderRadius: 20,
+    border: `1px solid ${C.border}`,
+    boxShadow: "0 1px 3px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.03)",
+    position: "relative",
+    overflow: "hidden",
+    transition: "all .3s cubic-bezier(.16,1,.3,1)"
+  },
+  tableHead: { fontFamily: FONT.mono, fontSize: 10, letterSpacing: 2, textTransform: "uppercase", color: C.teal, fontWeight: 600, background: C.bg, borderBottom: `2px solid ${C.border}` },
+  tableRow: { borderBottom: `1px solid ${C.borderL}`, transition: "background .25s" },
+  tableCell: { padding: "12px 16px", fontSize: 13 },
+  tabHeadline: { fontSize: 34, fontWeight: 800, letterSpacing: -1.2, margin: "0 0 12px 0", color: C.t1, lineHeight: 1.2 },
+  tabSubheadline: { fontSize: 17, fontWeight: 500, color: C.t2, lineHeight: 1.6, marginBottom: 20 },
+  tabIntro: { fontSize: 15, color: C.t2, lineHeight: 1.8, marginBottom: 32 }
+};
+
+/* ========= HELPERS ========= */
+const fmt = (n) => {
+  if (n == null) return "--";
+  if (typeof n !== "number") return n;
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + "M";
+  if (n >= 1000) return n.toLocaleString();
+  return String(n);
+};
+
+/* ========= SHARED COMPONENTS ========= */
+
+const BrandLogo = ({ brand, size = 24, alt, style = {} }) => {
+  const path = LOGO_PATHS[brand];
+  const [failed, setFailed] = useState(false);
+  const label = alt || `${brand} logo`;
+  const colorMap = { canyon: C.canyon, trek: C.trek, specialized: C.specialized, schwinn: C.schwinn, cannondale: C.cannondale, aventon: C.aventon };
+  if (!path || failed) {
+    return (
+      <span aria-label={label} style={{ fontFamily: FONT.mono, fontSize: size * 0.55, fontWeight: 700, color: colorMap[brand] || C.t1, textTransform: "capitalize", ...style }}>{brand}</span>
+    );
+  }
+  return (
+    <img
+      src={path}
+      alt={label}
+      onError={() => setFailed(true)}
+      style={{ height: size, width: "auto", maxWidth: "100%", objectFit: "contain", verticalAlign: "middle", ...style }}
+    />
+  );
+};
+
+const AnimatedNumber = ({ value, prefix = "", suffix = "", color = C.t1, duration = 1200, size = 36 }) => {
+  const [display, setDisplay] = useState("0");
+  const numericVal = parseFloat(String(value).replace(/[^0-9.]/g, ""));
+  const isNumeric = !isNaN(numericVal) && numericVal > 0;
+  const hasDecimal = String(value).includes(".");
+  useEffect(() => {
+    if (!isNumeric) { setDisplay(String(value)); return; }
+    const startTime = performance.now();
+    const animate = (now) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = eased * numericVal;
+      setDisplay(hasDecimal ? current.toFixed(2) : Math.round(current).toLocaleString());
+      if (progress < 1) requestAnimationFrame(animate);
+      else setDisplay(hasDecimal ? numericVal.toFixed(2) : numericVal.toLocaleString());
+    };
+    requestAnimationFrame(animate);
+  }, [value]);
+  return <span style={{ fontSize: size, fontWeight: 800, color, lineHeight: 1.1, letterSpacing: -1.2, fontFamily: FONT.body }}>{prefix}{display}{suffix}</span>;
+};
+
+const SectionLabel = ({ children }) => (
+  <div style={{ ...S.label, marginBottom: 18, display: "flex", alignItems: "center", gap: 10 }}>
+    <span style={{ width: 28, height: 2, background: C.teal, display: "inline-block", borderRadius: 1 }} aria-hidden="true" />
+    {children}
+  </div>
+);
+
+const CalloutBox = ({ color = C.teal, bg, title, children }) => (
+  <div style={{
+    background: bg || C.tealDim,
+    borderRadius: "0 16px 16px 0",
+    padding: "26px 30px",
+    borderLeft: `4px solid ${color}`,
+    marginBottom: 24
+  }}>
+    {title && <h4 style={{ margin: "0 0 10px 0", fontSize: 16, fontWeight: 700, color: C.t1 }}>{title}</h4>}
+    <div style={{ fontSize: 15, lineHeight: 1.7, color: C.t2 }}>{children}</div>
+  </div>
+);
+
+const MetricCard = ({ label, value, subtitle, color = C.t1, brandLogo, animateAs = "int" }) => {
+  const accent = color === C.danger ? C.danger : color === C.trek ? C.trek : color === C.success ? C.success : C.teal;
+  const numeric = typeof value === "number" ? value : parseFloat(String(value).replace(/[^0-9.]/g, ""));
+  const showAnimated = !isNaN(numeric) && numeric > 0;
+  return (
+    <div style={{ ...S.card, padding: "24px 24px", flex: 1, minWidth: 180, borderTop: `3px solid ${accent}`, borderLeft: "none" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+        {brandLogo && <BrandLogo brand={brandLogo} size={18} />}
+        <div style={{ ...S.label, marginBottom: 0 }}>{label}</div>
+      </div>
+      {showAnimated
+        ? <AnimatedNumber value={numeric} color={color} size={32} />
+        : <div style={{ fontSize: 32, fontWeight: 800, color, lineHeight: 1.1, letterSpacing: -1.2 }}>{value}</div>
+      }
+      {subtitle && <div style={{ fontSize: 12, color: C.t3, marginTop: 8, lineHeight: 1.5 }}>{subtitle}</div>}
+    </div>
+  );
+};
+
+const PositionCell = ({ rank, size = "sm" }) => {
+  if (rank === "unranked" || rank == null) {
+    return <span style={{
+      display: "inline-block", background: C.danger, color: "#fff",
+      fontFamily: FONT.mono, fontSize: size === "lg" ? 12 : 11, fontWeight: 700,
+      padding: size === "lg" ? "5px 12px" : "3px 10px",
+      borderRadius: 100, letterSpacing: 0.5
+    }}>UNRANKED</span>;
+  }
+  const v = parseInt(rank);
+  if (isNaN(v)) return <span style={{ color: C.t3, fontFamily: FONT.mono }}>--</span>;
+  const color = v <= 3 ? C.success : v <= 10 ? C.warning : v <= 20 ? C.t3 : C.danger;
+  return <span style={{
+    fontFamily: FONT.mono,
+    color,
+    fontWeight: 700,
+    fontSize: size === "lg" ? 16 : 13
+  }}>#{v}</span>;
+};
+
+const NeedBadge = ({ type, children }) => {
+  const t = (type || "").toLowerCase();
+  const colorMap = { age: C.purple, gender: C.pink, size: C.teal, level: C.warning, use: C.accentBlue, type: C.t1, comparison: C.warning };
+  const bgMap = {
+    age: C.purpleDim, gender: C.pinkDim, size: C.tealDim2,
+    level: C.warningDim, use: C.accentBlueDim, type: C.canyonSoft,
+    comparison: C.warningDim
+  };
+  const color = colorMap[t] || C.teal;
+  const bg = bgMap[t] || C.tealDim;
+  return <span style={{
+    fontFamily: FONT.mono, fontSize: 10, fontWeight: 600,
+    color, background: bg,
+    padding: "3px 10px", borderRadius: 100,
+    letterSpacing: 1, textTransform: "uppercase",
+    display: "inline-block"
+  }}>{children || t}</span>;
+};
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div style={{
+      background: C.white, padding: "12px 16px", borderRadius: 12,
+      border: `1px solid ${C.border}`, boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+      fontSize: 12, fontFamily: FONT.body
+    }}>
+      <div style={{ fontWeight: 700, marginBottom: 4, color: C.t1 }}>{label}</div>
+      {payload.map((p, i) => (
+        <div key={i} style={{ color: p.color || p.fill, fontFamily: FONT.mono, fontSize: 11, marginTop: 2 }}>
+          {p.name}: {typeof p.value === "number" ? p.value.toLocaleString() : p.value}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const ComparisonCard = ({ leftBrand, leftValue, leftLabel, rightBrand, rightValue, rightLabel, multiplier, multiplierLabel, multiplierTone = "positive", hero = false }) => {
+  const toneConfig = {
+    positive: { pill: C.teal, bg: C.tealDim2, text: "#fff", fill: C.teal },
+    danger: { pill: C.danger, bg: C.dangerDim, text: "#fff", fill: C.danger },
+    warning: { pill: C.warning, bg: C.warningDim, text: "#111", fill: C.warning }
+  };
+  const tone = toneConfig[multiplierTone] || toneConfig.positive;
+  const leftColor = leftBrand === "canyon" ? C.canyon : (leftBrand === "trek" ? C.trek : leftBrand === "specialized" ? C.specialized : C.t1);
+  const rightColor = rightBrand === "canyon" ? C.canyon : (rightBrand === "trek" ? C.trek : rightBrand === "specialized" ? C.specialized : C.t1);
+  return (
+    <div style={{
+      ...S.card,
+      padding: hero ? "36px 40px" : "28px 32px",
+      display: "grid",
+      gridTemplateColumns: "1fr auto 1fr",
+      gap: hero ? 32 : 20,
+      alignItems: "center",
+      minHeight: hero ? 280 : undefined,
+      position: "relative"
+    }}>
+      {/* LEFT */}
+      <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
+        <div style={{ height: hero ? 48 : 32, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <BrandLogo brand={leftBrand} size={hero ? 48 : 32} />
+        </div>
+        <div style={{ fontFamily: FONT.mono, fontSize: hero ? 13 : 11, color: C.t3, letterSpacing: 0.6 }}>{leftLabel}</div>
+        <div style={{
+          fontSize: hero ? 72 : 42, fontWeight: 800,
+          color: leftColor,
+          letterSpacing: -2.5, lineHeight: 1,
+          fontFamily: FONT.body
+        }}>{leftValue}</div>
+      </div>
+      {/* DIVIDER + MULTIPLIER */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, minWidth: 100 }}>
+        {multiplier && (
+          <div style={{
+            background: tone.pill, color: tone.text,
+            fontFamily: FONT.mono, fontSize: 11, fontWeight: 700,
+            letterSpacing: 1, padding: "6px 12px",
+            borderRadius: 100, textTransform: "uppercase",
+            whiteSpace: "nowrap"
+          }}>
+            {multiplier} {multiplierLabel}
+          </div>
+        )}
+        <div style={{ width: 1, height: hero ? 140 : 72, background: C.border }} aria-hidden="true" />
+        <span style={{ width: 8, height: 8, background: C.canyonAccent, borderRadius: "50%" }} aria-hidden="true" />
+      </div>
+      {/* RIGHT */}
+      <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
+        <div style={{ height: hero ? 48 : 32, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <BrandLogo brand={rightBrand} size={hero ? 48 : 32} />
+        </div>
+        <div style={{ fontFamily: FONT.mono, fontSize: hero ? 13 : 11, color: C.t3, letterSpacing: 0.6 }}>{rightLabel}</div>
+        <div style={{
+          fontSize: hero ? 72 : 42, fontWeight: 800,
+          color: rightColor,
+          letterSpacing: -2.5, lineHeight: 1,
+          fontFamily: FONT.body
+        }}>{rightValue}</div>
+      </div>
+    </div>
+  );
+};
+
+const StructuralEvidenceItem = ({ finding, source, status }) => {
+  const isAbsent = status === "absent";
+  return (
+    <div style={{
+      display: "grid",
+      gridTemplateColumns: "28px 1fr auto",
+      alignItems: "center",
+      gap: 14,
+      padding: "14px 18px",
+      background: C.white,
+      borderRadius: 12,
+      border: `1px solid ${C.border}`,
+      marginBottom: 8
+    }}>
+      <div aria-label={isAbsent ? "Finding: absent" : "Finding: present"} style={{
+        width: 24, height: 24, borderRadius: 6,
+        background: isAbsent ? C.dangerDim : C.successDim,
+        color: isAbsent ? C.danger : C.success,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontFamily: FONT.mono, fontSize: 13, fontWeight: 700
+      }}>{isAbsent ? "X" : "+"}</div>
+      <div style={{ fontSize: 14, fontWeight: 500, color: C.t1, lineHeight: 1.5 }}>{finding}</div>
+      <span style={{
+        fontFamily: FONT.mono, fontSize: 10, fontWeight: 600,
+        color: C.teal, background: C.tealDim,
+        padding: "3px 10px", borderRadius: 100,
+        letterSpacing: 0.8, textTransform: "uppercase", whiteSpace: "nowrap"
+      }}>{source}</span>
+    </div>
+  );
+};
+
+const ActionAreaCard = ({ title, summary, deliverables, addressableShort, accentColor }) => (
+  <div style={{
+    ...S.card,
+    padding: "28px 28px 24px",
+    borderTop: `4px solid ${accentColor}`,
+    display: "flex",
+    flexDirection: "column",
+    gap: 14,
+    height: "100%"
+  }}>
+    <h3 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: C.t1, letterSpacing: -0.5, lineHeight: 1.3 }}>{title}</h3>
+    <p style={{ fontSize: 14, color: C.t2, lineHeight: 1.6, margin: 0 }}>{summary}</p>
+    <ul style={{ listStyle: "none", padding: 0, margin: "4px 0 12px", display: "flex", flexDirection: "column", gap: 10 }}>
+      {deliverables.map((d, i) => (
+        <li key={i} style={{ display: "grid", gridTemplateColumns: "16px 1fr", gap: 8, alignItems: "flex-start" }}>
+          <span aria-hidden="true" style={{ fontFamily: FONT.mono, color: C.teal, fontWeight: 700, fontSize: 14, lineHeight: 1.6 }}>{">"}</span>
+          <span style={{ fontSize: 13, fontWeight: 500, color: C.t1, lineHeight: 1.6 }}>{d}</span>
+        </li>
+      ))}
+    </ul>
+    <div style={{
+      marginTop: "auto",
+      alignSelf: "flex-start",
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 8,
+      background: C.tealDim,
+      padding: "8px 14px",
+      borderRadius: 100
+    }}>
+      <span style={{ ...S.label, marginBottom: 0 }}>Addressable</span>
+      <span style={{ fontFamily: FONT.mono, fontSize: 12, fontWeight: 700, color: C.t1 }}>{addressableShort}</span>
+    </div>
+  </div>
+);
+
+const DemandShapeCard = ({ label, volume, keywordCount, note, tone }) => {
+  const toneColors = { total: C.t3, core: C.warning, addressable: C.teal, off: "rgba(220,38,38,0.4)" };
+  const bar = toneColors[tone] || C.t3;
+  return (
+    <div style={{ ...S.card, padding: 0, overflow: "hidden" }}>
+      <div style={{ height: 4, background: bar }} aria-hidden="true" />
+      <div style={{ padding: "20px 22px", display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: C.t2, lineHeight: 1.5 }}>{label}</div>
+        <div>
+          <AnimatedNumber value={volume} size={28} color={C.t1} />
+          <span style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t3, marginLeft: 6 }}>/ mo</span>
+        </div>
+        <div style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t3 }}>{keywordCount.toLocaleString()} keywords</div>
+        <div style={{ fontSize: 12, color: C.t3, lineHeight: 1.5, marginTop: 2 }}>{note}</div>
+      </div>
+    </div>
+  );
+};
+
+/* ========= FunnelCollapseChart (Tab 1) ========= */
+const FunnelCollapseChart = ({ data }) => {
+  const chartData = data.layers.map((layer, i) => ({
+    layerKey: layer,
+    layer: data.layerLabels[i],
+    canyon: data.targetTop10PerLayer[i],
+    trek: data.primaryCompetitorTop10PerLayer[i]
+  }));
+  const tooltip = ({ active, payload, label }) => {
+    if (!active || !payload || !payload.length) return null;
+    const c = payload.find(p => p.dataKey === "canyon")?.value || 0;
+    const t = payload.find(p => p.dataKey === "trek")?.value || 0;
+    const mult = c > 0 ? (t / c).toFixed(2) : "--";
+    const multColor = parseFloat(mult) >= 4 ? C.warning : C.t2;
+    return (
+      <div style={{
+        background: C.white, padding: "12px 16px", borderRadius: 12,
+        border: `1px solid ${C.border}`, boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+        fontSize: 12, fontFamily: FONT.body, minWidth: 180
+      }}>
+        <div style={{ fontWeight: 700, marginBottom: 6, color: C.t1 }}>{label}</div>
+        <div style={{ color: C.canyon, fontFamily: FONT.mono, fontSize: 11 }}>Canyon Top 10: {c.toLocaleString()}</div>
+        <div style={{ color: C.trek, fontFamily: FONT.mono, fontSize: 11, marginTop: 2 }}>Trek Top 10: {t.toLocaleString()}</div>
+        <div style={{ fontFamily: FONT.mono, fontSize: 11, marginTop: 6, color: multColor, fontWeight: 700 }}>Trek / Canyon: {mult}x</div>
+      </div>
+    );
+  };
+  return (
+    <div aria-label="Funnel collapse chart: Canyon versus Trek Top 10 keyword counts across six non-branded funnel layers." style={{ height: 380, marginBottom: 12 }}>
+      <ResponsiveContainer>
+        <LineChart data={chartData} margin={{ top: 24, right: 24, bottom: 12, left: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke={C.borderL} vertical={false} />
+          <XAxis dataKey="layer" tick={{ fontSize: 11, fontFamily: FONT.mono, fill: C.t3 }} tickLine={false} axisLine={{ stroke: C.border }} />
+          <YAxis tick={{ fontSize: 11, fontFamily: FONT.mono, fill: C.t3 }} tickLine={false} axisLine={false} tickFormatter={(v) => v.toLocaleString()} domain={[0, "dataMax + 500"]} />
+          <Tooltip content={tooltip} />
+          <ReferenceLine x="Type + gender" stroke={C.warning} strokeDasharray="4 2" label={{ value: "3.87x", position: "top", fill: C.warning, fontFamily: FONT.mono, fontSize: 11, fontWeight: 700 }} />
+          <ReferenceLine x="Type + size" stroke={C.warning} strokeDasharray="4 2" label={{ value: "5.59x", position: "top", fill: C.warning, fontFamily: FONT.mono, fontSize: 11, fontWeight: 700 }} />
+          <ReferenceLine x="Type + gender + size" stroke={C.danger} strokeDasharray="4 2" label={{ value: "31x", position: "top", fill: C.danger, fontFamily: FONT.mono, fontSize: 11, fontWeight: 700 }} />
+          <Line type="monotone" dataKey="canyon" name="Canyon" stroke={C.canyon} strokeWidth={2.5} dot={{ r: 5, fill: "#fff", stroke: C.canyon, strokeWidth: 2 }} activeDot={{ r: 7 }} animationDuration={900} />
+          <Line type="monotone" dataKey="trek" name="Trek" stroke={C.trek} strokeWidth={2.5} dot={{ r: 5, fill: "#fff", stroke: C.trek, strokeWidth: 2 }} activeDot={{ r: 7 }} animationDuration={900} />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};
+
+const LogoLegend = ({ items }) => (
+  <div style={{ display: "flex", justifyContent: "center", gap: 28, marginTop: 6 }}>
+    {items.map((it) => (
+      <div key={it.brand} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+        <span style={{ width: 12, height: 2, background: it.color, display: "inline-block", borderRadius: 1 }} aria-hidden="true" />
+        <BrandLogo brand={it.brand} size={16} />
+        <span style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t2, fontWeight: 600 }}>{it.name}</span>
+      </div>
+    ))}
+  </div>
+);
+
+/* ========= Tab 3 FunnelStep ========= */
+const FunnelStepChart = ({ data }) => {
+  const chartData = [
+    { layer: "All non-branded", canyon: data.targetBefore, trek: data.competitorBefore },
+    { layer: "Need-based",      canyon: data.targetAfter,  trek: data.competitorAfter }
+  ];
+  return (
+    <div aria-label="Bar chart comparing Canyon and Trek Top 10 keyword counts at the all-non-branded versus need-based layers." style={{ height: 320, marginBottom: 16 }}>
+      <ResponsiveContainer>
+        <BarChart data={chartData} margin={{ top: 28, right: 24, bottom: 12, left: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke={C.borderL} vertical={false} />
+          <XAxis dataKey="layer" tick={{ fontSize: 11, fontFamily: FONT.mono, fill: C.t3 }} tickLine={false} axisLine={{ stroke: C.border }} />
+          <YAxis tick={{ fontSize: 11, fontFamily: FONT.mono, fill: C.t3 }} tickLine={false} axisLine={false} />
+          <Tooltip content={<CustomTooltip />} />
+          <Bar dataKey="canyon" name="Canyon" fill={C.canyon} radius={[6, 6, 0, 0]} barSize={48}>
+            <LabelList dataKey="canyon" position="top" style={{ fontFamily: FONT.mono, fontSize: 11, fontWeight: 700, fill: C.canyon }} formatter={(v) => v.toLocaleString()} />
+          </Bar>
+          <Bar dataKey="trek" name="Trek" fill={C.trek} radius={[6, 6, 0, 0]} barSize={48}>
+            <LabelList dataKey="trek" position="top" style={{ fontFamily: FONT.mono, fontSize: 11, fontWeight: 700, fill: C.trek }} formatter={(v) => v.toLocaleString()} />
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};
+
+const RetentionBars = ({ canyonPct, trekPct }) => (
+  <div style={{ display: "flex", gap: 22, flexWrap: "wrap" }}>
+    <div style={{ flex: 1, minWidth: 220 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+          <BrandLogo brand="canyon" size={14} />
+          <span style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t2, fontWeight: 600 }}>Canyon retention</span>
+        </div>
+        <span style={{ fontFamily: FONT.mono, fontSize: 14, color: C.canyon, fontWeight: 800 }}>{Math.round(canyonPct * 100)}%</span>
+      </div>
+      <div style={{ height: 10, borderRadius: 100, background: C.off, overflow: "hidden" }}>
+        <div style={{ width: `${canyonPct * 100}%`, height: "100%", background: C.canyon, borderRadius: 100, transition: "width .9s ease-out" }} />
+      </div>
+    </div>
+    <div style={{ flex: 1, minWidth: 220 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+          <BrandLogo brand="trek" size={14} />
+          <span style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t2, fontWeight: 600 }}>Trek retention</span>
+        </div>
+        <span style={{ fontFamily: FONT.mono, fontSize: 14, color: C.trek, fontWeight: 800 }}>{Math.round(trekPct * 100)}%</span>
+      </div>
+      <div style={{ height: 10, borderRadius: 100, background: C.off, overflow: "hidden" }}>
+        <div style={{ width: `${trekPct * 100}%`, height: "100%", background: C.trek, borderRadius: 100, transition: "width .9s ease-out" }} />
+      </div>
+    </div>
+  </div>
+);
+
+/* ========= MEGA MENU REVEAL (Tab 5 signature component) ========= */
+const MegaMenuReveal = ({ caption }) => {
+  const ref = useRef(null);
+  const [activated, setActivated] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    if (mq.matches) {
+      setActivated(true);
+      return;
+    }
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting && e.intersectionRatio >= 0.4) {
+          setActivated(true);
+          obs.disconnect();
+        }
+      });
+    }, { threshold: 0.4 });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+
+  const navTabs = ["Road","Gravel","E-Bikes","Mountain","City/Touring","Parts","Clothing"];
+
+  const cardCommon = {
+    padding: "12px 14px",
+    borderRadius: 10,
+    fontFamily: FONT.mono,
+    fontSize: 11,
+    fontWeight: 600,
+    minWidth: 160,
+    display: "flex", flexDirection: "column", gap: 4,
+    transition: "all 900ms cubic-bezier(.16,1,.3,1)"
+  };
+
+  return (
+    <div ref={ref} aria-label="Illustration: Canyon's 29er and 27.5 landing pages move from footer-only entry into the Mountain mega menu." style={{
+      ...S.card,
+      padding: "28px 32px 36px",
+      position: "relative",
+      overflow: "hidden",
+      minHeight: 420
+    }}>
+      {/* Schematic nav header */}
+      <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20, paddingBottom: 16, borderBottom: `1px solid ${C.borderL}` }}>
+        <BrandLogo brand="canyon" size={20} />
+        <span style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t3, letterSpacing: 1.5, textTransform: "uppercase" }}>canyon.com primary nav (schematic)</span>
+      </div>
+
+      {/* Tab row */}
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+        {navTabs.map((t) => {
+          const isMountain = t === "Mountain";
+          return (
+            <div key={t} style={{
+              padding: "8px 14px",
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              background: isMountain ? C.tealDim2 : C.off,
+              color: isMountain ? C.teal : C.t2,
+              border: `1px solid ${isMountain ? C.teal : C.border}`,
+              fontFamily: FONT.body
+            }}>{t}</div>
+          );
+        })}
+      </div>
+
+      {/* Dropdown zone */}
+      <div style={{
+        position: "relative",
+        border: `1px dashed ${C.border}`,
+        borderRadius: 12,
+        padding: 16,
+        minHeight: 180,
+        background: C.bg
+      }}>
+        <div style={{ fontFamily: FONT.mono, fontSize: 10, color: C.t3, letterSpacing: 1, textTransform: "uppercase", marginBottom: 12 }}>Mountain mega menu</div>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          {["Featured models", "All mountain bikes", "Mountain accessories"].map((x) => (
+            <div key={x} style={{
+              padding: "10px 14px",
+              background: C.white,
+              border: `1px solid ${C.border}`,
+              borderRadius: 10,
+              fontSize: 12,
+              color: C.t2
+            }}>{x}</div>
+          ))}
+
+          {/* Surfaced pages: render inline but animate-lifted visually */}
+          {["29er LP", "27.5 LP"].map((name, i) => {
+            const isSurfaced = activated;
+            return (
+              <div key={name} style={{
+                ...cardCommon,
+                background: isSurfaced ? C.white : C.off,
+                border: isSurfaced ? `2px solid ${C.canyonAccent}` : `2px dashed ${C.t3}`,
+                color: isSurfaced ? C.t1 : C.t3,
+                opacity: isSurfaced ? 1 : 0.5,
+                transform: isSurfaced ? "translateY(0)" : "translateY(0)",
+                animation: (activated && !reducedMotion) ? `surfacePulse 1600ms ${i * 150}ms ease-out` : "none"
+              }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: isSurfaced ? C.canyon : C.t2 }}>{name}</span>
+                <span style={{ fontSize: 10, color: isSurfaced ? C.teal : C.t3 }}>
+                  {isSurfaced ? "Surfaced in mega menu" : "FOOTER ONLY, 2,100 words, ranks #9"}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Caption */}
+      <div style={{
+        marginTop: 20,
+        fontFamily: FONT.mono,
+        fontSize: 11,
+        color: C.teal,
+        fontWeight: 600,
+        letterSpacing: 0.3,
+        textAlign: "center",
+        opacity: activated ? 1 : 0,
+        transition: "opacity 600ms ease-out 800ms"
+      }}>
+        {caption}
+      </div>
+    </div>
+  );
+};
+
+/* ========= HERO COMPARISON CARD (Tab 5) ========= */
+const HeroComparisonCard = ({ heroKeyword }) => {
+  return (
+    <div style={{
+      ...S.card,
+      padding: "32px 36px",
+      minHeight: 300,
+      marginBottom: 24
+    }}>
+      <div style={{ textAlign: "center", marginBottom: 24 }}>
+        <div style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t3, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>
+          Hero keyword, <span style={{ color: C.canyon, fontWeight: 700 }}>{heroKeyword.volume.toLocaleString()} / mo</span>
+        </div>
+      </div>
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "1fr auto 1fr",
+        gap: 32,
+        alignItems: "center"
+      }}>
+        {/* Canyon */}
+        <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 14, alignItems: "center" }}>
+          <BrandLogo brand="canyon" size={48} />
+          <div style={{ fontFamily: FONT.mono, fontSize: 13, color: C.t2, fontWeight: 600 }}>"{heroKeyword.keyword}"</div>
+          <div style={{ fontSize: 72, fontWeight: 800, color: C.warning, letterSpacing: -3, lineHeight: 1, fontFamily: FONT.body }}>#{heroKeyword.canyonRank}</div>
+          <a href={heroKeyword.canyonPage} target="_blank" rel="noreferrer" style={{
+            fontFamily: FONT.mono, fontSize: 12, color: C.canyonAccent,
+            textDecoration: "none", borderBottom: `1px dotted ${C.canyonAccent}`,
+            paddingBottom: 1
+          }}>{heroKeyword.canyonPageLabel} &#8599;</a>
+        </div>
+        {/* Divider */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 1, height: 160, background: C.border }} aria-hidden="true" />
+          <span style={{ width: 10, height: 10, background: C.canyonAccent, borderRadius: "50%" }} aria-hidden="true" />
+          <div style={{ width: 1, height: 40, background: C.border }} aria-hidden="true" />
+        </div>
+        {/* Trek */}
+        <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 14, alignItems: "center" }}>
+          <BrandLogo brand="trek" size={48} />
+          <div style={{ fontFamily: FONT.mono, fontSize: 13, color: C.t2, fontWeight: 600 }}>Trek dominates the layer</div>
+          <div style={{ fontSize: 72, fontWeight: 800, color: C.trek, letterSpacing: -3, lineHeight: 1, fontFamily: FONT.body }}>5.6x</div>
+          <div style={{ fontSize: 12, color: C.t3, lineHeight: 1.5, maxWidth: 240 }}>{heroKeyword.trekNote}</div>
+        </div>
+      </div>
+      <div style={{
+        marginTop: 24,
+        padding: "14px 20px",
+        background: C.warningDim,
+        borderRadius: 10,
+        textAlign: "center",
+        fontFamily: FONT.mono, fontSize: 11, fontWeight: 700,
+        color: C.t1, letterSpacing: 1.5
+      }}>
+        {heroKeyword.bottomStrip}
+      </div>
+    </div>
+  );
+};
+
+/* ========= TYPE + SIZE HEAD-TO-HEAD (Tab 4) ========= */
+const TypeSizeHeadToHead = ({ data }) => {
+  if (!data || !data.examples || !data.examples.length) return null;
+
+  const computeGap = (canyonRank, trekRank) => {
+    if (canyonRank === "unranked" || canyonRank == null) return { label: "Trek wins", strong: true };
+    const c = parseInt(canyonRank);
+    const tr = parseInt(trekRank);
+    if (isNaN(c) || isNaN(tr)) return { label: "--", strong: false };
+    const diff = c - tr;
+    if (diff <= 0) return { label: "Canyon ahead", strong: false };
+    return { label: `Trek +${diff}`, strong: diff >= 6 };
+  };
+
+  return (
+    <div style={{ marginTop: 8, marginBottom: 36 }}>
+      <SectionLabel>{data.sectionLabel}</SectionLabel>
+      <div style={{
+        ...S.card,
+        padding: "26px 28px",
+        background: `linear-gradient(180deg, ${C.white} 0%, ${C.bg} 100%)`,
+        position: "relative"
+      }}>
+        <div style={{ marginBottom: 20 }}>
+          <h3 style={{ margin: "0 0 8px 0", fontSize: 22, fontWeight: 800, color: C.t1, letterSpacing: -0.6, lineHeight: 1.25 }}>
+            {data.headline}
+          </h3>
+          <p style={{ margin: 0, fontSize: 14, color: C.t2, lineHeight: 1.65, maxWidth: 760 }}>
+            {data.subhead}
+          </p>
+        </div>
+
+        {/* Header row */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "minmax(220px, 1.6fr) 110px 110px 1fr",
+          alignItems: "center",
+          gap: 16,
+          padding: "10px 14px",
+          background: C.bg,
+          borderRadius: 8,
+          marginBottom: 6
+        }}>
+          <div style={{ fontFamily: FONT.mono, fontSize: 10, fontWeight: 700, letterSpacing: 1.4, color: C.t3, textTransform: "uppercase" }}>Keyword & Volume</div>
+          <div style={{ fontFamily: FONT.mono, fontSize: 10, fontWeight: 700, letterSpacing: 1.4, color: C.canyon, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 6 }}>
+            <BrandLogo brand="canyon" size={14} /> Canyon
+          </div>
+          <div style={{ fontFamily: FONT.mono, fontSize: 10, fontWeight: 700, letterSpacing: 1.4, color: C.trek, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 6 }}>
+            <BrandLogo brand="trek" size={14} /> Trek
+          </div>
+          <div style={{ fontFamily: FONT.mono, fontSize: 10, fontWeight: 700, letterSpacing: 1.4, color: C.t3, textTransform: "uppercase" }}>Gap</div>
+        </div>
+
+        {/* Rows */}
+        {data.examples.map((ex, i) => {
+          const gap = computeGap(ex.canyonRank, ex.trekRank);
+          const isHero = ex.hero === true;
+          return (
+            <div key={i} style={{
+              display: "grid",
+              gridTemplateColumns: "minmax(220px, 1.6fr) 110px 110px 1fr",
+              alignItems: "center",
+              gap: 16,
+              padding: "14px 14px",
+              borderBottom: i === data.examples.length - 1 ? "none" : `1px solid ${C.borderL}`,
+              background: isHero ? C.canyonSoft : "transparent",
+              borderRadius: isHero ? 8 : 0,
+              transition: "background .25s"
+            }}>
+              {/* Keyword */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <span style={{ fontFamily: FONT.mono, fontSize: 13, fontWeight: 700, color: C.t1 }}>"{ex.keyword}"</span>
+                  {isHero && <span style={{
+                    fontFamily: FONT.mono, fontSize: 9, fontWeight: 700,
+                    color: C.canyon, background: C.white,
+                    border: `1px solid ${C.canyon}`,
+                    padding: "2px 7px", borderRadius: 100, letterSpacing: 1
+                  }}>HERO</span>}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <span style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t3 }}>
+                    {ex.volume.toLocaleString()} / mo
+                  </span>
+                  {ex.needType && (
+                    <span style={{ fontFamily: FONT.mono, fontSize: 10, color: C.t3 }}>
+                      type + <NeedBadge type={ex.needType}>{ex.needType}</NeedBadge>
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Canyon position */}
+              <div>
+                <PositionCell rank={ex.canyonRank} size="lg" />
+              </div>
+
+              {/* Trek position */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontFamily: FONT.mono, fontSize: 16, fontWeight: 700, color: C.trek }}>
+                  #{ex.trekRank}
+                </span>
+              </div>
+
+              {/* Gap */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <span style={{
+                  fontFamily: FONT.mono,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: gap.strong ? C.danger : C.t2,
+                  letterSpacing: 0.6,
+                  textTransform: "uppercase"
+                }}>
+                  {gap.label}
+                </span>
+                {ex.gapNote && (
+                  <span style={{ fontSize: 12, color: C.t3, lineHeight: 1.45 }}>{ex.gapNote}</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        {data.footnote && (
+          <div style={{
+            marginTop: 14,
+            paddingTop: 14,
+            borderTop: `1px dashed ${C.borderL}`,
+            fontFamily: FONT.mono,
+            fontSize: 10,
+            color: C.t3,
+            letterSpacing: 0.4
+          }}>
+            {data.footnote}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+/* ========= TABS ========= */
+
+const MarketLensTab = () => {
+  const t = STORY.marketLens;
+  return (
+    <div style={{ animation: "fadeIn .4s ease" }}>
+      <SectionLabel>{t.label}</SectionLabel>
+      <h1 style={S.tabHeadline}>{t.headline}</h1>
+      <p style={S.tabSubheadline}>{t.subheadline}</p>
+      <p style={S.tabIntro}>{t.intro}</p>
+
+      <FunnelCollapseChart data={t.funnelCollapseChart} />
+
+      <LogoLegend items={[
+        { brand: "canyon", name: "Canyon", color: C.canyon },
+        { brand: "trek",   name: "Trek",   color: C.trek }
+      ]} />
+
+      <div style={{ fontFamily: FONT.body, fontSize: 13, color: C.t2, fontStyle: "italic", textAlign: "center", margin: "12px 0 28px" }}>
+        {t.funnelCollapseChart.caption}
+      </div>
+
+      {/* Pill stat chips */}
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 28 }}>
+        {[
+          { lbl: "All non-branded", val: "2,689 Top 10" },
+          { lbl: "Need-based", val: "1,121 Top 10" },
+          { lbl: "Pairs", val: "958 Top 10" },
+          { lbl: "Triples", val: "177 Top 10" }
+        ].map((p, i) => (
+          <div key={i} style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
+            padding: "8px 14px",
+            background: C.canyonSoft,
+            borderRadius: 100,
+            border: `1px solid ${C.border}`
+          }}>
+            <span style={{ fontFamily: FONT.mono, fontSize: 10, color: C.t3, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>{p.lbl}</span>
+            <span style={{ fontFamily: FONT.mono, fontSize: 12, color: C.canyon, fontWeight: 800 }}>{p.val}</span>
+          </div>
+        ))}
+      </div>
+
+      <CalloutBox title={t.calloutBox.title}>{t.calloutBox.body}</CalloutBox>
+    </div>
+  );
+};
+
+const NonBrandedVisibilityTab = () => {
+  const t = STORY.nonBrandedVisibility;
+  return (
+    <div style={{ animation: "fadeIn .4s ease" }}>
+      <SectionLabel>{t.label}</SectionLabel>
+      <h1 style={S.tabHeadline}>{t.headline}</h1>
+      <p style={S.tabIntro}>{t.intro}</p>
+
+      {/* Metric row */}
+      <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 32 }}>
+        {t.metrics.map((m, i) => (
+          <MetricCard
+            key={i}
+            label={m.label}
+            value={m.value}
+            subtitle={m.context}
+            color={i === 3 ? C.trek : C.canyon}
+            brandLogo={i === 3 ? "trek" : (i <= 2 ? "canyon" : null)}
+          />
+        ))}
+      </div>
+
+      {/* Peer comparison card -- now versus Trek (volume leader) */}
+      <SectionLabel>Versus the Volume Leader</SectionLabel>
+      <div style={{ marginBottom: 14 }}>
+        <ComparisonCard
+          leftBrand={t.peerComparison.leftBrand}
+          leftValue={t.peerComparison.leftValue}
+          leftLabel={t.peerComparison.leftLabel}
+          rightBrand={t.peerComparison.rightBrand}
+          rightValue={t.peerComparison.rightValue}
+          rightLabel={t.peerComparison.rightLabel}
+          multiplier={t.peerComparison.multiplier}
+          multiplierLabel={t.peerComparison.multiplierLabel}
+          multiplierTone={t.peerComparison.multiplierTone || "positive"}
+        />
+      </div>
+      <p style={{ fontSize: 14, color: C.t2, lineHeight: 1.7, marginBottom: 32 }}>{t.peerComparisonLine}</p>
+
+      {/* Submarket table */}
+      <SectionLabel>Submarket Presence</SectionLabel>
+      <div style={{ ...S.card, marginBottom: 32, overflow: "hidden" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              {["Submarket","Canyon Rank","Top 10","Avg Rank","Leader"].map((h) => (
+                <th key={h} style={{ ...S.tableHead, ...S.tableCell, textAlign: h === "Submarket" || h === "Leader" ? "left" : "center" }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {t.submarketTable.map((r, i) => {
+              const isLeader = r.leader === "Canyon";
+              const offStrategy = r.submarket === "Electric" || r.submarket === "Hybrid";
+              return (
+                <tr key={i} style={{
+                  ...S.tableRow,
+                  borderLeft: isLeader ? `3px solid ${C.teal}` : offStrategy ? `3px solid ${C.borderL}` : "3px solid transparent"
+                }}>
+                  <td style={{ ...S.tableCell, fontWeight: 600, color: C.t1 }}>{r.submarket}</td>
+                  <td style={{ ...S.tableCell, textAlign: "center" }}><PositionCell rank={r.canyonRank} /></td>
+                  <td style={{ ...S.tableCell, textAlign: "center", fontFamily: FONT.mono, color: C.t2 }}>{r.canyonTop10.toLocaleString()}</td>
+                  <td style={{ ...S.tableCell, textAlign: "center", fontFamily: FONT.mono, color: C.t2 }}>{r.canyonAvgRank != null ? r.canyonAvgRank.toFixed(1) : "--"}</td>
+                  <td style={{ ...S.tableCell }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                      {(r.leader === "Canyon" || r.leader === "Trek") ? (
+                        <>
+                          <BrandLogo brand={r.leader.toLowerCase()} size={14} />
+                          <span style={{ fontWeight: isLeader ? 700 : 500, color: isLeader ? C.teal : C.t2 }}>{r.leader}</span>
+                        </>
+                      ) : (
+                        <span style={{ color: C.t2, fontWeight: 500 }}>{r.leader}</span>
+                      )}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* High volume absent */}
+      <SectionLabel>High-Volume Non-Branded Keywords Where Canyon Is Unranked</SectionLabel>
+      <div style={{ ...S.card, marginBottom: 24, overflow: "hidden" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              {["Keyword","Volume","Canyon","Top Competitor"].map((h) => (
+                <th key={h} style={{ ...S.tableHead, ...S.tableCell, textAlign: h === "Volume" || h === "Canyon" ? "center" : "left" }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {t.highVolumeAbsentTable.map((r, i) => (
+              <tr key={i} style={S.tableRow}>
+                <td style={{ ...S.tableCell, fontWeight: 600 }}>{r.keyword}</td>
+                <td style={{ ...S.tableCell, textAlign: "center", fontFamily: FONT.mono, color: C.t1, fontWeight: 600 }}>{r.volume.toLocaleString()}</td>
+                <td style={{ ...S.tableCell, textAlign: "center", background: C.dangerDim }}>
+                  <PositionCell rank={r.canyonRank} />
+                </td>
+                <td style={{ ...S.tableCell }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: C.t2 }}>
+                    <span style={{ fontWeight: 600 }}>{r.topCompetitor}</span>
+                    <span style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t3 }}>(#{r.topCompetitorRank})</span>
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <CalloutBox>{t.callout}</CalloutBox>
+    </div>
+  );
+};
+
+const NeedGapTab = () => {
+  const t = STORY.needGap;
+  const needColorForCard = (needs) => {
+    const first = (needs[0] || "").toLowerCase();
+    if (first === "gender") return C.pink;
+    if (first === "age") return C.purple;
+    if (first === "size") return C.teal;
+    return C.t1;
+  };
+  return (
+    <div style={{ animation: "fadeIn .4s ease" }}>
+      <SectionLabel>{t.label}</SectionLabel>
+      <h1 style={S.tabHeadline}>{t.headline}</h1>
+      <p style={S.tabIntro}>{t.intro}</p>
+
+      <SectionLabel>Funnel Step: All Non-Branded vs Need-Based</SectionLabel>
+      <FunnelStepChart data={t.funnelStep} />
+
+      <div style={{ marginBottom: 32 }} />
+
+      <SectionLabel>Need-Based Examples: Canyon vs Trek on the Same SERP</SectionLabel>
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+        gap: 14,
+        marginBottom: 32
+      }}>
+        {t.needExamples.map((ex, i) => {
+          const cRank = ex.canyonRank;
+          const tRank = ex.trekRank;
+          const canyonAhead = ex.canyonAhead === true;
+          const c = parseInt(cRank), tr = parseInt(tRank);
+          const gapText = (!isNaN(c) && !isNaN(tr))
+            ? (c < tr ? `Canyon +${tr - c}` : c === tr ? "Tied" : `Trek +${c - tr}`)
+            : null;
+          return (
+            <div key={i} style={{
+              ...S.card,
+              padding: "18px 20px",
+              borderTop: `3px solid ${needColorForCard(ex.needs)}`,
+              background: canyonAhead ? C.canyonSoft : C.white,
+              display: "flex", flexDirection: "column", gap: 10
+            }}>
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+                <div style={{ fontFamily: FONT.mono, fontSize: 13, fontWeight: 700, color: C.t1, lineHeight: 1.4 }}>"{ex.keyword}"</div>
+                {canyonAhead && (
+                  <span style={{
+                    fontFamily: FONT.mono, fontSize: 9, fontWeight: 700,
+                    color: C.canyon, background: C.white,
+                    border: `1px solid ${C.canyon}`,
+                    padding: "2px 7px", borderRadius: 100, letterSpacing: 1, whiteSpace: "nowrap"
+                  }}>CANYON LEADS</span>
+                )}
+              </div>
+              <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                {ex.needs.map((n, j) => <NeedBadge key={j} type={n}>{n}</NeedBadge>)}
+                <span style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t3, marginLeft: "auto" }}>{ex.volume.toLocaleString()} / mo</span>
+              </div>
+              <div style={{
+                display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8,
+                paddingTop: 8, borderTop: `1px solid ${C.borderL}`, marginTop: 2
+              }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                  <span style={{ fontFamily: FONT.mono, fontSize: 9, fontWeight: 700, color: C.canyon, letterSpacing: 1, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 5 }}>
+                    <BrandLogo brand="canyon" size={11} /> Canyon
+                  </span>
+                  <PositionCell rank={cRank} size="lg" />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                  <span style={{ fontFamily: FONT.mono, fontSize: 9, fontWeight: 700, color: C.trek, letterSpacing: 1, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 5 }}>
+                    <BrandLogo brand="trek" size={11} /> Trek
+                  </span>
+                  <span style={{ fontFamily: FONT.mono, fontSize: 16, fontWeight: 700, color: C.trek }}>
+                    {tRank ? `#${tRank}` : "--"}
+                  </span>
+                </div>
+              </div>
+              {gapText && (
+                <div style={{
+                  fontFamily: FONT.mono, fontSize: 10, fontWeight: 700,
+                  color: canyonAhead ? C.success : (Math.abs(c - tr) >= 5 ? C.danger : C.t2),
+                  letterSpacing: 0.6, textTransform: "uppercase"
+                }}>{gapText}</div>
+              )}
+              {ex.note && <div style={{ fontSize: 12, color: C.t3, lineHeight: 1.5 }}>{ex.note}</div>}
+            </div>
+          );
+        })}
+      </div>
+
+      <CalloutBox>{t.framing}</CalloutBox>
+    </div>
+  );
+};
+
+const NeedGroupCard = ({ group, accent }) => {
+  const canyonAhead = group.canyonLeads === true;
+  const peerLogos = (group.peers || []).map((p) => p.brand.toLowerCase());
+
+  return (
+    <div style={{
+      ...S.card,
+      padding: "20px 22px",
+      borderTop: `3px solid ${canyonAhead ? C.canyon : accent}`,
+      background: canyonAhead ? C.canyonSoft : C.white,
+      display: "flex", flexDirection: "column", gap: 14
+    }}>
+      {/* Header: group label + Canyon-leads badge if applicable */}
+      <div>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
+          <div>
+            <div style={{ fontFamily: FONT.mono, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, color: canyonAhead ? C.canyon : accent, textTransform: "uppercase" }}>
+              {group.label}
+            </div>
+            <div style={{ fontSize: 12, color: C.t3, marginTop: 3, lineHeight: 1.4 }}>{group.sublabel}</div>
+          </div>
+          {canyonAhead && (
+            <span style={{
+              fontFamily: FONT.mono, fontSize: 9, fontWeight: 700,
+              color: C.canyon, background: C.white,
+              border: `1px solid ${C.canyon}`,
+              padding: "2px 7px", borderRadius: 100, letterSpacing: 1, whiteSpace: "nowrap"
+            }}>CANYON LEADS</span>
+          )}
+        </div>
+      </div>
+
+      {/* Group totals */}
+      <div style={{
+        display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8,
+        padding: "10px 12px", background: C.bg, borderRadius: 8
+      }}>
+        <div>
+          <div style={{ fontFamily: FONT.mono, fontSize: 9, color: C.t3, letterSpacing: 1, textTransform: "uppercase", fontWeight: 700 }}>Group Volume</div>
+          <div style={{ fontFamily: FONT.body, fontSize: 18, fontWeight: 800, color: C.t1, letterSpacing: -0.4, marginTop: 2 }}>
+            {group.totalVolume.toLocaleString()}
+            <span style={{ fontSize: 10, fontFamily: FONT.mono, color: C.t3, fontWeight: 600, marginLeft: 4 }}>/ mo</span>
+          </div>
+        </div>
+        <div>
+          <div style={{ fontFamily: FONT.mono, fontSize: 9, color: C.t3, letterSpacing: 1, textTransform: "uppercase", fontWeight: 700 }}>Total Keywords</div>
+          <div style={{ fontFamily: FONT.body, fontSize: 18, fontWeight: 800, color: C.t1, letterSpacing: -0.4, marginTop: 2 }}>
+            {group.totalKeywords.toLocaleString()}
+          </div>
+        </div>
+      </div>
+
+      {/* Multi-competitor Top 10 coverage */}
+      <div>
+        <div style={{ fontFamily: FONT.mono, fontSize: 9, color: C.t3, letterSpacing: 1, textTransform: "uppercase", fontWeight: 700, marginBottom: 8 }}>
+          Top 10 keyword coverage by brand
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {/* Canyon */}
+          <div style={{
+            padding: "10px 12px",
+            background: canyonAhead ? "rgba(0,176,214,0.10)" : C.canyonSoft,
+            border: canyonAhead ? `1px solid ${C.canyon}` : "1px solid transparent",
+            borderRadius: 8
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <BrandLogo brand="canyon" size={12} />
+              <span style={{ fontFamily: FONT.mono, fontSize: 10, fontWeight: 700, color: C.canyon, letterSpacing: 1, textTransform: "uppercase" }}>Canyon</span>
+            </div>
+            <div style={{ fontFamily: FONT.body, fontSize: 22, fontWeight: 800, color: C.canyon, letterSpacing: -0.6, marginTop: 4 }}>
+              {group.target.top10}
+            </div>
+            <div style={{ fontFamily: FONT.mono, fontSize: 10, color: C.t3, marginTop: 2 }}>
+              {group.target.top10Volume.toLocaleString()} vol{group.target.avgRank ? ` -- avg #${group.target.avgRank.toFixed(1)}` : ""}
+            </div>
+          </div>
+          {/* Trek */}
+          <div style={{
+            padding: "10px 12px",
+            background: canyonAhead ? "transparent" : C.trekDim,
+            border: canyonAhead ? "1px solid transparent" : `1px solid ${C.trek}40`,
+            borderRadius: 8
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <BrandLogo brand="trek" size={12} />
+              <span style={{ fontFamily: FONT.mono, fontSize: 10, fontWeight: 700, color: C.trek, letterSpacing: 1, textTransform: "uppercase" }}>Trek</span>
+              <span style={{ fontFamily: FONT.mono, fontSize: 10, fontWeight: 700, color: canyonAhead ? C.success : C.danger, marginLeft: "auto" }}>
+                {group.primary.multiple}
+              </span>
+            </div>
+            <div style={{ fontFamily: FONT.body, fontSize: 22, fontWeight: 800, color: C.trek, letterSpacing: -0.6, marginTop: 4 }}>
+              {group.primary.top10}
+            </div>
+            <div style={{ fontFamily: FONT.mono, fontSize: 10, color: C.t3, marginTop: 2 }}>
+              {group.primary.top10Volume.toLocaleString()} vol{group.primary.avgRank ? ` -- avg #${group.primary.avgRank.toFixed(1)}` : ""}
+            </div>
+          </div>
+        </div>
+        {/* Peer brands as compact row */}
+        {(group.peers && group.peers.length > 0) && (
+          <div style={{
+            display: "flex", alignItems: "center", gap: 14,
+            marginTop: 10, padding: "8px 12px",
+            borderTop: `1px dashed ${C.borderL}`,
+            flexWrap: "wrap"
+          }}>
+            <span style={{ fontFamily: FONT.mono, fontSize: 9, color: C.t3, letterSpacing: 1, textTransform: "uppercase", fontWeight: 700 }}>Peers:</span>
+            {group.peers.map((p, i) => (
+              <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <BrandLogo brand={p.brand.toLowerCase()} size={11} />
+                <span style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t2 }}>
+                  {p.brand} <span style={{ color: C.t1, fontWeight: 700 }}>{p.top10}</span>
+                </span>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Example keywords inside group */}
+      {group.examples && group.examples.length > 0 && (
+        <div>
+          <div style={{ fontFamily: FONT.mono, fontSize: 9, color: C.t3, letterSpacing: 1, textTransform: "uppercase", fontWeight: 700, marginBottom: 8 }}>
+            Anchor keywords inside the group
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {group.examples.map((ex, i) => (
+              <div key={i} style={{
+                display: "grid", gridTemplateColumns: "1fr auto auto auto", alignItems: "center", gap: 10,
+                padding: "8px 10px", background: C.bg, borderRadius: 6,
+                fontFamily: FONT.mono, fontSize: 11
+              }}>
+                <span style={{ color: C.t1, fontWeight: 600 }}>"{ex.keyword}"</span>
+                <span style={{ color: C.t3 }}>{ex.volume.toLocaleString()}/mo</span>
+                <PositionCell rank={ex.canyonRank} />
+                <span style={{ color: C.trek, fontWeight: 700 }}>Trek #{ex.trekRank}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Diagnosis */}
+      {group.diagnosis && (
+        <div style={{ fontSize: 12, color: C.t2, lineHeight: 1.55, paddingTop: 10, borderTop: `1px solid ${C.borderL}` }}>
+          {group.diagnosis}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const PairsTriplesTab = () => {
+  const t = STORY.pairsTriples;
+  const StatBlock = ({ title, accent, stats, typeSize, children }) => (
+    <div style={{
+      ...S.card,
+      padding: "22px 24px",
+      flex: 1, minWidth: 240,
+      borderTop: `4px solid ${accent}`,
+      display: "flex", flexDirection: "column", gap: 10
+    }}>
+      <div style={{ ...S.label, color: accent, marginBottom: 4 }}>{title}</div>
+      {typeSize ? (
+        <>
+          <div style={{ fontSize: 44, fontWeight: 800, color: C.danger, letterSpacing: -2, lineHeight: 1, fontFamily: FONT.body }}>
+            {stats.multiplier}x
+          </div>
+          <div style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t2, fontWeight: 600 }}>Trek multiplier over Canyon</div>
+          <div style={{ height: 1, background: C.borderL, margin: "8px 0" }} />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontFamily: FONT.mono, fontSize: 11 }}>
+            <div><span style={{ color: C.t3 }}>Canyon Top 10</span><div style={{ color: C.canyon, fontWeight: 700, fontSize: 16 }}>{stats.canyonTop10}</div></div>
+            <div><span style={{ color: C.t3 }}>Trek Top 10</span><div style={{ color: C.trek, fontWeight: 700, fontSize: 16 }}>{stats.trekTop10}</div></div>
+            <div><span style={{ color: C.t3 }}>Total kws</span><div style={{ color: C.t1, fontWeight: 700, fontSize: 13 }}>{stats.totalKeywords.toLocaleString()}</div></div>
+            <div><span style={{ color: C.t3 }}>Total vol</span><div style={{ color: C.t1, fontWeight: 700, fontSize: 13 }}>{stats.totalVolume.toLocaleString()} / mo</div></div>
+          </div>
+          {children}
+        </>
+      ) : (
+        <>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, fontFamily: FONT.mono, fontSize: 11 }}>
+            <div><span style={{ color: C.t3 }}>Canyon Top 10</span><div style={{ color: C.canyon, fontWeight: 800, fontSize: 24, fontFamily: FONT.body, letterSpacing: -0.5 }}>{stats.canyonTop10.toLocaleString()}</div></div>
+            <div><span style={{ color: C.t3 }}>Trek Top 10</span><div style={{ color: C.trek, fontWeight: 800, fontSize: 24, fontFamily: FONT.body, letterSpacing: -0.5 }}>{stats.trekTop10.toLocaleString()}</div></div>
+          </div>
+          <div style={{ height: 1, background: C.borderL, margin: "4px 0" }} />
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", fontFamily: FONT.mono, fontSize: 11 }}>
+            <span style={{ color: C.t2 }}>Multiplier <strong style={{ color: C.t1 }}>{stats.trekMultiplier}x</strong></span>
+            <span style={{ color: C.t2 }}>Total vol <strong style={{ color: C.t1 }}>{stats.totalVolume.toLocaleString()}</strong></span>
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  return (
+    <div style={{ animation: "fadeIn .4s ease" }}>
+      <SectionLabel>{t.label}</SectionLabel>
+      <h1 style={S.tabHeadline}>{t.headline}</h1>
+      <p style={S.tabIntro}>{t.intro}</p>
+
+      <SectionLabel>Compound Layers</SectionLabel>
+      <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 32 }}>
+        <StatBlock title="Pairs" accent={C.teal} stats={t.pairsData} />
+        <StatBlock title="Triples" accent={C.teal} stats={t.triplesData} />
+        <StatBlock title={t.typeSizeCallout.label} accent={C.warning} typeSize stats={{
+          multiplier: t.typeSizeCallout.trekMultiplier,
+          canyonTop10: t.typeSizeCallout.canyonTop10,
+          trekTop10: t.typeSizeCallout.trekTop10,
+          totalKeywords: t.typeSizeCallout.totalKeywords,
+          totalVolume: t.typeSizeCallout.totalVolume
+        }}>
+          <div style={{ marginTop: 8, fontSize: 12, color: C.t2, lineHeight: 1.5 }}>
+            {t.typeSizeCallout.headline}
+          </div>
+        </StatBlock>
+      </div>
+
+      <TypeSizeHeadToHead data={t.typeSizeHeadToHead} />
+
+      <SectionLabel>Pair Groups: Multi-Competitor Coverage</SectionLabel>
+      <p style={{ fontSize: 14, color: C.t2, lineHeight: 1.7, marginBottom: 18, maxWidth: 820 }}>
+        {t.pairGroupsIntro}
+      </p>
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))",
+        gap: 16, marginBottom: 28
+      }}>
+        {t.pairGroups.map((g, i) => <NeedGroupCard key={i} group={g} accent={C.teal} />)}
+      </div>
+
+      <SectionLabel>Triple Groups: Compound Need Combinations</SectionLabel>
+      <p style={{ fontSize: 14, color: C.t2, lineHeight: 1.7, marginBottom: 18, maxWidth: 820 }}>
+        Three needs in one query. The compound layer is where every premium brand thins out -- but Trek still carries volume Canyon does not. Each card is a group, not a keyword.
+      </p>
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))",
+        gap: 16, marginBottom: 28
+      }}>
+        {t.tripleGroups.map((g, i) => <NeedGroupCard key={i} group={g} accent={C.purple} />)}
+      </div>
+
+      <CalloutBox color={C.warning} bg={C.warningDim}>{t.callout}</CalloutBox>
+    </div>
+  );
+};
+
+const PatternInstancesGrid = ({ data }) => {
+  if (!data || !data.instances) return null;
+  return (
+    <div style={{ marginBottom: 36 }}>
+      <SectionLabel>{data.sectionLabel}</SectionLabel>
+      <div style={{ ...S.card, padding: "26px 28px" }}>
+        <h3 style={{ margin: "0 0 8px 0", fontSize: 22, fontWeight: 800, color: C.t1, letterSpacing: -0.6, lineHeight: 1.25 }}>
+          {data.headline}
+        </h3>
+        <p style={{ margin: "0 0 22px 0", fontSize: 14, color: C.t2, lineHeight: 1.65, maxWidth: 820 }}>
+          {data.intro}
+        </p>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+          gap: 14
+        }}>
+          {data.instances.map((inst, i) => (
+            <div key={i} style={{
+              ...S.card,
+              padding: "18px 20px",
+              background: inst.isHero ? C.canyonSoft : C.white,
+              display: "flex", flexDirection: "column", gap: 10,
+              position: "relative"
+            }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                <span style={{ fontFamily: FONT.mono, fontSize: 11, fontWeight: 700, letterSpacing: 1.5, color: inst.isHero ? C.canyon : C.t2, textTransform: "uppercase" }}>
+                  {inst.label}
+                </span>
+                {inst.isHero && (
+                  <span style={{
+                    fontFamily: FONT.mono, fontSize: 9, fontWeight: 700,
+                    color: C.canyon, background: C.white,
+                    border: `1px solid ${C.canyon}`,
+                    padding: "2px 7px", borderRadius: 100, letterSpacing: 1
+                  }}>HERO</span>
+                )}
+              </div>
+              <div style={{ fontFamily: FONT.mono, fontSize: 13, fontWeight: 700, color: C.t1, lineHeight: 1.4 }}>
+                "{inst.headTerm}"
+              </div>
+              <div style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t3 }}>
+                {inst.headTermVolume.toLocaleString()} / mo
+              </div>
+              <div style={{
+                display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8,
+                paddingTop: 8, borderTop: `1px solid ${C.borderL}`
+              }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                  <span style={{ fontFamily: FONT.mono, fontSize: 9, fontWeight: 700, color: C.canyon, letterSpacing: 1, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 4 }}>
+                    <BrandLogo brand="canyon" size={10} /> Canyon
+                  </span>
+                  <PositionCell rank={inst.canyonRank} size="lg" />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                  <span style={{ fontFamily: FONT.mono, fontSize: 9, fontWeight: 700, color: C.trek, letterSpacing: 1, textTransform: "uppercase", display: "flex", alignItems: "center", gap: 4 }}>
+                    <BrandLogo brand="trek" size={10} /> Trek
+                  </span>
+                  <span style={{ fontFamily: FONT.mono, fontSize: 16, fontWeight: 700, color: C.trek }}>
+                    #{inst.trekRank}
+                  </span>
+                </div>
+              </div>
+              <div style={{
+                display: "flex", flexDirection: "column", gap: 3,
+                paddingTop: 8, borderTop: `1px solid ${C.borderL}`
+              }}>
+                <span style={{ fontFamily: FONT.mono, fontSize: 9, fontWeight: 700, color: C.t3, letterSpacing: 1, textTransform: "uppercase" }}>
+                  Addressable
+                </span>
+                <span style={{ fontFamily: FONT.body, fontSize: 22, fontWeight: 800, color: inst.isHero ? C.canyon : C.t1, letterSpacing: -0.6 }}>
+                  {inst.addressableVolume.toLocaleString()}
+                  <span style={{ fontSize: 11, fontWeight: 600, color: C.t3, marginLeft: 4, fontFamily: FONT.mono }}>/ mo</span>
+                </span>
+                {inst.gapMultiplier && (
+                  <span style={{ fontFamily: FONT.mono, fontSize: 10, fontWeight: 700, color: C.danger, letterSpacing: 0.6 }}>
+                    Trek lead {inst.gapMultiplier}
+                  </span>
+                )}
+              </div>
+              <div style={{ fontSize: 12, color: C.t3, lineHeight: 1.5, paddingTop: 8, borderTop: `1px solid ${C.borderL}` }}>
+                {inst.structuralCause}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{
+          marginTop: 18,
+          paddingTop: 14,
+          borderTop: `1px dashed ${C.borderL}`,
+          display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12
+        }}>
+          <span style={{ fontFamily: FONT.mono, fontSize: 10, color: C.t3, letterSpacing: 0.4, maxWidth: 600 }}>
+            {data.footnote}
+          </span>
+          <span style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t1, fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase", whiteSpace: "nowrap" }}>
+            Total compound addressable: <span style={{ color: C.canyon, fontFamily: FONT.body, fontSize: 18, fontWeight: 800 }}>{data.totalAddressableVolume.toLocaleString()}</span> / mo
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const DeepDiveTab = () => {
+  const t = STORY.deepDive;
+  return (
+    <div style={{ animation: "fadeIn .4s ease" }}>
+      <SectionLabel>{t.label}</SectionLabel>
+      <h1 style={S.tabHeadline}>{t.headline}</h1>
+      <p style={{ ...S.tabSubheadline, fontWeight: 600, color: C.t1 }}>{t.openingLine}</p>
+      <p style={S.tabIntro}>{t.oneSentence}</p>
+
+      {/* Pattern Instances (Compound Architecture frame) */}
+      <PatternInstancesGrid data={t.patternInstances} />
+
+      {/* Demand Shape */}
+      <SectionLabel>Demand Shape</SectionLabel>
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+        gap: 14, marginBottom: 32
+      }}>
+        {t.demandShape.cards.map((c, i) => <DemandShapeCard key={i} {...c} />)}
+      </div>
+
+      {/* Competitor benchmark table */}
+      <SectionLabel>Competitor Benchmark at the Wheel-Size Layer</SectionLabel>
+      <div style={{ ...S.card, marginBottom: 32, overflow: "hidden" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              {["Brand","Top 10","Top 10 Volume","Avg Rank","x Canyon","Note"].map((h) => (
+                <th key={h} style={{ ...S.tableHead, ...S.tableCell, textAlign: ["Top 10","Top 10 Volume","Avg Rank","x Canyon"].includes(h) ? "center" : "left" }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {t.competitorBenchmark.map((r, i) => {
+              const isCanyon = r.brand === "Canyon";
+              const isTrek = r.brand === "Trek";
+              const multColor =
+                r.multipleOfCanyon >= 4 ? C.danger :
+                r.multipleOfCanyon >= 2 ? C.warning :
+                r.multipleOfCanyon < 1 ? C.success :
+                r.multipleOfCanyon === 1 ? C.canyonAccent : C.t2;
+              return (
+                <tr key={i} style={{
+                  ...S.tableRow,
+                  background: isCanyon ? "rgba(0,176,214,0.04)" : "transparent",
+                  borderLeft: isCanyon ? `3px solid ${C.canyonAccent}` : "3px solid transparent"
+                }}>
+                  <td style={{ ...S.tableCell }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                      <BrandLogo brand={r.brand.toLowerCase()} size={16} />
+                      <span style={{ fontWeight: isCanyon ? 700 : 600, color: C.t1 }}>{r.brand}</span>
+                      {r.tag && (
+                        <span style={{
+                          fontFamily: FONT.mono, fontSize: 9, fontWeight: 700,
+                          color: isTrek ? C.trek : C.canyonAccent,
+                          background: isTrek ? C.trekDim : "rgba(0,176,214,0.12)",
+                          padding: "2px 8px", borderRadius: 100, letterSpacing: 1
+                        }}>{r.tag}</span>
+                      )}
+                    </span>
+                  </td>
+                  <td style={{ ...S.tableCell, textAlign: "center", fontFamily: FONT.mono, color: C.t1, fontWeight: 600 }}>{r.top10}</td>
+                  <td style={{ ...S.tableCell, textAlign: "center", fontFamily: FONT.mono, color: C.t2 }}>{r.top10Volume.toLocaleString()}</td>
+                  <td style={{ ...S.tableCell, textAlign: "center", fontFamily: FONT.mono, color: C.t2 }}>{r.avgRank.toFixed(2)}</td>
+                  <td style={{ ...S.tableCell, textAlign: "center", fontFamily: FONT.mono, color: multColor, fontWeight: 800, fontSize: 14 }}>{r.multipleOfCanyon.toFixed(2)}x</td>
+                  <td style={{ ...S.tableCell, fontSize: 12, color: C.t3, maxWidth: 320 }}>{r.note || ""}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Structural evidence */}
+      <SectionLabel>{t.structuralEvidenceHeading}</SectionLabel>
+      <div style={{ marginBottom: 32 }}>
+        {t.structuralEvidence.map((e, i) => (
+          <StructuralEvidenceItem key={i} finding={e.finding} source={e.source} status={e.status} />
+        ))}
+      </div>
+
+      {/* Peer check */}
+      <CalloutBox title={t.peerCheck.question}>{t.peerCheck.answer}</CalloutBox>
+
+      {/* Multiplier logic */}
+      <CalloutBox color={C.canyonAccent} bg="rgba(0,176,214,0.08)" title={t.multiplierLogic.headline}>{t.multiplierLogic.body}</CalloutBox>
+
+      {/* Conclusion */}
+      <p style={{ fontSize: 15, color: C.t2, lineHeight: 1.7, marginTop: 20 }}>{t.conclusion}</p>
+    </div>
+  );
+};
+
+const ImplicationsTab = () => {
+  const t = STORY.implications;
+  const accents = [C.teal, C.purple, C.canyonAccent];
+  return (
+    <div style={{ animation: "fadeIn .4s ease" }}>
+      <SectionLabel>{t.label}</SectionLabel>
+      <h1 style={S.tabHeadline}>{t.headline}</h1>
+      <p style={S.tabIntro}>{t.frame}</p>
+
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+        gap: 18,
+        marginBottom: 32
+      }}>
+        {t.actionAreas.map((a, i) => (
+          <ActionAreaCard
+            key={i}
+            title={a.title}
+            summary={a.summary}
+            deliverables={a.deliverables}
+            addressableShort={a.addressableShort}
+            accentColor={accents[i]}
+          />
+        ))}
+      </div>
+
+      <CalloutBox title={t.closingCallout.title}>{t.closingCallout.body}</CalloutBox>
+    </div>
+  );
+};
+
+/* ========= HEADER / FOOTER / TAB BAR ========= */
+
+const Header = () => (
+  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 36, flexWrap: "wrap", gap: 20 }}>
+    <div>
+      <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
+        <img src={LOGO_PATHS.cutInside} alt="Cut Inside" style={{ height: 22 }} />
+        <span style={{ width: 1, height: 20, background: C.border, display: "inline-block" }} aria-hidden="true" />
+        <span style={{ ...S.label }}>Search Intelligence Brief</span>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+        <BrandLogo brand="canyon" size={40} />
+        <span style={{ width: 1, height: 24, background: C.border, display: "inline-block" }} aria-hidden="true" />
+        <h1 style={{ fontSize: 32, fontWeight: 800, margin: 0, letterSpacing: -1.2, color: C.t1 }}>Canyon</h1>
+        <span style={{ fontFamily: FONT.mono, fontSize: 12, color: C.t3, background: C.off, padding: "4px 12px", borderRadius: 100, fontWeight: 500 }}>canyon.com</span>
+      </div>
+      <p style={{ color: C.t3, fontSize: 13, margin: "8px 0 0 0", fontFamily: FONT.mono, letterSpacing: 0.3 }}>
+        Non-Branded Demand Analysis &middot; US Market &middot; {STORY.meta.generatedAt}
+      </p>
+    </div>
+    <div style={{ display: "flex", gap: 8, flexShrink: 0 }} className="no-print">
+      <button onClick={() => window.print()} style={{
+        fontFamily: FONT.mono, fontSize: 11, fontWeight: 600, letterSpacing: 0.5,
+        padding: "8px 16px", borderRadius: 100, background: C.teal, color: "#fff",
+        border: "none", cursor: "pointer"
+      }}>Print / PDF</button>
+    </div>
+  </div>
+);
+
+const Footer = () => (
+  <div style={{
+    marginTop: 48, paddingTop: 28,
+    borderTop: `1px solid ${C.borderL}`,
+    display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12
+  }}>
+    <div style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+      <img src={LOGO_PATHS.cutInside} alt="Cut Inside" style={{ height: 22 }} />
+      <span style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t3, letterSpacing: 0.5 }}>Prepared by Cut Inside for Canyon</span>
+    </div>
+    <div style={{ fontFamily: FONT.mono, fontSize: 11, color: C.t3, letterSpacing: 0.5 }}>
+      Strategic Brief &middot; {STORY.meta.generatedAt}
+    </div>
+  </div>
+);
+
+const TabBar = ({ active, onSelect }) => {
+  const buttonRefs = useRef([]);
+  const onKeyDown = (e) => {
+    const currentIdx = TABS.findIndex(t => t.id === active);
+    if (currentIdx < 0) return;
+    let nextIdx = null;
+    if (e.key === "ArrowRight") nextIdx = (currentIdx + 1) % TABS.length;
+    if (e.key === "ArrowLeft")  nextIdx = (currentIdx - 1 + TABS.length) % TABS.length;
+    if (e.key === "Home") nextIdx = 0;
+    if (e.key === "End")  nextIdx = TABS.length - 1;
+    if (nextIdx != null) {
+      e.preventDefault();
+      onSelect(TABS[nextIdx].id);
+      buttonRefs.current[nextIdx]?.focus();
+    }
+  };
+  return (
+    <div role="tablist" aria-label="Strategic brief sections" style={{
+      display: "flex", borderBottom: `1px solid ${C.borderL}`,
+      marginBottom: 28, overflowX: "auto", gap: 0
+    }}>
+      {TABS.map((tab, i) => {
+        const isActive = tab.id === active;
+        return (
+          <button
+            key={tab.id}
+            ref={(el) => buttonRefs.current[i] = el}
+            role="tab"
+            id={`tab-${tab.id}`}
+            aria-selected={isActive}
+            aria-controls={`panel-${tab.id}`}
+            tabIndex={isActive ? 0 : -1}
+            onClick={() => onSelect(tab.id)}
+            onKeyDown={onKeyDown}
+            style={{
+              padding: "14px 20px",
+              border: "none",
+              borderBottom: isActive ? `2px solid ${C.teal}` : "2px solid transparent",
+              cursor: "pointer", fontSize: 13, fontWeight: 600,
+              fontFamily: FONT.body,
+              background: "transparent",
+              color: isActive ? C.t1 : C.t3,
+              whiteSpace: "nowrap",
+              transition: "all 0.25s cubic-bezier(.16,1,.3,1)"
+            }}>
+            <span style={{ fontFamily: FONT.mono, fontSize: 11, color: C.teal, marginRight: 6, fontWeight: 600 }}>{tab.num}</span>
+            {tab.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
+const TabPanel = ({ activeTab }) => {
+  const panels = {
+    marketLens: <MarketLensTab />,
+    nonBrandedVisibility: <NonBrandedVisibilityTab />,
+    needGap: <NeedGapTab />,
+    pairsTriples: <PairsTriplesTab />,
+    deepDive: <DeepDiveTab />,
+    implications: <ImplicationsTab />
+  };
+  return (
+    <div
+      role="tabpanel"
+      id={`panel-${activeTab}`}
+      aria-labelledby={`tab-${activeTab}`}
+      style={{ ...S.card, padding: "36px 40px" }}>
+      {panels[activeTab]}
+    </div>
+  );
+};
+
+/* ========= APP ========= */
+function CanyonBrief() {
+  const getInitialTab = () => {
+    if (typeof window === "undefined") return TABS[0].id;
+    const h = (window.location.hash || "").replace("#", "");
+    return TABS.find(t => t.id === h)?.id || TABS[0].id;
+  };
+  const [activeTab, setActiveTab] = useState(getInitialTab);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash !== `#${activeTab}`) {
+      window.history.replaceState(null, "", `#${activeTab}`);
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    const onHash = () => {
+      const h = (window.location.hash || "").replace("#", "");
+      if (TABS.find(t => t.id === h) && h !== activeTab) {
+        setActiveTab(h);
+      }
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, [activeTab]);
+
+  return (
+    <div data-brief style={{
+      fontFamily: FONT.body, background: C.bg, minHeight: "100vh",
+      padding: "48px 32px", color: C.t1
+    }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+        <Header />
+        <TabBar active={activeTab} onSelect={setActiveTab} />
+        <TabPanel activeTab={activeTab} />
+        <Footer />
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<CanyonBrief />);
+</script>
+</body>
+</html>
