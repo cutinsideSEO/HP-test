@@ -3557,6 +3557,25 @@
             fill: currentColor;
         }
 
+        .brand-logo-item img {
+            height: 36px;
+            max-width: 140px;
+            width: auto;
+            object-fit: contain;
+            filter: grayscale(100%);
+            opacity: 0.85;
+            transition: filter .3s ease, opacity .3s ease, transform .3s ease;
+        }
+
+        .brand-logos-grid:hover .brand-logo-item img {
+            filter: grayscale(0%);
+            opacity: 1;
+        }
+
+        .brand-logo-item:hover img {
+            transform: scale(1.05);
+        }
+
         .brand-logo-item span {
             font-size: 12px;
             color: var(--gray);
@@ -4902,7 +4921,7 @@
     <!-- Navigation -->
     <nav>
         <div class="container">
-            <a href="#" class="logo">
+            <a href="https://cutinside.com/" target="_blank" rel="noopener" class="logo" aria-label="Cut Inside homepage">
                 <img src="https://cutinside.com/wp-content/uploads/2025/01/Logo.svg" alt="Cut Inside" style="height:24px">
             </a>
             <ul class="nav-links">
@@ -4911,7 +4930,7 @@
                 <li><a href="#matrix">Demand Matrix</a></li>
                 <li><a href="#losers">Brand Losses</a></li>
             </ul>
-            <a href="https://cutinside.com/" target="_blank" rel="noopener" class="nav-cta">Get Your Analysis →</a>
+            <a href="#cta" class="nav-cta">Book a Call →</a>
         </div>
     </nav>
 
@@ -5061,27 +5080,13 @@
         <div class="container-wide">
             <p style="text-align: center; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--gray); margin-bottom: 32px;">77 Brands Under the Microscope</p>
             <div class="brand-logos-grid">
-                <div class="brand-logo-item">
-                    <svg viewBox="0 0 100 40" fill="var(--primary)"><text x="50" y="30" text-anchor="middle" font-family="Arial Black" font-size="28" font-weight="900">TREK</text></svg>
-                </div>
-                <div class="brand-logo-item">
-                    <svg viewBox="0 0 120 40" fill="var(--accent-blue)"><text x="60" y="30" text-anchor="middle" font-family="Arial" font-size="22" font-weight="700">SCHWINN</text></svg>
-                </div>
-                <div class="brand-logo-item">
-                    <svg viewBox="0 0 100 40" fill="var(--accent)"><text x="50" y="30" text-anchor="middle" font-family="Arial Black" font-size="28" font-weight="900">GIANT</text></svg>
-                </div>
-                <div class="brand-logo-item">
-                    <svg viewBox="0 0 160 40" fill="#9B59B6"><text x="80" y="30" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700">SPECIALIZED</text></svg>
-                </div>
-                <div class="brand-logo-item">
-                    <svg viewBox="0 0 160 40" fill="#F39C12"><text x="80" y="30" text-anchor="middle" font-family="Arial" font-size="20" font-weight="700">CANNONDALE</text></svg>
-                </div>
-                <div class="brand-logo-item">
-                    <svg viewBox="0 0 100 40" fill="#E74C3C"><text x="50" y="30" text-anchor="middle" font-family="Arial Black" font-size="24" font-weight="900">CANYON</text></svg>
-                </div>
-                <div class="brand-logo-item">
-                    <svg viewBox="0 0 140 40" fill="#1ABC9C"><text x="70" y="30" text-anchor="middle" font-family="Arial" font-size="18" font-weight="700">SANTA CRUZ</text></svg>
-                </div>
+                <div class="brand-logo-item"><img src="../brands/cannondale/assets/trek-logo.png" alt="Trek" loading="lazy"></div>
+                <div class="brand-logo-item"><img src="../brands/cannondale/assets/schwinn-logo.png" alt="Schwinn" loading="lazy"></div>
+                <div class="brand-logo-item"><img src="../brands/cannondale/assets/giant-logo.png" alt="Giant" loading="lazy"></div>
+                <div class="brand-logo-item"><img src="../brands/cannondale/assets/specialized-logo.jpg" alt="Specialized" loading="lazy"></div>
+                <div class="brand-logo-item"><img src="../brands/cannondale/assets/cannondale-logo.png" alt="Cannondale" loading="lazy"></div>
+                <div class="brand-logo-item"><img src="../brands/cannondale/assets/canyon-logo.png" alt="Canyon" loading="lazy"></div>
+                <div class="brand-logo-item"><img src="../brands/cannondale/assets/liv-logo.png" alt="Liv" loading="lazy"></div>
             </div>
         </div>
     </section>
@@ -7340,14 +7345,17 @@
     </section>
 
     <!-- CTA Section -->
-    <section class="cta-section">
+    <section class="cta-section" id="cta">
         <div class="container">
             <div class="cta-content">
                 <div class="cta-wheel-left"></div>
                 <div class="cta-wheel-right"></div>
                 <h2>Want This Analysis For Your Market?</h2>
-                <p>Whether you're in automotive, outdoor gear, home fitness, or any competitive consumer market—we can map your search landscape and find your opportunities.</p>
-                <a href="https://cutinside.com/" target="_blank" rel="noopener" class="cta-button">Get Your Custom Report</a>
+                <p>Whether you're in automotive, outdoor gear, home fitness, or any competitive consumer market—we can map your search landscape and find your opportunities. Book a 30-minute call below.</p>
+                <!-- Calendly inline widget begin -->
+                <div class="calendly-inline-widget" data-url="https://calendly.com/yuval-cutinside/30min?hide_event_type_details=1&hide_gdpr_banner=1&text_color=000000&primary_color=00b7af" style="min-width:320px;height:700px;max-width:900px;margin:0 auto;position:relative;z-index:2;"></div>
+                <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+                <!-- Calendly inline widget end -->
                 <div class="cta-produced">
                     <span>Produced by</span>
                     <strong>Cut Inside</strong>
